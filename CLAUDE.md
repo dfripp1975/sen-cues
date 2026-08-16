@@ -68,10 +68,12 @@ comment is the source of truth for each file, this document is the overview.
    - `usePremium` hook already reads `accounts.is_premium`, no change needed
      there once the webhook is in place
 
-5. **Learn section content**. `LEARN_ARTICLES` in `src/data/content.js` has
-   titles and read times only. Either write the full article bodies and add
-   a detail screen, or move this whole section to a Supabase table so
-   content can be updated without an app release.
+5. **Learn section content** — DONE (local, not CMS). All 8 articles in
+   `LEARN_ARTICLES` have full section-based bodies in the app's cautious
+   tone, rendered by `LearnArticleScreen` (Learn tab is now a stack). Like
+   the situations, have a SENCO/SEN professional review before shipping.
+   Moving Learn to a Supabase table remains a sensible later step for
+   updating content without app releases.
 
 6. **Expand the content database**. `SITUATIONS` currently has 45 entries.
    The original brief called for 200+, with the architecture built to scale
