@@ -32,31 +32,30 @@ comment is the source of truth for each file, this document is the overview.
 
 ## Priority order for remaining work
 
-1. **Toolkit tools** (biggest gap). `src/screens/ToolDetailScreen.js` is a
-   placeholder for all five tools. The prototype has full working versions of
-   each (VisualChoiceMaker, FirstThen, Countdown, BreakItDown,
-   AICueGenerator) built with React DOM elements, they need the same logic
-   rebuilt with React Native primitives (View/Text/TextInput/Pressable
-   instead of div/button/input). Countdown's `setInterval` logic ports
-   directly. AICueGenerator must call the `generate-cue` Supabase Edge
-   Function with the user's session access token in the Authorization
-   header, not call api.anthropic.com directly from the app, that would ship
-   the API key inside the app bundle.
+1. **Toolkit tools** — DONE. All five tools live in `src/screens/tools/`
+   (VisualChoiceMaker, FirstThen, CountdownTool, BreakItDown, AICueGenerator),
+   built with React Native primitives; `ToolDetailScreen.js` dispatches to
+   them. AICueGenerator calls the `generate-cue` Supabase Edge Function via
+   `supabase.functions.invoke` (which sends the session access token in the
+   Authorization header), never api.anthropic.com directly, and personalises
+   using the active child profile (accounts.active_profile_id, falling back
+   to the most recently updated profile).
 
-2. **Profile form**, `src/screens/ProfileFormScreen.js` only has name and
-   age. Add: diagnosis picker (with "Not diagnosed / Prefer not to say" as
-   default, never required), communication preferences, sensory preferences,
-   common triggers, things that help, calming activities, notes. All map
-   directly to columns already in `child_profiles` (see `supabase/schema.sql`).
-   Add delete, and a way to pick which profile is "active" for personalising
-   AI Cue Generator suggestions (accounts.active_profile_id).
+2. **Profile form** — DONE. `ProfileFormScreen.js` has every child_profiles
+   field: diagnosis chip picker (defaults to "Not diagnosed / Prefer not to
+   say", never required), communication/sensory preferences, triggers, helps,
+   calming activities and notes (each with tappable suggestion chips that
+   merge into free text), delete with confirmation, and a "personalise
+   suggestions for this child" checkbox that sets
+   accounts.active_profile_id. ProfileScreen shows which profile is
+   personalising and lets you switch.
 
-3. **Onboarding**, `src/screens/OnboardingScreen.js` only has 2 of 5 screens.
-   Add the age screen, the "what situations are hardest" multi-select, and
-   the "what would help most" multi-select. Persist answers to
-   `accounts.onboarding_answers` (jsonb, already in the schema) and use them
-   to personalise the "Today's cues" picks on Home instead of the current
-   hardcoded three.
+3. **Onboarding** — DONE. All 5 screens (welcome, who, age, hardest
+   situations multi-select from CATEGORIES, what-would-help multi-select).
+   Answers persist to `accounts.onboarding_answers` (skipping stores
+   `{skipped: true}` so the flow isn't shown again). Home personalises
+   "Today's cues" from the chosen hardest categories, picking only the free
+   first-two situations per category and rotating daily.
 
 4. **Paywall + subscriptions**, `src/screens/PaywallScreen.js` is a shell
    with no real plan picker or purchase flow. Needs:
@@ -69,10 +68,12 @@ comment is the source of truth for each file, this document is the overview.
    - `usePremium` hook already reads `accounts.is_premium`, no change needed
      there once the webhook is in place
 
-5. **Learn section content**. `LEARN_ARTICLES` in `src/data/content.js` has
-   titles and read times only. Either write the full article bodies and add
-   a detail screen, or move this whole section to a Supabase table so
-   content can be updated without an app release.
+5. **Learn section content** — DONE (local, not CMS). All 8 articles in
+   `LEARN_ARTICLES` have full section-based bodies in the app's cautious
+   tone, rendered by `LearnArticleScreen` (Learn tab is now a stack). Like
+   the situations, have a SENCO/SEN professional review before shipping.
+   Moving Learn to a Supabase table remains a sensible later step for
+   updating content without app releases.
 
 6. **Expand the content database**. `SITUATIONS` currently has 45 entries.
    The original brief called for 200+, with the architecture built to scale
@@ -82,19 +83,22 @@ comment is the source of truth for each file, this document is the overview.
    professional review new entries before shipping, this is more important
    than volume.
 
-7. **Onboarding gating on app open**. `RootNavigator.js` currently always
-   shows Onboarding first. Once `accounts.onboarding_answers` exists, check
-   whether a row exists for the current user on launch and skip straight to
-   `Tabs` if so.
+7. **Onboarding gating on app open** — DONE. App.js checks
+   `accounts.onboarding_answers` while the splash screen is still up and
+   passes the initial route to RootNavigator, so returning users land
+   straight in Tabs with no onboarding flash.
 
-8. **App icon and splash image**. `app.json` references
-   `./assets/icon.png`, `./assets/splash.png`, `./assets/adaptive-icon.png`,
-   none of these exist yet. Design direction: sage/teal/cream palette, the
-   quick-cue peach accent works well as a small icon detail.
+8. **App icon and splash image** — DONE (first pass). `assets/` now has
+   icon.png, adaptive-icon.png and splash.png: the tilted stacked-card mark
+   in sage on cream with white cue-line bars and the peach quick-cue dot.
+   Generated programmatically — replace with professionally designed
+   versions whenever ready, same filenames.
 
-9. **Rate limiting on the Edge Function**. Marked with a TODO in
-   `supabase/functions/generate-cue/index.ts`, add a simple per-user daily
-   count check before calling Anthropic, so one account can't run up costs.
+9. **Rate limiting on the Edge Function** — DONE. `cue_generation_log`
+   table (service-role only, RLS with no policies) added to
+   `supabase/schema.sql`; the function counts a user's calls in the last 24
+   hours and returns 429 with a friendly message past 20/day. Re-run the
+   schema in the Supabase SQL editor and redeploy the function to apply.
 
 ## Design tokens
 

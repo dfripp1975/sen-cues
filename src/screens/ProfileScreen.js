@@ -9,11 +9,9 @@ import { SecondaryButton } from "../components/UI";
 import { supabase } from "../lib/supabase";
 import { usePremium } from "../hooks/usePremium";
 
-// TODO for Claude Code: build the actual add/edit form screen ("ProfileForm" in
-// the prototype has every field — name, age, diagnosis, comm/sensory prefs,
-// triggers, helps, calming activities, notes) and wire it to child_profiles.
 export default function ProfileScreen({ navigation }) {
   const [profiles, setProfiles] = useState([]);
+  const [activeProfileId, setActiveProfileId] = useState(null);
   const { isPremium, openPaywall } = usePremium(navigation);
 
   const load = useCallback(async () => {
@@ -21,7 +19,19 @@ export default function ProfileScreen({ navigation }) {
     if (!userData?.user) return;
     const { data } = await supabase.from("child_profiles").select("*").eq("user_id", userData.user.id).order("created_at");
     setProfiles(data || []);
+    const { data: account } = await supabase.from("accounts").select("active_profile_id").eq("user_id", userData.user.id).maybeSingle();
+    setActiveProfileId(account?.active_profile_id || null);
   }, []);
+
+  const setActive = useCallback(
+    async (id) => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData?.user) return;
+      setActiveProfileId(id);
+      await supabase.from("accounts").upsert({ user_id: userData.user.id, active_profile_id: id });
+    },
+    []
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -40,17 +50,33 @@ export default function ProfileScreen({ navigation }) {
           <Text style={styles.emptyNote}>No profiles yet. Adding one helps personalise suggestions, it's entirely optional.</Text>
         )}
         <View style={{ gap: 8, marginBottom: 12 }}>
-          {profiles.map((p) => (
-            <Pressable key={p.id} onPress={() => navigation.navigate("ProfileForm", { profileId: p.id })} style={[styles.profileRow, shadow.sm]}>
-              <View>
-                <Text style={styles.profileName}>
-                  {p.name || "Unnamed"} {p.age ? `· ${p.age}` : ""}
-                </Text>
-                <Text style={styles.profileDiagnosis}>{p.diagnosis}</Text>
-              </View>
-              <Pencil size={15} color={colors.charcoalSoft} />
-            </Pressable>
-          ))}
+          {profiles.map((p) => {
+            const isActive = p.id === activeProfileId;
+            return (
+              <Pressable key={p.id} onPress={() => navigation.navigate("ProfileForm", { profileId: p.id })} style={[styles.profileRow, shadow.sm]}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.profileName}>
+                    {p.name || "Unnamed"} {p.age ? `· ${p.age}` : ""}
+                  </Text>
+                  <Text style={styles.profileDiagnosis}>{p.diagnosis}</Text>
+                  {(profiles.length > 1 || isActive) && (
+                    <Pressable
+                      onPress={() => setActive(p.id)}
+                      disabled={isActive}
+                      hitSlop={6}
+                      style={[styles.activeChip, isActive && styles.activeChipOn]}
+                    >
+                      {isActive && <Check size={11} color={colors.sageInk} strokeWidth={3} />}
+                      <Text style={[styles.activeChipText, isActive && { color: colors.sageInk }]}>
+                        {isActive ? "Personalising for" : "Personalise for this child"}
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+                <Pencil size={15} color={colors.charcoalSoft} />
+              </Pressable>
+            );
+          })}
         </View>
         <SecondaryButton onPress={() => navigation.navigate("ProfileForm", {})}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
@@ -92,6 +118,20 @@ const styles = StyleSheet.create({
   profileRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.white, borderRadius: radii.md, padding: 14 },
   profileName: { fontFamily: fonts.bodyBold, fontSize: 14.5 },
   profileDiagnosis: { fontFamily: fonts.bodyRegular, fontSize: 12, color: colors.charcoalSoft },
+  activeChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    alignSelf: "flex-start",
+    borderWidth: 1.5,
+    borderColor: colors.line,
+    borderRadius: radii.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginTop: 8,
+  },
+  activeChipOn: { backgroundColor: colors.sagePale, borderColor: colors.sagePale },
+  activeChipText: { fontFamily: fonts.bodyBold, fontSize: 11.5, color: colors.charcoalSoft },
   planCard: { borderRadius: radii.lg, padding: 18 },
   planTitle: { fontFamily: fonts.display, fontSize: 15.5, color: colors.charcoal },
   planDesc: { fontFamily: fonts.bodyRegular, fontSize: 13, color: colors.charcoalSoft },

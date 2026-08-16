@@ -12,6 +12,7 @@ import MyCuesScreen from "../screens/MyCuesScreen";
 import ToolkitScreen from "../screens/ToolkitScreen";
 import ToolDetailScreen from "../screens/ToolDetailScreen";
 import LearnScreen from "../screens/LearnScreen";
+import LearnArticleScreen from "../screens/LearnArticleScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ProfileFormScreen from "../screens/ProfileFormScreen";
 import PaywallScreen from "../screens/PaywallScreen";
@@ -51,6 +52,15 @@ function ToolkitStack() {
   );
 }
 
+function LearnStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="LearnMain" component={LearnScreen} />
+      <Stack.Screen name="LearnArticle" component={LearnArticleScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function ProfileStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -79,18 +89,18 @@ function TabsNavigator() {
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="My cues" component={MyCuesStack} />
       <Tab.Screen name="Toolkit" component={ToolkitStack} />
-      <Tab.Screen name="Learn" component={LearnScreen} />
+      <Tab.Screen name="Learn" component={LearnStack} />
       <Tab.Screen name="Profile" component={ProfileStack} />
     </Tab.Navigator>
   );
 }
 
-export default function RootNavigator() {
-  // TODO: read `onboarded` from the accounts table via Supabase instead of
-  // always showing onboarding. See CLAUDE.md task list.
+// initialRoute is decided in App.js (while the splash screen is still up) by
+// checking whether accounts.onboarding_answers exists for this user.
+export default function RootNavigator({ initialRoute = "Onboarding" }) {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Tabs" component={TabsNavigator} />
         <Stack.Screen

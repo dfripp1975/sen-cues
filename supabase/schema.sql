@@ -68,6 +68,23 @@ create policy "Users manage their own account row"
   with check (auth.uid() = user_id);
 
 -- ---------------------------------------------------------------------------
+-- AI cue generation log — one row per generate-cue call, used by the Edge
+-- Function to enforce a per-user daily limit. RLS is enabled with no
+-- policies on purpose: only the service role (the Edge Function) can touch
+-- it, so the limit can't be reset from the app.
+-- ---------------------------------------------------------------------------
+create table if not exists cue_generation_log (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists cue_generation_log_user_time
+  on cue_generation_log (user_id, created_at);
+
+alter table cue_generation_log enable row level security;
+
+-- ---------------------------------------------------------------------------
 -- Parent journal (Phase 2 — not yet wired into the app, schema ready for it)
 -- ---------------------------------------------------------------------------
 create table if not exists journal_entries (

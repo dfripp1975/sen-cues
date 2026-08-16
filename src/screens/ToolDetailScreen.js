@@ -1,36 +1,32 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors, fonts } from "../theme";
+import { colors } from "../theme";
 import { ScreenHeader } from "../components/UI";
+import VisualChoiceMaker from "./tools/VisualChoiceMaker";
+import FirstThen from "./tools/FirstThen";
+import CountdownTool from "./tools/CountdownTool";
+import BreakItDown from "./tools/BreakItDown";
+import AICueGenerator from "./tools/AICueGenerator";
 
-// TODO for Claude Code: this is the biggest remaining gap. Port each tool from
-// the prototype (App.jsx): VisualChoiceMaker, FirstThen, Countdown (setInterval
-// works the same in RN, swap div/button for View/Pressable), BreakItDown, and
-// AICueGenerator (call the generate-cue Supabase Edge Function with the user's
-// session access token in the Authorization header, not api.anthropic.com directly).
-const TOOL_LABELS = {
-  choice: "Visual Choice Maker",
-  firstthen: "First / Then",
-  countdown: "Countdown",
-  breakdown: "Break It Down",
-  ai: "Create a Cue",
+// Access to "Create a Cue" (the AI tool) is gated in ToolkitScreen — it sends
+// non-premium users to the Paywall instead of navigating here.
+const TOOLS = {
+  choice: { title: "Visual Choice Maker", Component: VisualChoiceMaker },
+  firstthen: { title: "First / Then", Component: FirstThen },
+  countdown: { title: "Countdown", Component: CountdownTool },
+  breakdown: { title: "Break It Down", Component: BreakItDown },
+  ai: { title: "Create a Cue", Component: AICueGenerator },
 };
 
 export default function ToolDetailScreen({ route, navigation }) {
-  const { toolId } = route.params;
+  const tool = TOOLS[route.params.toolId];
+  if (!tool) return null;
+  const { title, Component } = tool;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.cream }} edges={["top"]}>
-      <ScreenHeader title={TOOL_LABELS[toolId]} onBack={() => navigation.goBack()} />
-      <View style={styles.placeholder}>
-        <Text style={styles.text}>This tool still needs porting from the prototype. See the TODO comment at the top of this file.</Text>
-      </View>
+      <ScreenHeader title={title} onBack={() => navigation.goBack()} />
+      <Component navigation={navigation} />
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  placeholder: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 30 },
-  text: { fontFamily: fonts.bodyRegular, fontSize: 14, color: colors.charcoalSoft, textAlign: "center", lineHeight: 21 },
-});

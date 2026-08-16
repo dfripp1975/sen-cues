@@ -1207,15 +1207,202 @@ const NOW_MODE = {
   ],
 };
 
+// Each article body is a list of sections: an optional heading plus a text
+// block. Written in the same cautious, warm register as the situation content —
+// "may", "might", "for some children" — never stating causes as fact.
 const LEARN_ARTICLES = [
-  { id: "l1", category: "Understanding overwhelm", title: "What overwhelm looks like day to day", minutes: 2 },
-  { id: "l2", category: "Communication", title: "Why fewer words often work better", minutes: 2 },
-  { id: "l3", category: "Sensory needs", title: "Building a simple sensory toolkit", minutes: 3 },
-  { id: "l4", category: "Routines", title: "Why predictability helps so much", minutes: 2 },
-  { id: "l5", category: "Emotional regulation", title: "Co-regulation, borrowing your calm", minutes: 2 },
-  { id: "l6", category: "School", title: "Talking to school about a hard morning", minutes: 3 },
-  { id: "l7", category: "Sleep", title: "A wind-down routine that actually sticks", minutes: 2 },
-  { id: "l8", category: "Parent wellbeing", title: "You're allowed to find this hard too", minutes: 2 },
+  {
+    id: "l1",
+    category: "Understanding overwhelm",
+    title: "What overwhelm looks like day to day",
+    minutes: 2,
+    body: [
+      {
+        text: "Overwhelm doesn't always look like tears or shouting. For some children it's loud and unmissable. For others it's quiet — going still, going silent, drifting to the edge of the room, or suddenly needing to leave.",
+      },
+      {
+        heading: "It can build slowly",
+        text: "A hard moment at 4pm may have started at 9am. Small demands, noises, changes and disappointments can stack up through the day, each one taking a little capacity, until one more small thing is one thing too many. This is sometimes why a reaction can seem much bigger than whatever happened right before it — the trigger you saw may only have been the last straw, not the whole story.",
+      },
+      {
+        heading: "What it might look like",
+        text: "Signs vary a lot between children, but may include: covering ears or eyes, repetitive movements becoming faster or more intense, questions asked over and over, refusing things they usually enjoy, seeming not to hear you, or becoming very controlling about small details. None of these on their own mean anything is wrong — you know your child's baseline best, and it's the change from that baseline that's worth noticing.",
+      },
+      {
+        heading: "Why noticing early helps",
+        text: "Spotting the early signs gives you options that disappear later — a quieter room, a snack, a break, fewer words. Once a child is fully overwhelmed, the moment usually needs riding out rather than fixing. Keeping a rough note of when hard moments happen, and what was going on beforehand, may help a pattern show itself over a week or two.",
+      },
+    ],
+  },
+  {
+    id: "l2",
+    category: "Communication",
+    title: "Why fewer words often work better",
+    minutes: 2,
+    body: [
+      {
+        text: "When a moment is getting hard, most of us instinctively add words — explaining, reassuring, negotiating. For many children, especially when they're stressed, more words can mean more to process at exactly the moment processing is hardest.",
+      },
+      {
+        heading: "The processing load",
+        text: "Every sentence a child hears has to be held, decoded and responded to. Some children need longer to do this than adults expect — sometimes ten seconds or more. If a new sentence arrives before the last one has been processed, the pile grows, and the pile itself can become stressful.",
+      },
+      {
+        heading: "What to try instead",
+        text: "Try one short instruction at a time: \"Shoes on\" rather than \"Right, we need to get going, so can you find your shoes and put them on because we're going to be late.\" Then wait — properly wait, counting to ten in your head — before saying anything else. Repeating the same words is generally better than rephrasing, because a rephrase is effectively a brand new sentence to process from scratch.",
+      },
+      {
+        heading: "Silence is allowed",
+        text: "In a truly hard moment, presence often does more than talking. Sitting nearby, slowing your own breathing, saying nothing at all — for some children this communicates the thing that matters most: you're safe, I'm here, there's no rush.",
+      },
+    ],
+  },
+  {
+    id: "l3",
+    category: "Sensory needs",
+    title: "Building a simple sensory toolkit",
+    minutes: 3,
+    body: [
+      {
+        text: "A sensory toolkit is just a small collection of things that reliably help your child feel more settled. It doesn't need to cost much, and the best ones are built by noticing what your child already reaches for.",
+      },
+      {
+        heading: "Start by watching, not buying",
+        text: "For a week or so, notice what your child does when they need to settle. Do they squeeze things, chew things, rock, hide under blankets, seek out quiet, seek out movement? These are clues. A child who squeezes may like a stress ball or putty; a child who burrows may like a weighted lap pad or a den; a child who covers their ears may benefit from ear defenders.",
+      },
+      {
+        heading: "Ideas that come up often",
+        text: "Common toolkit items include: ear defenders or soft headphones, sunglasses for bright spaces, a chewy necklace or chewable pencil topper, a stress ball or fidget, a small soft toy or piece of fabric that smells of home, a water bottle with a sports cap (sucking can be calming for some children), and a hoodie or cap that shrinks the world a little. Every child is different — a thing that calms one child may irritate another, so treat everything as an experiment.",
+      },
+      {
+        heading: "Make it portable and boring",
+        text: "A pencil case or small drawstring bag that lives in the car, the buggy or a school bag means the toolkit is there before it's needed. It helps if the items are ordinary-looking — many children don't want to stand out. It's also worth having a home version and an out-and-about version so nothing important gets lost.",
+      },
+      {
+        heading: "Let your child lead",
+        text: "The toolkit works best when your child helped choose what's in it and can get to it without asking. If school is involved, the SENCO or class teacher may be happy for a version to live in the classroom — many schools are used to this.",
+      },
+    ],
+  },
+  {
+    id: "l4",
+    category: "Routines",
+    title: "Why predictability helps so much",
+    minutes: 2,
+    body: [
+      {
+        text: "For many children with additional needs, not knowing what's coming next takes real energy. Predictability hands some of that energy back — which is why routines, warnings and visual plans can make such a visible difference.",
+      },
+      {
+        heading: "The world feels safer when it's known",
+        text: "A predictable routine means a child doesn't have to brace for surprises. That spare capacity can go into the hard things instead — coping with an itchy jumper, managing a noisy classroom, trying something new. This may be why a small unexpected change, like a different route to school, can sometimes cause a reaction that seems out of proportion. It isn't about the route; it may be about the surprise.",
+      },
+      {
+        heading: "Making the invisible visible",
+        text: "Time and plans are invisible. Making them visible — a picture sequence for the morning, a first/then board, a countdown for endings — gives a child something concrete to check instead of a worry to hold. The Toolkit tab in this app has simple versions of these you can use straight from your phone.",
+      },
+      {
+        heading: "When routines have to change",
+        text: "Change is part of life, and the goal isn't to avoid it — it's to cushion it. Warnings help: \"After the weekend, we're going to Granny's.\" So does naming what stays the same: \"Different house, same bedtime story.\" And when a change lands badly anyway, that's not a failure — some days the cushion just isn't enough, and comfort matters more than the plan.",
+      },
+    ],
+  },
+  {
+    id: "l5",
+    category: "Emotional regulation",
+    title: "Co-regulation, borrowing your calm",
+    minutes: 2,
+    body: [
+      {
+        text: "Children aren't born able to settle big feelings by themselves — that skill grows slowly, over years, and for some children it grows more slowly still. Until it does, they borrow the calm of the adults around them. That borrowing is called co-regulation.",
+      },
+      {
+        heading: "Your state is the message",
+        text: "In a hard moment, a child often reads your body before your words: your pace, your volume, your face, your breathing. Slowing your movements, lowering your voice and softening your shoulders can communicate \"we're okay\" more powerfully than saying it. This is also why staying calm is genuinely hard work — you're lending regulation you may not feel.",
+      },
+      {
+        heading: "What co-regulation looks like",
+        text: "It can be as simple as sitting nearby without demands, breathing slowly and audibly, offering a steady hand on the back if touch helps your child, or quietly narrating: \"I'm here. We're okay. No rush.\" You're not trying to stop the feeling — you're keeping them company inside it until it passes.",
+      },
+      {
+        heading: "You can't pour from an empty cup",
+        text: "Nobody can lend calm they don't have. If you feel your own storm rising, it's okay to take a breath first, or swap with another adult if one is there. And a moment where you didn't manage calm isn't a disaster — repair afterwards (\"That was hard. I got cross. I love you.\") teaches something valuable too.",
+      },
+    ],
+  },
+  {
+    id: "l6",
+    category: "School",
+    title: "Talking to school about a hard morning",
+    minutes: 3,
+    body: [
+      {
+        text: "A hard morning at home rarely stays at home — it walks into the classroom with your child. A short, factual heads-up to school can change how their whole day goes, and most teachers genuinely want to know.",
+      },
+      {
+        heading: "Keep it short and factual",
+        text: "A message like \"Rough morning — poor sleep and a hard time with uniform. He may need a gentle start\" is enough. You don't need to justify or over-explain. Teachers can't act on what they don't know, and a two-line note lets them adjust — a quieter task first, a check-in at break, a bit more patience — before anything goes wrong.",
+      },
+      {
+        heading: "Agree a channel in advance",
+        text: "Ask the class teacher or the school's SENCO what works best: the school app, an email, a note in the planner, or a quick word at drop-off. Agreeing this in a calm week means it's there for the hard ones. Some families and schools use a simple home-school diary going both ways — school days affect home evenings too.",
+      },
+      {
+        heading: "Share what helps, not just what's hard",
+        text: "Schools can only use the strategies they know about. If a five-minute warning, a movement break or a particular phrase works at home, tell them. If your child has an EHCP or is on SEN support, these strategies can be raised at the next review so they're written down and travel with your child between teachers and year groups.",
+      },
+      {
+        heading: "If mornings are often hard",
+        text: "A pattern of very hard school mornings may be worth a proper conversation rather than daily notes — with the class teacher or SENCO first. Some children hold things together at school and release at home, and some find the transition into school genuinely difficult; either way, home and school comparing notes usually gets further than either guessing alone.",
+      },
+    ],
+  },
+  {
+    id: "l7",
+    category: "Sleep",
+    title: "A wind-down routine that actually sticks",
+    minutes: 2,
+    body: [
+      {
+        text: "Sleep can be one of the hardest areas of all, and there's no routine that works for every child. But most wind-downs that stick share a few things: they're the same every night, they head in one direction, and they start earlier than feels necessary.",
+      },
+      {
+        heading: "Same order, every night",
+        text: "The power of a wind-down is its predictability — each step quietly signals the next. Pick a short sequence that fits your child (for example: pyjamas, teeth, toilet, story, lights down) and keep the order fixed even when the timing slips. A visual list on the wall, or the Break It Down tool in this app, can take the arguing out of what comes next, because the routine becomes the boss instead of you.",
+      },
+      {
+        heading: "Head downhill, gently",
+        text: "Everything in the last hour should be moving towards less — less light, less noise, less excitement. Rough play, bright lights and screens close to bedtime can make settling harder for many children. Swapping \"screens off!\" battles for a countdown and a first/then (\"First bath, then one episode\") tends to go better than a sudden ending.",
+      },
+      {
+        heading: "Comfort matters more than rules",
+        text: "For some children the barrier isn't the routine — it's the sensations. Itchy pyjamas, a too-hot duvet, a too-quiet room. It's worth experimenting: some children settle better with white noise, a weighted blanket, or the landing light on. If sleep is persistently very hard despite a settled routine, your GP or health visitor is the right person to talk it through with.",
+      },
+    ],
+  },
+  {
+    id: "l8",
+    category: "Parent wellbeing",
+    title: "You're allowed to find this hard too",
+    minutes: 2,
+    body: [
+      {
+        text: "Caring for a child with additional needs asks a lot — of your patience, your energy, your sleep, and sometimes your sense of yourself. Finding it hard doesn't mean you're doing it wrong. It usually means you're doing a lot.",
+      },
+      {
+        heading: "The feelings are allowed",
+        text: "Frustration, grief, resentment, guilt about the resentment — many parents and carers feel all of these at some point, often alongside fierce love, in the same afternoon. Feelings aren't actions. Having a hard feeling about a hard situation is human, not a verdict on you as a parent.",
+      },
+      {
+        heading: "Small maintenance counts",
+        text: "Big self-care may not be realistic right now. Small maintenance usually is: a proper hot drink, ten minutes outside, a message to a friend who gets it, going to bed one episode earlier. These sound trivial — they're not. They're the difference between running on empty and running on nearly empty, and your child borrows calm from whatever you have left.",
+      },
+      {
+        heading: "Support exists — and you qualify",
+        text: "If you regularly care for a child with additional needs, you're a carer, and support exists for you, not just for them. Your GP is a legitimate place to take your own exhaustion or low mood. Your local council can offer a carer's assessment. Local carers' groups and SEN parent groups — often found through school, the health visitor, or your local Family Hub — can be a lifeline, mostly because everyone in the room just gets it. Asking for help models exactly the skill you're hoping your child will learn.",
+      },
+    ],
+  },
 ];
 
 const BREAKDOWN_PRESETS = {
