@@ -88,10 +88,11 @@ comment is the source of truth for each file, this document is the overview.
    passes the initial route to RootNavigator, so returning users land
    straight in Tabs with no onboarding flash.
 
-8. **App icon and splash image**. `app.json` references
-   `./assets/icon.png`, `./assets/splash.png`, `./assets/adaptive-icon.png`,
-   none of these exist yet. Design direction: sage/teal/cream palette, the
-   quick-cue peach accent works well as a small icon detail.
+8. **App icon and splash image** — DONE (first pass). `assets/` now has
+   icon.png, adaptive-icon.png and splash.png: the tilted stacked-card mark
+   in sage on cream with white cue-line bars and the peach quick-cue dot.
+   Generated programmatically — replace with professionally designed
+   versions whenever ready, same filenames.
 
 9. **Rate limiting on the Edge Function** — DONE. `cue_generation_log`
    table (service-role only, RLS with no policies) added to
