@@ -41,13 +41,14 @@ comment is the source of truth for each file, this document is the overview.
    using the active child profile (accounts.active_profile_id, falling back
    to the most recently updated profile).
 
-2. **Profile form**, `src/screens/ProfileFormScreen.js` only has name and
-   age. Add: diagnosis picker (with "Not diagnosed / Prefer not to say" as
-   default, never required), communication preferences, sensory preferences,
-   common triggers, things that help, calming activities, notes. All map
-   directly to columns already in `child_profiles` (see `supabase/schema.sql`).
-   Add delete, and a way to pick which profile is "active" for personalising
-   AI Cue Generator suggestions (accounts.active_profile_id).
+2. **Profile form** — DONE. `ProfileFormScreen.js` has every child_profiles
+   field: diagnosis chip picker (defaults to "Not diagnosed / Prefer not to
+   say", never required), communication/sensory preferences, triggers, helps,
+   calming activities and notes (each with tappable suggestion chips that
+   merge into free text), delete with confirmation, and a "personalise
+   suggestions for this child" checkbox that sets
+   accounts.active_profile_id. ProfileScreen shows which profile is
+   personalising and lets you switch.
 
 3. **Onboarding**, `src/screens/OnboardingScreen.js` only has 2 of 5 screens.
    Add the age screen, the "what situations are hardest" multi-select, and
