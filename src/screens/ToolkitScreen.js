@@ -6,13 +6,6 @@ import { ListChecks, ArrowRight, Clock, Wrench, Sparkles, Lock, ChevronRight } f
 import { colors, fonts, radii, shadow } from "../theme";
 import { usePremium } from "../hooks/usePremium";
 
-// TODO for Claude Code: build out the four toolkit screens themselves
-// (Visual Choice Maker, First/Then, Countdown, Break It Down) — the prototype
-// (SEN Cues App.jsx) has full working versions of each to port from React DOM
-// to React Native primitives (View/Text/Pressable instead of div/button, and
-// setInterval for the countdown works the same way in RN).
-// "Create a Cue" should call the generate-cue Supabase Edge Function, not
-// api.anthropic.com directly — see supabase/functions/generate-cue/index.ts.
 const TOOLS = [
   { id: "choice", label: "Visual Choice Maker", icon: ListChecks, desc: "Two clear options, nothing more" },
   { id: "firstthen", label: "First / Then", icon: ArrowRight, desc: "Show what's next, simply" },

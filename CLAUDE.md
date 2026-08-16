@@ -32,16 +32,14 @@ comment is the source of truth for each file, this document is the overview.
 
 ## Priority order for remaining work
 
-1. **Toolkit tools** (biggest gap). `src/screens/ToolDetailScreen.js` is a
-   placeholder for all five tools. The prototype has full working versions of
-   each (VisualChoiceMaker, FirstThen, Countdown, BreakItDown,
-   AICueGenerator) built with React DOM elements, they need the same logic
-   rebuilt with React Native primitives (View/Text/TextInput/Pressable
-   instead of div/button/input). Countdown's `setInterval` logic ports
-   directly. AICueGenerator must call the `generate-cue` Supabase Edge
-   Function with the user's session access token in the Authorization
-   header, not call api.anthropic.com directly from the app, that would ship
-   the API key inside the app bundle.
+1. **Toolkit tools** — DONE. All five tools live in `src/screens/tools/`
+   (VisualChoiceMaker, FirstThen, CountdownTool, BreakItDown, AICueGenerator),
+   built with React Native primitives; `ToolDetailScreen.js` dispatches to
+   them. AICueGenerator calls the `generate-cue` Supabase Edge Function via
+   `supabase.functions.invoke` (which sends the session access token in the
+   Authorization header), never api.anthropic.com directly, and personalises
+   using the active child profile (accounts.active_profile_id, falling back
+   to the most recently updated profile).
 
 2. **Profile form**, `src/screens/ProfileFormScreen.js` only has name and
    age. Add: diagnosis picker (with "Not diagnosed / Prefer not to say" as
