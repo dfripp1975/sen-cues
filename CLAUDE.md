@@ -50,12 +50,12 @@ comment is the source of truth for each file, this document is the overview.
    accounts.active_profile_id. ProfileScreen shows which profile is
    personalising and lets you switch.
 
-3. **Onboarding**, `src/screens/OnboardingScreen.js` only has 2 of 5 screens.
-   Add the age screen, the "what situations are hardest" multi-select, and
-   the "what would help most" multi-select. Persist answers to
-   `accounts.onboarding_answers` (jsonb, already in the schema) and use them
-   to personalise the "Today's cues" picks on Home instead of the current
-   hardcoded three.
+3. **Onboarding** — DONE. All 5 screens (welcome, who, age, hardest
+   situations multi-select from CATEGORIES, what-would-help multi-select).
+   Answers persist to `accounts.onboarding_answers` (skipping stores
+   `{skipped: true}` so the flow isn't shown again). Home personalises
+   "Today's cues" from the chosen hardest categories, picking only the free
+   first-two situations per category and rotating daily.
 
 4. **Paywall + subscriptions**, `src/screens/PaywallScreen.js` is a shell
    with no real plan picker or purchase flow. Needs:
@@ -81,19 +81,21 @@ comment is the source of truth for each file, this document is the overview.
    professional review new entries before shipping, this is more important
    than volume.
 
-7. **Onboarding gating on app open**. `RootNavigator.js` currently always
-   shows Onboarding first. Once `accounts.onboarding_answers` exists, check
-   whether a row exists for the current user on launch and skip straight to
-   `Tabs` if so.
+7. **Onboarding gating on app open** — DONE. App.js checks
+   `accounts.onboarding_answers` while the splash screen is still up and
+   passes the initial route to RootNavigator, so returning users land
+   straight in Tabs with no onboarding flash.
 
 8. **App icon and splash image**. `app.json` references
    `./assets/icon.png`, `./assets/splash.png`, `./assets/adaptive-icon.png`,
    none of these exist yet. Design direction: sage/teal/cream palette, the
    quick-cue peach accent works well as a small icon detail.
 
-9. **Rate limiting on the Edge Function**. Marked with a TODO in
-   `supabase/functions/generate-cue/index.ts`, add a simple per-user daily
-   count check before calling Anthropic, so one account can't run up costs.
+9. **Rate limiting on the Edge Function** — DONE. `cue_generation_log`
+   table (service-role only, RLS with no policies) added to
+   `supabase/schema.sql`; the function counts a user's calls in the last 24
+   hours and returns 429 with a friendly message past 20/day. Re-run the
+   schema in the Supabase SQL editor and redeploy the function to apply.
 
 ## Design tokens
 

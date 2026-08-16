@@ -94,10 +94,23 @@ export default function AICueGenerator() {
           profileContext: buildProfileContext(profile),
         },
       });
-      if (fnError || !data || data.error) throw fnError || new Error(data?.error || "Empty response");
+      if (fnError) {
+        // Non-2xx responses (like the daily limit) carry a friendly message in
+        // the body — show that rather than a generic error where we can.
+        let message = null;
+        try {
+          const body = await fnError.context?.json?.();
+          if (typeof body?.error === "string") message = body.error;
+        } catch {
+          // Body wasn't JSON — fall through to the generic message.
+        }
+        throw new Error(message || "generate failed");
+      }
+      if (!data || data.error) throw new Error(typeof data?.error === "string" ? data.error : "empty response");
       setResult(data);
-    } catch {
-      setError("We couldn't create a cue just now. Please check your connection and try again in a moment.");
+    } catch (e) {
+      const friendly = e?.message && e.message !== "generate failed" && e.message !== "empty response" ? e.message : null;
+      setError(friendly || "We couldn't create a cue just now. Please check your connection and try again in a moment.");
     } finally {
       setLoading(false);
     }

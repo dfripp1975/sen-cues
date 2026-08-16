@@ -10,8 +10,8 @@
 // Set the secret with:
 //   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 //
-// Also worth adding: a per-user rate limit (e.g. via a Postgres table counting
-// calls per day) before this goes live, so one account can't run up API costs.
+// Rate limiting: each call is logged to cue_generation_log (service-role only,
+// see supabase/schema.sql) and capped at DAILY_LIMIT per user per 24 hours.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -46,12 +46,33 @@ Deno.serve(async (req) => {
 
     // TODO: check accounts.is_premium for userData.user.id here and reject with
     // 402 if the caller isn't on Premium, once subscriptions are wired up.
-    // TODO: check a rate-limit table here before calling the model.
+
+    // Per-user daily limit, counted from the service-role-only log table so it
+    // can't be bypassed or reset from the app.
+    const DAILY_LIMIT = 20;
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count, error: countError } = await supabase
+      .from("cue_generation_log")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userData.user.id)
+      .gte("created_at", since);
+    if (countError) {
+      return new Response(JSON.stringify({ error: "Could not generate a cue right now" }), { status: 500, headers: corsHeaders });
+    }
+    if ((count ?? 0) >= DAILY_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: "You've reached today's limit for created cues. It resets within 24 hours — the full cue library is still here for you." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const { situation, profileContext } = await req.json();
     if (!situation || typeof situation !== "string") {
       return new Response(JSON.stringify({ error: "Missing situation" }), { status: 400, headers: corsHeaders });
     }
+
+    // Logged before the model call so a failed parse still counts a spend.
+    await supabase.from("cue_generation_log").insert({ user_id: userData.user.id });
 
     const userPrompt = `${profileContext || "No child profile has been set up yet."}\n\nSituation the parent has described: "${situation.slice(0, 600)}"\n\nGenerate the JSON response now.`;
 

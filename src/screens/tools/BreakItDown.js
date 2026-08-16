@@ -4,13 +4,14 @@ import { X, Plus, Check } from "lucide-react-native";
 
 import { colors, fonts, radii, shadow } from "../../theme";
 import { PrimaryButton, SecondaryButton } from "../../components/UI";
+import { BREAKDOWN_PRESETS } from "../../data/content";
 
-const TEMPLATES = [
-  { task: "Getting dressed", steps: ["Pants and socks", "Trousers or skirt", "Top", "Jumper", "Shoes"] },
-  { task: "Leaving the house", steps: ["Shoes on", "Coat on", "Bag by the door", "Out we go"] },
-  { task: "Bedtime", steps: ["Pyjamas on", "Brush teeth", "Into bed", "Story"] },
-  { task: "Tidying up", steps: ["Pick one thing up", "Put it where it lives", "Pick the next thing", "Look around — all done?"] },
-];
+// Common tasks come from the shared content database so the steps stay
+// consistent with everything else in the app.
+const TEMPLATES = Object.entries(BREAKDOWN_PRESETS).map(([task, steps]) => ({
+  task: task.charAt(0).toUpperCase() + task.slice(1),
+  steps,
+}));
 
 export default function BreakItDown() {
   const [task, setTask] = useState("");

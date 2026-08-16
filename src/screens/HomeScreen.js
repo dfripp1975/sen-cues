@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, StyleSheet } from "react-native";
 import { Search, ArrowRight } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,10 +7,34 @@ import { CATEGORIES, SITUATIONS } from "../data/content";
 import { colors, fonts, radii, shadow } from "../theme";
 import CueTile from "../components/CueTile";
 import { useFavourites } from "../hooks/useFavourites";
+import { supabase } from "../lib/supabase";
+
+// Matches CategoryListScreen: the first two situations in a category are the
+// free ones, so personalised picks stay tappable for free users.
+const FREE_LIMIT = 2;
 
 export default function HomeScreen({ navigation }) {
   const [query, setQuery] = useState("");
+  const [hardestCategories, setHardestCategories] = useState(null);
   const { favourites, toggleFavourite } = useFavourites();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData?.user) return;
+        const { data } = await supabase
+          .from("accounts")
+          .select("onboarding_answers")
+          .eq("user_id", userData.user.id)
+          .maybeSingle();
+        const hardest = data?.onboarding_answers?.hardest;
+        if (Array.isArray(hardest) && hardest.length > 0) setHardestCategories(hardest);
+      } catch {
+        // Fall back to the default picks below.
+      }
+    })();
+  }, []);
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -21,9 +45,17 @@ export default function HomeScreen({ navigation }) {
   }, [query]);
 
   const dailyCues = useMemo(() => {
-    const picks = ["getting-dressed", "school-refusal", "bedtime"];
-    return SITUATIONS.filter((s) => picks.includes(s.id));
-  }, []);
+    const fallback = SITUATIONS.filter((s) => ["getting-dressed", "school-refusal", "bedtime"].includes(s.id));
+    if (!hardestCategories) return fallback;
+    const picks = hardestCategories.flatMap((catId) =>
+      SITUATIONS.filter((s) => s.category === catId).slice(0, FREE_LIMIT)
+    );
+    if (picks.length === 0) return fallback;
+    // Rotate the starting point by day of the month so the rail feels fresh
+    // each day without needing any server involvement.
+    const offset = new Date().getDate() % picks.length;
+    return [...picks.slice(offset), ...picks.slice(0, offset)].slice(0, 6);
+  }, [hardestCategories]);
 
   const openSituation = (s) => navigation.navigate("SituationDetail", { situationId: s.id });
   const openCategory = (c) => navigation.navigate("CategoryList", { categoryId: c.id });

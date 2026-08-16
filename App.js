@@ -16,7 +16,7 @@ import {
 
 import RootNavigator from "./src/navigation/RootNavigator";
 import { colors } from "./src/theme";
-import { ensureSession } from "./src/lib/supabase";
+import { supabase, ensureSession } from "./src/lib/supabase";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -27,15 +27,28 @@ export default function App() {
     PlusJakartaSans_500Medium,
     PlusJakartaSans_700Bold,
   });
-  const [sessionReady, setSessionReady] = useState(false);
+  // Decided while the splash screen is still up, so returning users go
+  // straight to the tabs without an onboarding flash.
+  const [initialRoute, setInitialRoute] = useState(null);
 
   useEffect(() => {
-    ensureSession()
-      .catch((e) => console.warn("Session error", e))
-      .finally(() => setSessionReady(true));
+    (async () => {
+      try {
+        const session = await ensureSession();
+        const { data } = await supabase
+          .from("accounts")
+          .select("onboarding_answers")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        setInitialRoute(data?.onboarding_answers ? "Tabs" : "Onboarding");
+      } catch (e) {
+        console.warn("Session error", e);
+        setInitialRoute("Onboarding");
+      }
+    })();
   }, []);
 
-  const ready = frauncesLoaded && jakartaLoaded && sessionReady;
+  const ready = frauncesLoaded && jakartaLoaded && initialRoute !== null;
 
   const onLayout = useCallback(async () => {
     if (ready) await SplashScreen.hideAsync();
@@ -46,7 +59,7 @@ export default function App() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream }} onLayout={onLayout}>
       <StatusBar style="dark" />
-      <RootNavigator />
+      <RootNavigator initialRoute={initialRoute} />
     </View>
   );
 }
