@@ -19,7 +19,8 @@ interactive prototype. It's a working head start, not a finished app — see
 
 ## First-time setup (do this once, on your own machine)
 
-1. **Install Node.js** (18 or later) from nodejs.org if you don't have it.
+1. **Install Node.js** (20 or later, LTS recommended) from nodejs.org if you
+   don't have it. Expo SDK 57 requires Node 20+.
 2. **Install Claude Code**: follow the instructions at
    [claude.com/claude-code](https://claude.com/claude-code) — it installs as a
    command you run in this project folder.
