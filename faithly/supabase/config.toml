@@ -1,0 +1,12 @@
+# Supabase CLI configuration for Faithly (only the settings that differ from defaults).
+project_id = "faithly"
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/**"]
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.send-reminders]
+verify_jwt = false

@@ -1,0 +1,24 @@
+{
+  "name": "Faithly — Your Personal Faith Companion",
+  "short_name": "Faithly",
+  "description": "Grow in Faith. Find Your Peace. Walk With God.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F6F0",
+  "theme_color": "#234638",
+  "lang": "en-GB",
+  "categories": ["lifestyle", "education", "books"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Ask Faithly", "url": "/ask" },
+    { "name": "Prayer journal", "url": "/you/journal" },
+    { "name": "Bible", "url": "/bible" }
+  ]
+}
