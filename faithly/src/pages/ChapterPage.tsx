@@ -85,7 +85,7 @@ export default function ChapterPage() {
     }
   }, [verses, hash]);
 
-  const title = book ? `${book.name} ${chapter}` : '';
+  const title = book ? `${book.id === 19 ? 'Psalm' : book.name} ${chapter}` : '';
   const prev = useMemo(() => {
     if (!book) return null;
     if (chapter > 1) return { code: book.code, ch: chapter - 1 };
