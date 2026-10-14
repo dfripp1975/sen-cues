@@ -1,0 +1,87 @@
+# Sets up / updates Faithly's Supabase project: database migrations, Bible text,
+# Edge Functions and (optional) function secrets. Needs one repository secret:
+#   SUPABASE_ACCESS_TOKEN  (Supabase → Account → Access Tokens)
+# Optional secrets passed through to the functions if present:
+#   GEMINI_API_KEY, OPENAI_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+#   STRIPE_PRICE_MONTHLY, STRIPE_PRICE_YEARLY, APP_URL
+name: Faithly setup
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/faithly-faith-app-40k58b]
+    paths: ['faithly/supabase/**', 'faithly/scripts/setup-remote.mjs', '.github/workflows/faithly-setup.yml']
+
+concurrency: faithly-setup
+
+env:
+  SUPABASE_PROJECT_REF: dxqpffabvwgvpjqlzblu
+  SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: faithly
+    steps:
+      - name: Check the access token is configured
+        working-directory: .
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::error::Add a repository secret named SUPABASE_ACCESS_TOKEN (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: faithly/package-lock.json
+
+      - run: npm ci
+
+      - name: Check authored content against the Bible text
+        run: node scripts/build-seed.mjs --check
+
+      - name: Apply database migrations and load the Bible
+        run: node scripts/setup-remote.mjs
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.48.3
+
+      - name: Set function secrets (only those provided)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          STRIPE_PRICE_MONTHLY: ${{ secrets.STRIPE_PRICE_MONTHLY }}
+          STRIPE_PRICE_YEARLY: ${{ secrets.STRIPE_PRICE_YEARLY }}
+          APP_URL: ${{ secrets.APP_URL }}
+        run: |
+          args=()
+          for k in GEMINI_API_KEY OPENAI_API_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_PRICE_MONTHLY STRIPE_PRICE_YEARLY APP_URL; do
+            if [ -n "${!k}" ]; then args+=("$k=${!k}"); echo "setting $k"; fi
+          done
+          if [ -n "$GEMINI_API_KEY" ]; then args+=("AI_PROVIDER=gemini"); elif [ -n "$OPENAI_API_KEY" ]; then args+=("AI_PROVIDER=openai"); fi
+          if [ ${#args[@]} -gt 0 ]; then supabase secrets set --project-ref "$SUPABASE_PROJECT_REF" "${args[@]}"; else echo "No optional secrets provided yet."; fi
+
+      - name: Deploy Edge Functions
+        # Every function checks the caller itself (signed-in user, Stripe signature or cron secret),
+        # so gateway JWT verification is off; this also works with Supabase's newer API keys.
+        run: |
+          for fn in faithly-ai create-checkout customer-portal delete-account admin-stats stripe-webhook send-reminders; do
+            supabase functions deploy "$fn" --project-ref "$SUPABASE_PROJECT_REF" --use-api --no-verify-jwt
+          done
+
+      - name: Smoke test
+        run: |
+          base="https://$SUPABASE_PROJECT_REF.supabase.co/functions/v1"
+          code=$(curl -s -o out.json -w "%{http_code}" -X POST "$base/faithly-ai" -H "Content-Type: application/json" -d '{"mode":"chat","message":"hi"}')
+          cat out.json; echo
+          if [ "$code" != "401" ]; then echo "::error::faithly-ai should answer 401 to a signed-out request, got $code"; exit 1; fi
+          echo "Functions are live."
