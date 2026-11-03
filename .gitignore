@@ -11,3 +11,6 @@ web-build/
 ios/
 android/
 .DS_Store
+
+# Graphify knowledge graph output
+graphify-out/
