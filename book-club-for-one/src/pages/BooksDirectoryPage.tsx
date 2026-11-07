@@ -6,12 +6,14 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { BookCard } from '@/components/BookCard';
 import { books, searchBooks, getPopularBooks, getClassicBooks, getTrendingBooks } from '@/data/books';
 import { AdPlaceholder } from '@/components/AdPlaceholder';
+import { guideCoverage } from '@/data/guides';
 
 const filters = [
   { id: '', label: 'All books' },
   { id: 'popular', label: 'Popular' },
   { id: 'trending', label: 'Trending' },
   { id: 'classic', label: 'Classics' },
+  { id: 'guides', label: 'With chapter guides' },
 ];
 
 export function BooksDirectoryPage() {
@@ -27,6 +29,7 @@ export function BooksDirectoryPage() {
     if (filter === 'popular') return getPopularBooks();
     if (filter === 'trending') return getTrendingBooks();
     if (filter === 'classic') return getClassicBooks();
+    if (filter === 'guides') return books.filter(b => guideCoverage[b.slug]);
     return books;
   }, [query, filter]);
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Book } from '@/types';
 import { BookCover } from './BookCover';
+import { guideChapters, describeChapters } from '@/data/guideHelpers';
 
 interface BookCardProps {
   book: Book;
@@ -11,6 +12,7 @@ interface BookCardProps {
 
 /** Cover-led book tile: the cover carries the card, text sits underneath. */
 export function BookCard({ book, eager }: BookCardProps) {
+  const guided = guideChapters(book.slug);
   return (
     <Link to={`/book/${book.slug}`} className="group flex flex-col">
       <div className="relative rounded-xl bg-stone-light/70 px-[14%] pb-[10%] pt-[12%] transition-colors duration-300 group-hover:bg-stone dark:bg-white/[0.03] dark:group-hover:bg-white/[0.06]">
@@ -23,6 +25,11 @@ export function BookCard({ book, eager }: BookCardProps) {
       <p className="mt-1 text-xs text-warmgrey-light dark:text-dark-sub/80">
         {book.year} · {book.pages} pages{book.genre[0] ? ` · ${book.genre[0]}` : ''}
       </p>
+      {guided.length > 0 && (
+        <span className="badge-sage mt-2 self-start" title={`Built-in guides for chapters ${describeChapters(guided)}`}>
+          Chapter guides
+        </span>
+      )}
     </Link>
   );
 }

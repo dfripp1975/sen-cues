@@ -7,6 +7,7 @@ import { BookCover } from '@/components/BookCover';
 import { AdPlaceholder } from '@/components/AdPlaceholder';
 import { getBookBySlug, getRelatedBooks } from '@/data/books';
 import { getFilteredCharacters, getChaptersUpTo, getThemesForBook } from '@/data/bookContent';
+import { guideChapters, describeChapters } from '@/data/guideHelpers';
 import { useAuth } from '@/lib/auth';
 import { UserLibraryService } from '@/services/UserLibraryService';
 import { CustomBookService, toBook, type CustomBook } from '@/services/CustomBookService';
@@ -99,6 +100,9 @@ export function BookDetailPage() {
   const characters = isCustom ? [] : getFilteredCharacters(book.slug, selectedChapter);
   const chapters = isCustom ? [] : getChaptersUpTo(book.slug, selectedChapter);
   const themes = isCustom ? [] : getThemesForBook(book.slug);
+  const guided = isCustom ? [] : guideChapters(book.slug);
+  const chapterCovered = guided.includes(selectedChapter);
+  const upTo = selectedChapter === 1 ? 'chapter 1' : `chapters 1 to ${selectedChapter}`;
   const relatedBooks = isCustom ? [] : getRelatedBooks(book);
 
   const isPremium = SubscriptionService.isPremium(subscription);
@@ -272,9 +276,32 @@ export function BookDetailPage() {
             ))}
           </select>
           <span className="badge-terra">
-            <Shield className="w-3 h-3" /> Spoiler Safe — Based only on Chapters 1-{selectedChapter}
+            <Shield className="w-3 h-3" /> Spoiler-safe: based only on {upTo}
           </span>
         </div>
+        {!isCustom && (
+          <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-stone pt-4 dark:border-dark-border">
+            <p className="min-w-[16rem] flex-1 text-sm leading-relaxed text-charcoal dark:text-dark-text">
+              {guided.length > 0 ? (
+                chapterCovered
+                  ? <>Our built-in chapter guide covers chapters {describeChapters(guided)}, including the one you're on.</>
+                  : <>Our built-in chapter guide covers chapters {describeChapters(guided)}. For notes on exactly where you are, use the AI guide, written for {upTo} only.</>
+              ) : (
+                <>There's no built-in chapter guide for this book yet. The AI guide writes one for exactly where you are, using {upTo} only.</>
+              )}
+            </p>
+            {!chapterCovered && (
+              <button
+                onClick={() => { setActiveTab('chapter-guide'); handleAIAction('chapter-guide'); }}
+                disabled={isAILoading('chapter-guide')}
+                className="btn-primary text-sm"
+              >
+                <Sparkles className="w-4 h-4" />
+                {user ? 'Write my chapter guide' : 'Sign in for the AI guide'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* AI error */}
@@ -329,7 +356,7 @@ export function BookDetailPage() {
             {isCustom && (
               <div className="card bg-sage-50 dark:bg-forest-800">
                 <p className="text-sm text-warmgrey dark:text-dark-sub">
-                  This is a book you added yourself. Chapter guides, character info, and vocabulary are available for books in our catalogue — but you can still use all the reading tools below.
+                  This is a book you added yourself. Chapter guides, character info, and vocabulary are available for books in our catalogue, but you can still use all the reading tools below.
                 </p>
               </div>
             )}
@@ -359,7 +386,7 @@ export function BookDetailPage() {
           <div className="space-y-4 animate-fade-in">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">Chapter Companion</h2>
-              <span className="badge-terra"><Shield className="w-3 h-3" /> Chapters 1-{selectedChapter}</span>
+              <span className="badge-terra"><Shield className="w-3 h-3" /> {upTo.charAt(0).toUpperCase() + upTo.slice(1)}</span>
             </div>
 
             {/* AI-generated guide */}
@@ -379,7 +406,7 @@ export function BookDetailPage() {
               {hasAIContent('chapter-guide') ? (
                 <p className="text-charcoal dark:text-dark-text leading-relaxed whitespace-pre-wrap">{aiContent['chapter-guide']}</p>
               ) : !isAILoading('chapter-guide') && (
-                <p className="text-sm text-warmgrey dark:text-dark-sub">Get an AI-powered summary, key events, and discussion points for chapters 1-{selectedChapter}.</p>
+                <p className="text-sm text-warmgrey dark:text-dark-sub">Get an AI-powered summary, key events, and discussion points for {upTo}.</p>
               )}
             </div>
 
@@ -402,7 +429,7 @@ export function BookDetailPage() {
             )}
             {!hasAIContent('chapter-guide') && chapters.length === 0 && !isAILoading('chapter-guide') && (
               <div className="card text-center py-8">
-                <p className="text-warmgrey dark:text-dark-sub">No catalogue chapter guides for this book. Use AI to generate one above!</p>
+                <p className="text-warmgrey dark:text-dark-sub">No built-in guide for {upTo} yet. Use the AI guide above for notes on exactly where you are.</p>
               </div>
             )}
           </div>

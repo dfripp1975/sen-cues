@@ -27,7 +27,7 @@ function isbnIsUnique(isbn: string) {
   }
   return isbnUse.get(isbn.replace(/[^0-9X]/gi, '')) === 1;
 }
-export function coverUrlFor(book: Book): string | null {
+function coverUrlFor(book: Book): string | null {
   const id = coverIds[book.slug];
   if (id) return `https://covers.openlibrary.org/b/id/${id}-M.jpg`;
   if (book.isbn && isbnValid(book.isbn) && isbnIsUnique(book.isbn)) {
