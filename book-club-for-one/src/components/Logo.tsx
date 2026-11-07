@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-
 /** The brand mark: a closed book with a terracotta ribbon marking your place. */
 export function LogoMark({ className = 'w-9 h-9', inverse = false }: { className?: string; inverse?: boolean }) {
   return (
@@ -15,11 +13,11 @@ export function LogoMark({ className = 'w-9 h-9', inverse = false }: { className
 export function Logo({ tone = 'default' }: { tone?: 'default' | 'inverse' }) {
   const text = tone === 'inverse' ? 'text-ivory' : 'text-forest-500 dark:text-dark-text';
   return (
-    <Link to="/" className="group flex items-center gap-2.5 shrink-0" aria-label="The Book Club For One, home">
+    <a href="/" className="group flex items-center gap-2.5 shrink-0" aria-label="The Book Club For One, home">
       <LogoMark inverse={tone === 'inverse'} className="w-9 h-9 transition-transform duration-200 group-hover:-rotate-3" />
       <span className={`font-serif text-[1.15rem] leading-none tracking-[-0.01em] ${text}`}>
         The Book Club <em className="font-serif italic">For One</em>
       </span>
-    </Link>
+    </a>
   );
 }

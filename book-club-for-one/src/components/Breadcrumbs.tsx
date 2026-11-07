@@ -28,7 +28,11 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
         <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-warmgrey dark:text-dark-sub">
           {items.map((item, i) => (
             <li key={i} className="flex items-center gap-2">
-              {item.to ? (
+              {item.to === '/' ? (
+                <a href="/" className="underline-offset-4 transition-colors hover:text-forest-500 hover:underline dark:hover:text-dark-sage">
+                  {item.label}
+                </a>
+              ) : item.to ? (
                 <Link to={item.to} className="underline-offset-4 transition-colors hover:text-forest-500 hover:underline dark:hover:text-dark-sage">
                   {item.label}
                 </Link>

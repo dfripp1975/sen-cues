@@ -16,7 +16,7 @@ export function NotFoundPage() {
         We could not find the page you were looking for. It may have moved or no longer exists.
       </p>
       <div className="flex gap-3 justify-center">
-        <Link to="/" className="btn-primary">Go Home</Link>
+        <a href="/" className="btn-primary">Go Home</a>
         <Link to="/tools" className="btn-outline">Browse Tools</Link>
         <Link to="/books" className="btn-ghost">Explore Books</Link>
       </div>

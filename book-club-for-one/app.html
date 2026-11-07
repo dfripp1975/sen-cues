@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#F4EFE4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121613" media="(prefers-color-scheme: dark)" />
+    <title>The Book Club For One: Your Personal Book Club for Every Book You Read</title>
+    <meta name="description" content="Free book club tools, reading calculators, discussion question generators, chapter companions and more. Turn any book into your own personal book club." />
+    <meta property="og:title" content="The Book Club For One" />
+    <meta property="og:description" content="Your personal book club for every book you read. Free tools, chapter companions, discussion questions, reading calculators and more." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="The Book Club For One" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..600&display=swap" />
+    <script>
+      // Apply the saved theme before first paint so dark mode never flashes light.
+      try {
+        var t = localStorage.getItem('theme') || 'system';
+        if (t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

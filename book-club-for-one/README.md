@@ -27,6 +27,19 @@ values there rather than adding one-off colours in components.
 - Book covers come from Open Library; `BookCover` renders a typeset cover
   underneath so a missing image never leaves an empty frame.
 
+## Two pages, one site
+
+- `index.html` is the cinematic front page (Ink Drop), served at `/`. Its
+  video and images live in `public/cinematic/`.
+- `app.html` is the React app, served for every other address (`/books`,
+  `/tools/...`, `/library`, ...).
+- `npm run dev` and `npm run preview` handle this automatically
+  (`vite.config.ts`). In production the host needs the same rule:
+  `public/_redirects` does it on Netlify and `vercel.json` on Vercel. On other
+  hosts, rewrite every path without a file extension, except `/`, to `/app.html`.
+- The front page links to every section of the app in its footer. Add new pages
+  there as well as in the app's own footer.
+
 ## Notes
 
 - Every page except Home is lazy-loaded. Book chapter/character content lives in

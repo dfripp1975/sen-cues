@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType } from 'react';
+import { lazy, Suspense, useEffect, type ComponentType } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
@@ -6,9 +6,8 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { CookieConsentBanner } from '@/components/CookieConsentBanner';
-import { HomePage } from '@/pages/HomePage';
 
-// Every page except the home page is split into its own chunk, so a visitor
+// Every page is split into its own chunk, so a visitor
 // landing on one tool does not download the whole book and tool database.
 function lazyPage<K extends string>(
   load: () => Promise<Record<K, ComponentType>>,
@@ -55,6 +54,13 @@ const ReadingStreakTracker = lazyPage(() => import('@/pages/tools/ReadingStreakT
 const RandomBookClubQuestion = lazyPage(() => import('@/pages/tools/RandomBookClubQuestion'), 'RandomBookClubQuestion');
 const BookRatingCalculator = lazyPage(() => import('@/pages/tools/BookRatingCalculator'), 'BookRatingCalculator');
 
+// "/" belongs to the cinematic front page (index.html). If the app is ever
+// routed there client-side, hand over with a real page load.
+function FrontDoor() {
+  useEffect(() => { window.location.replace('/'); }, []);
+  return <PageFallback />;
+}
+
 function PageFallback() {
   return (
     <div className="container-page py-24" aria-busy="true" aria-live="polite">
@@ -78,7 +84,7 @@ function App() {
           <main id="main" className="flex-1">
             <Suspense fallback={<PageFallback />}>
               <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route path="/" element={<FrontDoor />} />
                 <Route path="/tools" element={<ToolsDirectoryPage />} />
                 <Route path="/tools/book-club-question-generator" element={<BookClubQuestionGenerator />} />
                 <Route path="/tools/what-should-i-read-next" element={<WhatShouldIReadNext />} />
