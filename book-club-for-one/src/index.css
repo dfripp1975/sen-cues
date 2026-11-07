@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-paper text-charcoal font-sans antialiased;
+    @apply dark:bg-dark-bg dark:text-dark-text;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+  *:focus-visible {
+    @apply outline-none ring-2 ring-forest-400 dark:ring-sage-300 ring-offset-2 ring-offset-paper dark:ring-offset-dark-bg rounded;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-forest-500 hover:bg-forest-600 transition-all duration-200 shadow-soft hover:shadow-card;
+    @apply dark:bg-forest-400 dark:hover:bg-forest-300 dark:text-dark-bg;
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white bg-terracotta-400 hover:bg-terracotta-500 transition-all duration-200 shadow-soft hover:shadow-card;
+    @apply dark:bg-dark-terra dark:hover:bg-terracotta-400;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-forest-500 border-2 border-forest-500 hover:bg-forest-50 transition-all duration-200;
+    @apply dark:text-dark-sage dark:border-dark-sage dark:hover:bg-forest-800;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-charcoal hover:bg-stone-light transition-all duration-200;
+    @apply dark:text-dark-text dark:hover:bg-forest-800;
+  }
+  .card {
+    @apply bg-ivory rounded-2xl shadow-soft border border-stone p-6;
+    @apply dark:bg-dark-card dark:border-dark-border;
+  }
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-stone bg-white text-charcoal placeholder-warmgrey focus:border-forest-400 focus:ring-2 focus:ring-forest-200 transition-all duration-200 outline-none;
+    @apply dark:bg-forest-800 dark:border-dark-border dark:text-dark-text dark:placeholder-dark-sub dark:focus:border-dark-sage dark:focus:ring-forest-700;
+  }
+  .section-heading {
+    @apply text-3xl md:text-4xl font-serif font-bold text-forest-500 dark:text-dark-sage;
+  }
+  .text-secondary {
+    @apply text-warmgrey dark:text-dark-sub;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium;
+  }
+  .badge-sage {
+    @apply badge bg-sage-100 text-sage-700 dark:bg-forest-700 dark:text-dark-sage;
+  }
+  .badge-terra {
+    @apply badge bg-terracotta-50 text-terracotta-600 dark:bg-terracotta-900 dark:text-dark-terra;
+  }
+  .badge-forest {
+    @apply badge bg-forest-50 text-forest-600 dark:bg-forest-700 dark:text-forest-200;
+  }
+  .link-internal {
+    @apply text-forest-500 hover:text-terracotta-400 font-medium underline-offset-2 hover:underline transition-colors;
+    @apply dark:text-dark-sage dark:hover:text-dark-terra;
+  }
+  .prose-literary {
+    @apply text-charcoal dark:text-dark-text leading-relaxed;
+  }
+  .tool-result {
+    @apply bg-sage-50 rounded-xl p-6 border border-sage-100 dark:bg-forest-800 dark:border-dark-border;
+  }
+  .nav-link {
+    @apply text-charcoal hover:text-forest-500 font-medium transition-colors dark:text-dark-text dark:hover:text-dark-sage;
+  }
+  .nav-link-active {
+    @apply text-forest-500 dark:text-dark-sage font-semibold;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
