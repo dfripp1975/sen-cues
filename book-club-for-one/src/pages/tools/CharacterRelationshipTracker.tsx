@@ -46,7 +46,7 @@ export function CharacterRelationshipTracker() {
                   <div className="mt-2">
                     <p className="text-xs font-semibold text-forest-500 dark:text-dark-sage">Important Connections:</p>
                     {char.connections.map((conn, i) => (
-                      <p key={i} className="text-xs text-warmgrey dark:text-dark-sub pl-2">• {conn.name} , {conn.type}</p>
+                      <p key={i} className="text-xs text-warmgrey dark:text-dark-sub pl-2">• {conn.name}, {conn.type}</p>
                     ))}
                   </div>
                 )}

@@ -46,7 +46,7 @@ export function BookClubQuestionGenerator() {
           </div>
         </div>
         {chapter && (
-          <span className="badge-terra">Spoiler Safe , Based only on Chapters 1-{chapter}</span>
+          <span className="badge-terra">Spoiler Safe, Based only on Chapters 1-{chapter}</span>
         )}
         <div className="space-y-3">
           {questions.map((q, i) => (

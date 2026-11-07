@@ -35,7 +35,7 @@ export function PagesPerDayCalculator() {
           <div className="card text-center"><Clock className="w-6 h-6 text-sage-400 dark:text-dark-sage mx-auto mb-2" /><p className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.dailyMinutes}m</p><p className="text-xs text-warmgrey dark:text-dark-sub">Daily Reading Time</p></div>
         </div>
         <div className="card bg-sage-50 dark:bg-forest-800">
-          <p className="text-sm text-charcoal dark:text-dark-text">To finish by <strong className="text-forest-500 dark:text-dark-sage">{new Date(targetDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>, read <strong className="text-terracotta-400 dark:text-dark-terra">{calc.pagesPerDay} pages per day</strong> (about {calc.dailyMinutes} minutes of reading).</p>
+          <p className="text-sm text-charcoal dark:text-dark-text">To finish by <strong className="text-forest-500 dark:text-dark-sage">{new Date(targetDate).toLocaleDateString('en-GB', { month: 'long', day: 'numeric', year: 'numeric' })}</strong>, read <strong className="text-terracotta-400 dark:text-dark-terra">{calc.pagesPerDay} pages per day</strong> (about {calc.dailyMinutes} minutes of reading).</p>
         </div>
       </div>
     ) : undefined}>

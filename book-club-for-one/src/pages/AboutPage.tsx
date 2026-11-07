@@ -4,7 +4,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 export function AboutPage() {
   useSEO({
     title: 'About | The Book Club For One',
-    description: 'Learn about The Book Club For One , your personal book club for every book you read.',
+    description: 'Learn about The Book Club For One, your personal book club for every book you read.',
     canonical: `${window.location.origin}/about`,
   });
 
@@ -13,7 +13,7 @@ export function AboutPage() {
       <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
       <h1 className="text-3xl md:text-4xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-6">About The Book Club For One</h1>
       <div className="prose-literary space-y-4">
-        <p>The Book Club For One is a free online toolbox for people who love books. We believe reading should be an enriching, engaging experience , and that the right tools can help you get more from every book you pick up.</p>
+        <p>The Book Club For One is a free online toolbox for people who love books. We believe reading should be an enriching, engaging experience, and that the right tools can help you get more from every book you pick up.</p>
         <p>Our mission is simple: provide genuinely useful, free reading and book club tools that help you read more, understand more, and enjoy more. From discussion question generators to reading time calculators, from character trackers to book club meeting planners, every tool on this site is designed to be practical, easy to use, and genuinely helpful.</p>
         <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage mt-8 mb-4">What We Offer</h2>
         <ul className="space-y-2">

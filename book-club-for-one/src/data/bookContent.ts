@@ -1,8 +1,8 @@
 import type { Character, ChapterInfo } from '@/types';
-import { batch1Characters, batch1Themes, batch1Chapters } from './batch1';
-import { batch2Characters, batch2Themes, batch2Chapters } from './batch2';
-import { batch3Characters, batch3Themes, batch3Chapters } from './batch3';
-import { batch4Characters, batch4Themes, batch4Chapters } from './batch4';
+import { batch1Characters, batch1Themes, batch1Chapters } from './batch1.content';
+import { batch2Characters, batch2Themes, batch2Chapters } from './batch2.content';
+import { batch3Characters, batch3Themes, batch3Chapters } from './batch3.content';
+import { batch4Characters, batch4Themes, batch4Chapters } from './batch4.content';
 
 export const bookCharacters: Record<string, Character[]> = {
   'pride-and-prejudice': [
@@ -295,7 +295,7 @@ export const bookChapters: Record<string, ChapterInfo[]> = {
   ],
   'the-call-of-the-wild': [
     { number: 1, title: 'Kidnapped', summary: 'Buck is stolen from Judge Miller\'s estate and sold to dog traders heading north to the Klondike.', themes: ['Civilization to Wilderness', 'Adaptation'], vocabulary: [{ word: 'primordial', definition: 'Relating to the earliest beginnings', context: 'Buck\'s awakening instincts' }] },
-    { number: 2, title: 'The Law of Club and Fang', summary: 'Buck learns the brutal law of the North , that man with a club rules and dogs fight for survival.', themes: ['Survival', 'Power'], vocabulary: [{ word: 'club', definition: 'A heavy stick used as a weapon', context: 'Man\'s dominance over dogs' }] },
+    { number: 2, title: 'The Law of Club and Fang', summary: 'Buck learns the brutal law of the North, that man with a club rules and dogs fight for survival.', themes: ['Survival', 'Power'], vocabulary: [{ word: 'club', definition: 'A heavy stick used as a weapon', context: 'Man\'s dominance over dogs' }] },
     { number: 3, title: 'The Dominant Primordial Beast', summary: 'Buck fights with Spitz, the lead dog, and begins to assert dominance in the pack.', themes: ['Instinct', 'Rivalry'], vocabulary: [{ word: 'dominant', definition: 'Most powerful or influential', context: 'Buck\'s growing leadership' }] },
     { number: 4, title: 'Who Has Won Mastership', summary: 'Buck defeats Spitz in a final battle and becomes the lead dog.', themes: ['Leadership', 'Survival'], vocabulary: [{ word: 'mastery', definition: 'Comprehensive knowledge or skill', context: 'Buck\'s triumph' }] },
     { number: 5, title: 'The Toil of Trace and Trail', summary: 'Buck\'s new owners, Hal, Charles, and Mercedes, are inexperienced and nearly kill the dogs through overwork.', themes: ['Cruelty', 'Incompetence'], vocabulary: [{ word: 'toil', definition: 'Hard, exhausting work', context: 'The dogs\' labor on the trail' }] },
@@ -303,7 +303,7 @@ export const bookChapters: Record<string, ChapterInfo[]> = {
   'the-war-of-the-worlds': [
     { number: 1, title: 'The Eve of the War', summary: 'The narrator describes the Martians observing Earth and the first cylinder landing in Surrey.', themes: ['Invasion', 'Unknown'], vocabulary: [{ word: 'transient', definition: 'Lasting only a short time', context: 'Human civilization from the Martian perspective' }] },
     { number: 2, title: 'The Falling Star', summary: 'A strange object falls from the sky near Horsell Common, drawing curious locals.', themes: ['Curiosity', 'First Contact'], vocabulary: [{ word: 'cylinder', definition: 'A solid or hollow cylindrical shape', context: 'The Martian spacecraft' }] },
-    { number: 3, title: 'The Cylinder Opens', summary: 'The cylinder unscrews and the Martians emerge , tentacled, gasping creatures that horrify the crowd.', themes: ['Horror', 'Alien Life'], vocabulary: [{ word: 'ungainly', definition: 'Awkward or clumsy in movement', context: 'The Martians\' first appearance' }] },
+    { number: 3, title: 'The Cylinder Opens', summary: 'The cylinder unscrews and the Martians emerge, tentacled, gasping creatures that horrify the crowd.', themes: ['Horror', 'Alien Life'], vocabulary: [{ word: 'ungainly', definition: 'Awkward or clumsy in movement', context: 'The Martians\' first appearance' }] },
     { number: 4, title: 'The Heat-Ray', summary: 'The Martians deploy a devastating Heat-Ray, killing many and forcing the narrator to flee.', themes: ['War', 'Technology'], vocabulary: [{ word: 'destruction', definition: 'The act of causing great damage', context: 'The Heat-Ray\'s effects' }] },
     { number: 5, title: 'The Exodus', summary: 'The narrator flees through panicked crowds as the Martians advance toward London.', themes: ['Chaos', 'Survival'], vocabulary: [{ word: 'exodus', definition: 'A mass departure', context: 'London\'s evacuation' }] },
   ],
@@ -318,7 +318,7 @@ export const bookChapters: Record<string, ChapterInfo[]> = {
     { number: 1, title: 'Adrift', summary: 'Edward Prendick is rescued from a lifeboat by Montgomery and taken aboard a ship heading to a mysterious island.', themes: ['Survival', 'Mystery'], vocabulary: [{ word: 'adrift', definition: 'Floating without direction', context: 'Prendick\'s situation' }] },
     { number: 2, title: 'The Island', summary: 'Prendick arrives at the island and meets the strange inhabitants, including Montgomery\'s servant M\'ling.', themes: ['Isolation', 'Unease'], vocabulary: [{ word: 'vivisection', definition: 'Dissection of living animals for research', context: 'Moreau\'s experiments' }] },
     { number: 3, title: 'The Strange Faces', summary: 'Prendick observes the Beast Folk and begins to realize something is deeply wrong.', themes: ['Horror', 'Discovery'], vocabulary: [{ word: 'bestial', definition: 'Of or like an animal', context: 'The island\'s inhabitants' }] },
-    { number: 4, title: 'The Law', summary: 'Prendick hears the Beast Folk chanting the Law , "Not to go on all Fours" and other prohibitions.', themes: ['Law', 'Civilization'], vocabulary: [{ word: 'prohibition', definition: 'A formal forbidding', context: 'The Law\'s rules' }] },
+    { number: 4, title: 'The Law', summary: 'Prendick hears the Beast Folk chanting the Law, "Not to go on all Fours" and other prohibitions.', themes: ['Law', 'Civilization'], vocabulary: [{ word: 'prohibition', definition: 'A formal forbidding', context: 'The Law\'s rules' }] },
     { number: 5, title: 'The House of Pain', summary: 'Prendick discovers Moreau\'s laboratory and the truth about the Beast Folk.', themes: ['Science', 'Ethics'], vocabulary: [{ word: 'mutilate', definition: 'To inflict serious physical damage', context: 'Moreau\'s surgical procedures' }] },
   ],
   'the-yellow-wallpaper': [

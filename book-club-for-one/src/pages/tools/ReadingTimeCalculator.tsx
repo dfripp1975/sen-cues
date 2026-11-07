@@ -42,14 +42,14 @@ export function ReadingTimeCalculator() {
           <div className="card text-center"><Clock className="w-6 h-6 text-sage-400 dark:text-dark-sage mx-auto mb-2" /><p className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.pagesRemaining}</p><p className="text-xs text-warmgrey dark:text-dark-sub">Pages Remaining</p></div>
           <div className="card text-center"><p className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.hoursRemaining.toFixed(1)}h</p><p className="text-xs text-warmgrey dark:text-dark-sub">Hours of Reading Left</p></div>
           <div className="card text-center"><p className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.daysToFinish}</p><p className="text-xs text-warmgrey dark:text-dark-sub">Days to Finish</p></div>
-          <div className="card text-center"><Calendar className="w-6 h-6 text-sage-400 dark:text-dark-sage mx-auto mb-2" /><p className="text-lg font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.finishDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p><p className="text-xs text-warmgrey dark:text-dark-sub">Estimated Finish Date</p></div>
+          <div className="card text-center"><Calendar className="w-6 h-6 text-sage-400 dark:text-dark-sage mx-auto mb-2" /><p className="text-lg font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.finishDate.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' })}</p><p className="text-xs text-warmgrey dark:text-dark-sub">Estimated Finish Date</p></div>
         </div>
         <div className="card bg-sage-50 dark:bg-forest-800">
           <p className="text-sm text-charcoal dark:text-dark-text">Recommended: <strong className="text-forest-500 dark:text-dark-sage">{Math.ceil(calc.pagesPerDay)} pages per day</strong> at your current pace.</p>
         </div>
         {calc.targetCalc && (
           <div className="card border-2 border-terracotta-200 dark:border-terracotta-700">
-            <h3 className="font-serif font-bold text-lg text-terracotta-500 dark:text-dark-terra mb-3">Finish By {new Date(targetDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</h3>
+            <h3 className="font-serif font-bold text-lg text-terracotta-500 dark:text-dark-terra mb-3">Finish By {new Date(targetDate).toLocaleDateString('en-GB', { month: 'long', day: 'numeric', year: 'numeric' })}</h3>
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center"><p className="text-xl font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.targetCalc.daysRemaining}</p><p className="text-xs text-warmgrey dark:text-dark-sub">Days Remaining</p></div>
               <div className="text-center"><p className="text-xl font-serif font-bold text-forest-500 dark:text-dark-sage">{calc.targetCalc.pagesPerDayRequired}</p><p className="text-xs text-warmgrey dark:text-dark-sub">Pages/Day Required</p></div>

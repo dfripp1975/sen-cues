@@ -1,5 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Lightbulb } from 'lucide-react';
 import { useSEO } from '@/lib/seo';
+import { getIcon } from '@/lib/icons';
+import { toolCategories } from '@/data/tools';
 import { Breadcrumbs } from './Breadcrumbs';
 import { FAQSection } from './FAQSection';
 import { RelatedTools } from './RelatedTools';
@@ -13,8 +16,6 @@ interface ToolLayoutProps {
 }
 
 export function ToolLayout({ tool, children, results }: ToolLayoutProps) {
-  const [showExample] = useState(true);
-
   useSEO({
     title: tool.seoTitle,
     description: tool.metaDescription,
@@ -30,85 +31,86 @@ export function ToolLayout({ tool, children, results }: ToolLayoutProps) {
     },
   });
 
+  const category = toolCategories.find(c => c.id === tool.category);
+  const Icon = getIcon(tool.icon);
+
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="container-page max-w-5xl py-10 md:py-14">
       <Breadcrumbs items={[
         { label: 'Home', to: '/' },
         { label: 'Tools', to: '/tools' },
         { label: tool.shortTitle },
       ]} />
 
-      <h1 className="text-3xl md:text-4xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">{tool.h1}</h1>
-      <p className="text-lg text-warmgrey dark:text-dark-sub leading-relaxed mb-8 max-w-3xl">{tool.intro}</p>
+      <header className="max-w-3xl">
+        {category && <p className="eyebrow">{category.name}</p>}
+        <h1 className="mt-3 font-serif text-display-lg text-forest-500 dark:text-dark-text">{tool.h1}</h1>
+        <p className="mt-5 text-lg leading-relaxed text-warmgrey dark:text-dark-sub">{tool.intro}</p>
+      </header>
 
-      <div className="card mb-8">
-        {children}
+      <section className="panel mt-10 overflow-hidden" aria-label={tool.shortTitle}>
+        <div className="flex items-center gap-3 border-b border-stone bg-stone-light/60 px-6 py-3.5 md:px-8 dark:border-dark-border dark:bg-white/[0.02]">
+          <Icon className="h-4 w-4 text-terracotta-500 dark:text-dark-terra" strokeWidth={2} />
+          <span className="text-sm font-semibold text-forest-500 dark:text-dark-text">{tool.shortTitle}</span>
+          <span className="ml-auto text-xs text-warmgrey dark:text-dark-sub">Free · no sign-up needed</span>
+        </div>
+        <div className="p-6 md:p-8">{children}</div>
+      </section>
+
+      <div aria-live="polite">
+        {results && <div className="mt-8 animate-slide-up">{results}</div>}
       </div>
 
-      {results && (
-        <>
-          <div className="mb-8">{results}</div>
-          <AdPlaceholder format="inline" />
-        </>
-      )}
-
-      <section className="mt-12">
-        <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">How It Works</h2>
-        <ol className="space-y-3">
-          {tool.howItWorks.map((step, i) => (
-            <li key={i} className="flex gap-3">
-              <span className="flex-shrink-0 w-7 h-7 rounded-full bg-forest-500 dark:bg-forest-400 text-white dark:text-dark-bg flex items-center justify-center text-sm font-bold">
-                {i + 1}
-              </span>
-              <span className="text-charcoal dark:text-dark-text leading-relaxed pt-0.5">{step}</span>
-            </li>
-          ))}
-        </ol>
+      <section className="mt-20 grid gap-12 md:grid-cols-2" aria-label="Guide">
+        <div>
+          <h2 className="font-serif text-display-md text-forest-500 dark:text-dark-text">How it works</h2>
+          <ol className="mt-6 space-y-5">
+            {tool.howItWorks.map((step, i) => (
+              <li key={i} className="grid grid-cols-[2.25rem_1fr] gap-3">
+                <span className="font-serif text-3xl leading-none text-terracotta-400 dark:text-dark-terra">{i + 1}</span>
+                <span className="pt-1 leading-relaxed text-charcoal dark:text-dark-text">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div>
+          <h2 className="font-serif text-display-md text-forest-500 dark:text-dark-text">Getting the most from it</h2>
+          <ul className="mt-6 space-y-3">
+            {tool.howToUse.map((tip, i) => (
+              <li key={i} className="flex gap-3 leading-relaxed text-charcoal dark:text-dark-text">
+                <span className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-sage-400 dark:bg-dark-sage" aria-hidden="true" />
+                {tip}
+              </li>
+            ))}
+          </ul>
+          <figure className="mt-8 rounded-2xl border-l-[3px] border-terracotta-400 bg-ivory px-6 py-5 dark:border-dark-terra dark:bg-dark-card">
+            <figcaption className="eyebrow">Example</figcaption>
+            <blockquote className="mt-2 font-serif text-lg leading-relaxed text-charcoal dark:text-dark-text">
+              {tool.example}
+            </blockquote>
+          </figure>
+        </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">How to Use It</h2>
-        <ul className="space-y-2">
-          {tool.howToUse.map((tip, i) => (
-            <li key={i} className="flex gap-2 text-charcoal dark:text-dark-text">
-              <span className="text-forest-400 dark:text-dark-sage">•</span>
-              <span className="leading-relaxed">{tip}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {showExample && (
-        <section className="mt-8">
-          <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">Example</h2>
-          <div className="tool-result">
-            <p className="text-charcoal dark:text-dark-text leading-relaxed">{tool.example}</p>
+      {tool.tips.length > 0 && (
+        <section className="mt-20" aria-labelledby="tips-heading">
+          <h2 id="tips-heading" className="font-serif text-display-md text-forest-500 dark:text-dark-text">Helpful tips</h2>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {tool.tips.map((tip, i) => (
+              <div key={i} className="card">
+                <Lightbulb className="h-5 w-5 text-terracotta-500 dark:text-dark-terra" strokeWidth={1.75} />
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-charcoal dark:text-dark-text">{tip}</p>
+              </div>
+            ))}
           </div>
         </section>
       )}
-
-      <section className="mt-8">
-        <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">Helpful Tips</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {tool.tips.map((tip, i) => (
-            <div key={i} className="card">
-              <p className="text-sm text-charcoal dark:text-dark-text leading-relaxed">{tip}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
       <AdPlaceholder format="inline" />
 
       <RelatedTools slugs={tool.relatedTools} />
 
       <FAQSection items={tool.faq} />
-
-      <section className="mt-12 text-center">
-        <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">Ready to Explore More?</h2>
-        <p className="text-warmgrey dark:text-dark-sub mb-6">Discover more free reading and book club tools.</p>
-        <a href="/tools" className="btn-accent">Browse All Tools</a>
-      </section>
     </div>
   );
 }

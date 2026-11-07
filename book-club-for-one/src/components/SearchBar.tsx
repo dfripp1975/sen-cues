@@ -1,5 +1,5 @@
-import { useState, useRef, type ReactNode } from 'react';
-import { Search, X } from 'lucide-react';
+import { useId, useMemo, useRef, useState } from 'react';
+import { Search, X, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchBooks } from '@/data/books';
 import { tools } from '@/data/tools';
@@ -8,111 +8,130 @@ interface SearchBarProps {
   placeholder?: string;
   onResultSelect?: (slug: string) => void;
   className?: string;
+  compact?: boolean;
 }
 
-export function SearchBar({ placeholder = 'Search books, authors, tools...', onResultSelect, className = '' }: SearchBarProps) {
+interface Result {
+  kind: 'book' | 'tool';
+  slug: string;
+  title: string;
+  meta?: string;
+}
+
+export function SearchBar({ placeholder = 'Search books, authors, tools', onResultSelect, className = '', compact = false }: SearchBarProps) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<ReactNode[]>([]);
-  const [showResults, setShowResults] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [highlight, setHighlight] = useState(-1);
   const navigate = useNavigate();
   const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const listId = useId();
 
-  const handleSearch = (value: string) => {
-    setQuery(value);
-    if (value.trim().length < 2) {
-      setResults([]);
-      setShowResults(false);
-      return;
-    }
+  const results = useMemo<Result[]>(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const bookResults: Result[] = searchBooks(q).slice(0, 5).map(b => ({
+      kind: 'book', slug: b.slug, title: b.title, meta: b.author,
+    }));
+    const toolResults: Result[] = tools
+      .filter(t => t.title.toLowerCase().includes(q) || t.shortTitle.toLowerCase().includes(q))
+      .slice(0, 3)
+      .map(t => ({ kind: 'tool', slug: t.slug, title: t.shortTitle }));
+    return [...bookResults, ...toolResults];
+  }, [query]);
 
-    const bookResults = searchBooks(value).slice(0, 5);
-    const toolResults = tools.filter(t =>
-      t.title.toLowerCase().includes(value.toLowerCase()) ||
-      t.shortTitle.toLowerCase().includes(value.toLowerCase())
-    ).slice(0, 3);
-
-    const items: ReactNode[] = [];
-    bookResults.forEach(book => {
-      items.push(
-        <button
-          key={`book-${book.id}`}
-          onClick={() => {
-            if (onResultSelect) onResultSelect(book.slug);
-            else navigate(`/book/${book.slug}`);
-            setShowResults(false);
-            setQuery('');
-          }}
-          className="w-full text-left px-4 py-2 hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors flex items-center gap-3"
-        >
-          <span className="text-xs badge-sage">Book</span>
-          <span className="text-sm text-charcoal dark:text-dark-text">{book.title}</span>
-          <span className="text-xs text-warmgrey dark:text-dark-sub">by {book.author}</span>
-        </button>
-      );
-    });
-    toolResults.forEach(tool => {
-      items.push(
-        <button
-          key={`tool-${tool.slug}`}
-          onClick={() => {
-            if (onResultSelect) onResultSelect(tool.slug);
-            else navigate(`/tools/${tool.slug}`);
-            setShowResults(false);
-            setQuery('');
-          }}
-          className="w-full text-left px-4 py-2 hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors flex items-center gap-3"
-        >
-          <span className="text-xs badge-terra">Tool</span>
-          <span className="text-sm text-charcoal dark:text-dark-text">{tool.shortTitle}</span>
-        </button>
-      );
-    });
-
-    setResults(items);
-    setShowResults(true);
+  const select = (r: Result) => {
+    if (onResultSelect) onResultSelect(r.slug);
+    else navigate(r.kind === 'book' ? `/book/${r.slug}` : `/tools/${r.slug}`);
+    setOpen(false);
+    setQuery('');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (highlight >= 0 && results[highlight]) {
+      select(results[highlight]);
+      return;
+    }
     if (query.trim()) {
-      navigate(`/books?q=${encodeURIComponent(query)}`);
-      setShowResults(false);
+      navigate(`/books?q=${encodeURIComponent(query.trim())}`);
+      setOpen(false);
     }
   };
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (!open || results.length === 0) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setHighlight(h => (h + 1) % results.length); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); setHighlight(h => (h <= 0 ? results.length - 1 : h - 1)); }
+    if (e.key === 'Escape') setOpen(false);
+  };
+
+  const showPanel = open && query.trim().length >= 2;
+
   return (
     <div className={`relative ${className}`}>
-      <form onSubmit={handleSubmit} className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-warmgrey dark:text-dark-sub pointer-events-none" />
+      <form onSubmit={handleSubmit} className="relative" role="search">
+        <Search className={`pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-warmgrey dark:text-dark-sub ${compact ? 'h-4 w-4' : 'h-5 w-5'}`} />
         <input
-          type="text"
+          type="search"
           value={query}
-          onChange={(e) => handleSearch(e.target.value)}
-          onFocus={() => results.length > 0 && setShowResults(true)}
-          onBlur={() => { blurTimeout.current = setTimeout(() => setShowResults(false), 200); }}
+          onChange={e => { setQuery(e.target.value); setOpen(true); setHighlight(-1); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => { blurTimeout.current = setTimeout(() => setOpen(false), 150); }}
+          onKeyDown={onKeyDown}
           placeholder={placeholder}
-          className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-stone dark:border-dark-border bg-white dark:bg-forest-800 text-charcoal dark:text-dark-text placeholder-warmgrey dark:placeholder-dark-sub focus:border-forest-400 dark:focus:border-dark-sage focus:ring-2 focus:ring-forest-200 dark:focus:ring-forest-700 transition-all outline-none text-sm"
-          aria-label="Search"
+          className={`w-full rounded-full border border-stone-dark/60 bg-ivory text-charcoal placeholder-warmgrey outline-none transition-[border-color,box-shadow] focus:border-forest-400 focus:ring-4 focus:ring-forest-500/10 dark:border-dark-border dark:bg-dark-card dark:text-dark-text dark:placeholder-dark-sub dark:focus:border-dark-sage [&::-webkit-search-cancel-button]:hidden ${compact ? 'py-2 pl-10 pr-9 text-sm' : 'py-3 pl-11 pr-10'}`}
+          aria-label="Search books and tools"
+          role="combobox"
+          aria-expanded={showPanel}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={highlight >= 0 ? `${listId}-${highlight}` : undefined}
         />
         {query && (
           <button
             type="button"
-            onClick={() => { setQuery(''); setResults([]); setShowResults(false); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-warmgrey hover:text-charcoal dark:hover:text-dark-text"
+            onClick={() => { setQuery(''); setOpen(false); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-warmgrey hover:text-charcoal dark:hover:text-dark-text"
             aria-label="Clear search"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </form>
-      {showResults && results.length > 0 && (
-        <div className="absolute top-full mt-2 w-full bg-ivory dark:bg-dark-card rounded-xl shadow-lift border border-stone dark:border-dark-border z-50 overflow-hidden animate-fade-in max-h-96 overflow-y-auto">
-          {results}
-        </div>
-      )}
-      {showResults && query.trim().length >= 2 && results.length === 0 && (
-        <div className="absolute top-full mt-2 w-full bg-ivory dark:bg-dark-card rounded-xl shadow-lift border border-stone dark:border-dark-border z-50 p-4 animate-fade-in">
-          <p className="text-sm text-warmgrey dark:text-dark-sub">No results found. Try a different search term.</p>
+
+      {showPanel && (
+        <div
+          id={listId}
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-96 overflow-y-auto rounded-2xl border border-stone bg-ivory py-1.5 shadow-lift animate-slide-up dark:border-dark-border dark:bg-dark-card"
+        >
+          {results.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-warmgrey dark:text-dark-sub">
+              Nothing matches “{query.trim()}”. Press Enter to search all books.
+            </p>
+          ) : (
+            results.map((r, i) => (
+              <button
+                key={`${r.kind}-${r.slug}`}
+                id={`${listId}-${i}`}
+                role="option"
+                aria-selected={i === highlight}
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => select(r)}
+                onMouseEnter={() => setHighlight(i)}
+                className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors ${i === highlight ? 'bg-sage-50 dark:bg-white/[0.05]' : ''}`}
+              >
+                <span className={`w-10 shrink-0 text-[0.7rem] font-semibold uppercase tracking-wider ${r.kind === 'book' ? 'text-sage-600 dark:text-dark-sage' : 'text-terracotta-500 dark:text-dark-terra'}`}>
+                  {r.kind}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-charcoal dark:text-dark-text">{r.title}</span>
+                  {r.meta && <span className="block truncate text-xs text-warmgrey dark:text-dark-sub">{r.meta}</span>}
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-warmgrey-light" />
+              </button>
+            ))
+          )}
         </div>
       )}
     </div>

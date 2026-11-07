@@ -96,7 +96,7 @@ export function ReadingStreakTracker() {
       </div>
     }>
       <div className="space-y-4">
-        <p className="text-warmgrey dark:text-dark-sub">Click "Read Today" each day you read , even for a few minutes. Build a daily reading habit and watch your streak grow!</p>
+        <p className="text-warmgrey dark:text-dark-sub">Click "Read Today" each day you read, even for a few minutes. Build a daily reading habit and watch your streak grow!</p>
         <div className="card bg-sage-50 dark:bg-forest-800">
           <p className="text-sm text-charcoal dark:text-dark-text">Your streak data is saved in your browser. <a href="/signup" className="link-internal">Create a free account</a> to save it permanently across devices.</p>
         </div>

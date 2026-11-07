@@ -1,9 +1,25 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, Monitor, BookOpen, User, LogOut, Target, Crown } from 'lucide-react';
+import { Menu, X, Moon, Sun, Monitor, BookOpen, LayoutDashboard, LogOut, Target, Crown } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { useAuth } from '@/lib/auth';
+import { useDismiss } from '@/hooks/useDismiss';
 import { SearchBar } from './SearchBar';
+import { Logo } from './Logo';
+
+const navLinks = [
+  { label: 'Books', to: '/books' },
+  { label: 'Free tools', to: '/tools' },
+  { label: 'My library', to: '/library' },
+  { label: 'Reading goals', to: '/reading-goals' },
+  { label: 'Pricing', to: '/pricing' },
+];
+
+const themeOptions = [
+  { val: 'light', icon: Sun, label: 'Light' },
+  { val: 'dark', icon: Moon, label: 'Dark' },
+  { val: 'system', icon: Monitor, label: 'Match device' },
+] as const;
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,74 +29,66 @@ export function Header() {
   const { user, signOut } = useAuth();
   const location = useLocation();
 
-  const navLinks = [
-    { label: 'Explore', to: '/books' },
-    { label: 'Free Tools', to: '/tools' },
-    { label: 'My Library', to: '/library' },
-    { label: 'Reading Goals', to: '/reading-goals' },
-    { label: 'Pricing', to: '/pricing' },
-  ];
+  const themeRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
+  const closeTheme = useCallback(() => setThemeMenuOpen(false), []);
+  const closeUser = useCallback(() => setUserMenuOpen(false), []);
+  useDismiss(themeRef, themeMenuOpen, closeTheme);
+  useDismiss(userRef, userMenuOpen, closeUser);
 
-  const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
-    return location.pathname.startsWith(path);
-  };
+  // Close every menu when the route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setUserMenuOpen(false);
+  }, [location.pathname]);
+
+  const isActive = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <header className="sticky top-0 z-40 bg-ivory/95 dark:bg-dark-card/95 backdrop-blur-md border-b border-stone dark:border-dark-border">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16 gap-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 rounded-lg bg-forest-500 dark:bg-forest-400 flex items-center justify-center">
-              <BookOpen className="w-5 h-5 text-ivory dark:text-dark-bg" />
-            </div>
-            <span className="font-serif font-bold text-lg text-forest-500 dark:text-dark-sage hidden sm:block">
-              The Book Club For One
-            </span>
-          </Link>
+    <header className="sticky top-0 z-40 border-b border-stone/80 bg-paper/85 backdrop-blur-md supports-[backdrop-filter]:bg-paper/75 dark:border-dark-border dark:bg-dark-bg/85">
+      <div className="container-page">
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Logo />
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Main">
             {navLinks.map(link => (
               <Link
                 key={link.to}
                 to={link.to}
                 className={`nav-link ${isActive(link.to) ? 'nav-link-active' : ''}`}
+                aria-current={isActive(link.to) ? 'page' : undefined}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Right side */}
-          <div className="flex items-center gap-2 flex-1 md:flex-initial justify-end max-w-xs md:max-w-none">
-            <div className="hidden lg:block flex-1 max-w-xs">
-              <SearchBar />
+          <div className="flex items-center gap-1.5">
+            <div className="hidden xl:block w-64">
+              <SearchBar compact />
             </div>
 
-            {/* Theme toggle */}
-            <div className="relative">
+            <div className="relative" ref={themeRef}>
               <button
-                onClick={() => setThemeMenuOpen(!themeMenuOpen)}
-                className="p-2 rounded-lg hover:bg-stone-light dark:hover:bg-forest-800 transition-colors"
-                aria-label="Theme settings"
+                onClick={() => setThemeMenuOpen(o => !o)}
+                className="grid h-10 w-10 place-items-center rounded-full text-forest-500 transition-colors hover:bg-charcoal/[0.05] dark:text-dark-text dark:hover:bg-white/[0.06]"
+                aria-label="Colour theme"
+                aria-haspopup="menu"
+                aria-expanded={themeMenuOpen}
               >
-                {isDark ? <Moon className="w-5 h-5 text-dark-sage" /> : <Sun className="w-5 h-5 text-forest-500" />}
+                {isDark ? <Moon className="h-[18px] w-[18px]" /> : <Sun className="h-[18px] w-[18px]" />}
               </button>
               {themeMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-40 bg-ivory dark:bg-dark-card rounded-xl shadow-lift border border-stone dark:border-dark-border z-50 overflow-hidden animate-fade-in">
-                  {([
-                    { val: 'light', icon: Sun, label: 'Light' },
-                    { val: 'dark', icon: Moon, label: 'Dark' },
-                    { val: 'system', icon: Monitor, label: 'System' },
-                  ] as const).map(opt => (
+                <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-2xl border border-stone bg-ivory py-1 shadow-lift animate-slide-up dark:border-dark-border dark:bg-dark-card">
+                  {themeOptions.map(opt => (
                     <button
                       key={opt.val}
+                      role="menuitemradio"
+                      aria-checked={theme === opt.val}
                       onClick={() => { setTheme(opt.val); setThemeMenuOpen(false); }}
-                      className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors ${theme === opt.val ? 'text-forest-500 dark:text-dark-sage font-semibold' : 'text-charcoal dark:text-dark-text'}`}
+                      className={`menu-item ${theme === opt.val ? 'font-semibold text-forest-500 dark:text-dark-sage' : ''}`}
                     >
-                      <opt.icon className="w-4 h-4" />
+                      <opt.icon className="h-4 w-4" />
                       {opt.label}
                     </button>
                   ))}
@@ -88,81 +96,69 @@ export function Header() {
               )}
             </div>
 
-            {/* User */}
             {user ? (
-              <div className="relative">
+              <div className="relative" ref={userRef}>
                 <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="p-2 rounded-lg hover:bg-stone-light dark:hover:bg-forest-800 transition-colors flex items-center gap-2"
+                  onClick={() => setUserMenuOpen(o => !o)}
+                  className="grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-charcoal/[0.05] dark:hover:bg-white/[0.06]"
                   aria-label="Account menu"
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
                 >
-                  <div className="w-8 h-8 rounded-full bg-forest-500 dark:bg-forest-400 text-ivory dark:text-dark-bg flex items-center justify-center text-sm font-bold">
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-forest-500 font-serif text-sm text-ivory dark:bg-dark-sage dark:text-dark-bg">
                     {user.email?.[0]?.toUpperCase()}
-                  </div>
+                  </span>
                 </button>
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 bg-ivory dark:bg-dark-card rounded-xl shadow-lift border border-stone dark:border-dark-border z-50 overflow-hidden animate-fade-in">
-                    <div className="px-4 py-3 border-b border-stone dark:border-dark-border">
-                      <p className="text-sm text-charcoal dark:text-dark-text font-medium truncate">{user.email}</p>
-                    </div>
-                    <Link to="/dashboard" onClick={() => setUserMenuOpen(false)} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors text-charcoal dark:text-dark-text">
-                      <User className="w-4 h-4" /> Dashboard
-                    </Link>
-                    <Link to="/library" onClick={() => setUserMenuOpen(false)} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors text-charcoal dark:text-dark-text">
-                      <BookOpen className="w-4 h-4" /> My Library
-                    </Link>
-                    <Link to="/reading-goals" onClick={() => setUserMenuOpen(false)} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors text-charcoal dark:text-dark-text">
-                      <Target className="w-4 h-4" /> Reading Goals
-                    </Link>
-                    <Link to="/pricing" onClick={() => setUserMenuOpen(false)} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors text-charcoal dark:text-dark-text">
-                      <Crown className="w-4 h-4" /> Premium
-                    </Link>
-                    <button onClick={() => { signOut(); setUserMenuOpen(false); }} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-sage-50 dark:hover:bg-forest-700 transition-colors text-charcoal dark:text-dark-text">
-                      <LogOut className="w-4 h-4" /> Sign Out
+                  <div role="menu" className="absolute right-0 top-full z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-stone bg-ivory py-1 shadow-lift animate-slide-up dark:border-dark-border dark:bg-dark-card">
+                    <p className="truncate border-b border-stone px-4 py-3 text-sm text-warmgrey dark:border-dark-border dark:text-dark-sub">
+                      {user.email}
+                    </p>
+                    <Link role="menuitem" to="/dashboard" className="menu-item"><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
+                    <Link role="menuitem" to="/library" className="menu-item"><BookOpen className="h-4 w-4" /> My library</Link>
+                    <Link role="menuitem" to="/reading-goals" className="menu-item"><Target className="h-4 w-4" /> Reading goals</Link>
+                    <Link role="menuitem" to="/pricing" className="menu-item"><Crown className="h-4 w-4" /> Premium</Link>
+                    <button role="menuitem" onClick={() => { signOut(); setUserMenuOpen(false); }} className="menu-item border-t border-stone dark:border-dark-border">
+                      <LogOut className="h-4 w-4" /> Sign out
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <Link to="/signin" className="btn-ghost text-sm hidden sm:flex">
-                Sign In
+              <Link to="/signin" className="btn-primary hidden sm:inline-flex !py-2 text-sm">
+                Sign in
               </Link>
             )}
 
-            {/* Mobile menu button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-stone-light dark:hover:bg-forest-800 transition-colors"
-              aria-label="Menu"
+              onClick={() => setMobileMenuOpen(o => !o)}
+              className="grid h-10 w-10 place-items-center rounded-full transition-colors hover:bg-charcoal/[0.05] lg:hidden dark:hover:bg-white/[0.06]"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-nav"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 animate-fade-in">
-            <div className="mb-4">
-              <SearchBar />
-            </div>
-            <nav className="flex flex-col gap-1">
+          <div id="mobile-nav" className="border-t border-stone pb-5 pt-4 animate-slide-up lg:hidden dark:border-dark-border">
+            <SearchBar />
+            <nav className="mt-3 flex flex-col" aria-label="Main">
               {navLinks.map(link => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`px-4 py-2.5 rounded-lg text-sm ${isActive(link.to) ? 'bg-forest-50 dark:bg-forest-700 text-forest-500 dark:text-dark-sage font-semibold' : 'text-charcoal dark:text-dark-text hover:bg-stone-light dark:hover:bg-forest-800'}`}
+                  className={`flex items-center justify-between border-b border-stone/70 py-3.5 font-serif text-xl dark:border-dark-border ${isActive(link.to) ? 'text-terracotta-500 dark:text-dark-terra' : 'text-forest-500 dark:text-dark-text'}`}
                 >
                   {link.label}
                 </Link>
               ))}
-              {!user && (
-                <Link to="/signin" onClick={() => setMobileMenuOpen(false)} className="px-4 py-2.5 rounded-lg text-sm text-charcoal dark:text-dark-text hover:bg-stone-light dark:hover:bg-forest-800">
-                  Sign In
-                </Link>
-              )}
             </nav>
+            {!user && (
+              <Link to="/signin" className="btn-primary mt-5 w-full">Sign in</Link>
+            )}
           </div>
         )}
       </div>

@@ -27,7 +27,7 @@ export function BookGenreFinder() {
     } else {
       setResult({
         primaryGenre: 'Unknown',
-        subgenres: ['Unable to determine , try a different title or author.'],
+        subgenres: ['Unable to determine, try a different title or author.'],
         relatedGenres: [],
         similarBooks: [],
       });

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import { getConsent, onConsentChange } from '@/lib/consent';
 
 declare global {
   interface Window {
@@ -6,7 +7,21 @@ declare global {
   }
 }
 
-const PUBLISHER_ID = 'ca-pub-0000000000000000';
+// Set VITE_ADSENSE_CLIENT (e.g. ca-pub-1234567890) in .env to turn ads on.
+// With no client ID, or before the visitor accepts cookies, nothing renders,
+// so the layout never shows empty ad boxes.
+const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+
+let scriptRequested = false;
+function loadAdSense() {
+  if (scriptRequested || !ADSENSE_CLIENT) return;
+  scriptRequested = true;
+  const s = document.createElement('script');
+  s.async = true;
+  s.crossOrigin = 'anonymous';
+  s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
+  document.head.appendChild(s);
+}
 
 interface AdPlaceholderProps {
   format?: 'leaderboard' | 'rectangle' | 'sidebar' | 'inline';
@@ -14,51 +29,38 @@ interface AdPlaceholderProps {
   slot?: string;
 }
 
-export function AdPlaceholder({ format = 'inline', label = 'Advertisement', slot = '0000000000' }: AdPlaceholderProps) {
-  const insRef = useRef<HTMLModElement>(null);
+const minHeights = { leaderboard: 90, rectangle: 250, sidebar: 600, inline: 120 };
+
+export function AdPlaceholder({ format = 'inline', label = 'Advertisement', slot }: AdPlaceholderProps) {
+  const [allowed, setAllowed] = useState(() => !!ADSENSE_CLIENT && getConsent() === 'accepted');
+
+  useEffect(() => onConsentChange(c => setAllowed(!!ADSENSE_CLIENT && c === 'accepted')), []);
 
   useEffect(() => {
+    if (!allowed) return;
+    loadAdSense();
     try {
-      if (typeof window !== 'undefined') {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
-      // AdSense not loaded yet or blocked — placeholder still renders
+      // Blocked by an extension: nothing to show
     }
-  }, []);
+  }, [allowed]);
 
-  const adStyles: Record<string, React.CSSProperties> = {
-    leaderboard: { display: 'block', minHeight: '90px' },
-    rectangle: { display: 'block', minHeight: '250px' },
-    sidebar: { display: 'block', minHeight: '600px' },
-    inline: { display: 'block', minHeight: '120px' },
-  };
-
-  const adFormats: Record<string, string> = {
-    leaderboard: 'auto',
-    rectangle: 'auto',
-    sidebar: 'auto',
-    inline: 'auto',
-  };
-
-  const isResponsive = true;
+  if (!allowed) return null;
 
   return (
-    <div className="my-6" aria-label="Advertisement" role="complementary">
-      <div className="text-[10px] text-warmgrey dark:text-dark-sub uppercase tracking-widest font-medium opacity-60 mb-1 text-center">
+    <aside className="my-12" aria-label={label}>
+      <p className="mb-2 text-center text-[0.65rem] font-medium uppercase tracking-[0.18em] text-warmgrey-light dark:text-dark-sub">
         {label}
-      </div>
-      <div className="w-full bg-stone-light/40 dark:bg-forest-800/40 rounded-xl border border-dashed border-stone dark:border-dark-border overflow-hidden">
-        <ins
-          ref={insRef}
-          className="adsbygoogle"
-          style={adStyles[format]}
-          data-ad-client={PUBLISHER_ID}
-          data-ad-slot={slot}
-          data-ad-format={adFormats[format]}
-          data-full-width-responsive={isResponsive ? 'true' : 'false'}
-        />
-      </div>
-    </div>
+      </p>
+      <ins
+        className="adsbygoogle block"
+        style={{ display: 'block', minHeight: minHeights[format] }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </aside>
   );
 }

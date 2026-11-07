@@ -27,7 +27,7 @@ export function BookClubScheduleGenerator() {
       const endPg = Math.min((i + 1) * pagesPerMeeting, totalPages);
       meetings.push({
         meetingNumber: i + 1,
-        date: meetingDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        date: meetingDate.toLocaleDateString('en-GB', { month: 'long', day: 'numeric', year: 'numeric' }),
         chapters: i === numMeetings - 1 ? `Chapters ${startCh}-${totalChapters}` : `Chapters ${startCh}-${endCh}`,
         pages: i === numMeetings - 1 ? `Pages ${startPg}-${totalPages}` : `Pages ${startPg}-${endPg}`,
       });

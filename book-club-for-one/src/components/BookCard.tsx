@@ -4,36 +4,25 @@ import { BookCover } from './BookCover';
 
 interface BookCardProps {
   book: Book;
+  /** Kept for compatibility with older call sites; the whole card is now the link. */
   showActions?: boolean;
+  eager?: boolean;
 }
 
-export function BookCard({ book, showActions = true }: BookCardProps) {
+/** Cover-led book tile: the cover carries the card, text sits underneath. */
+export function BookCard({ book, eager }: BookCardProps) {
   return (
-    <div className="card flex flex-col gap-4 hover:shadow-lift transition-all duration-300 group">
-      <div className="flex gap-4">
-        <BookCover book={book} size="sm" to={`/book/${book.slug}`} />
-        <div className="flex-1 min-w-0">
-          <Link to={`/book/${book.slug}`}>
-            <h3 className="font-serif font-bold text-lg text-forest-500 dark:text-dark-sage hover:text-terracotta-400 dark:hover:text-dark-terra transition-colors line-clamp-2">
-              {book.title}
-            </h3>
-          </Link>
-          <p className="text-sm text-warmgrey dark:text-dark-sub mt-1">{book.author}</p>
-          <p className="text-xs text-warmgrey dark:text-dark-sub mt-0.5">{book.year} · {book.pages} pages</p>
-          <div className="flex flex-wrap gap-1 mt-2">
-            {book.genre.slice(0, 2).map(g => (
-              <span key={g} className="badge-sage">{g}</span>
-            ))}
-          </div>
-        </div>
+    <Link to={`/book/${book.slug}`} className="group flex flex-col">
+      <div className="relative rounded-xl bg-stone-light/70 px-[14%] pb-[10%] pt-[12%] transition-colors duration-300 group-hover:bg-stone dark:bg-white/[0.03] dark:group-hover:bg-white/[0.06]">
+        <BookCover book={book} size="fill" eager={eager} className="group-hover:-translate-y-1 transition-transform duration-300 ease-out" />
       </div>
-      {showActions && (
-        <div className="flex gap-2 mt-auto">
-          <Link to={`/book/${book.slug}`} className="btn-primary text-sm flex-1">
-            Explore Book
-          </Link>
-        </div>
-      )}
-    </div>
+      <h3 className="mt-3 font-serif text-[1.05rem] font-medium leading-snug text-charcoal line-clamp-2 transition-colors group-hover:text-terracotta-500 dark:text-dark-text dark:group-hover:text-dark-terra">
+        {book.title}
+      </h3>
+      <p className="mt-0.5 text-sm text-warmgrey dark:text-dark-sub line-clamp-1">{book.author}</p>
+      <p className="mt-1 text-xs text-warmgrey-light dark:text-dark-sub/80">
+        {book.year} · {book.pages} pages{book.genre[0] ? ` · ${book.genre[0]}` : ''}
+      </p>
+    </Link>
   );
 }

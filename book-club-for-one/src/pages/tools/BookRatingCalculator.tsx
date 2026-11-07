@@ -31,7 +31,7 @@ export function BookRatingCalculator() {
   }, [ratings]);
 
   const handleCopy = () => {
-    const text = `${bookTitle || 'This book'} , Overall Rating: ${overall.outOf10}/10 (${overall.outOf5}/5)\nPlot: ${ratings.plot}/10\nCharacters: ${ratings.characters}/10\nWriting: ${ratings.writing}/10\nPacing: ${ratings.pacing}/10\nOriginality: ${ratings.originality}/10\nEnjoyment: ${ratings.enjoyment}/10`;
+    const text = `${bookTitle || 'This book'}, Overall Rating: ${overall.outOf10}/10 (${overall.outOf5}/5)\nPlot: ${ratings.plot}/10\nCharacters: ${ratings.characters}/10\nWriting: ${ratings.writing}/10\nPacing: ${ratings.pacing}/10\nOriginality: ${ratings.originality}/10\nEnjoyment: ${ratings.enjoyment}/10`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
