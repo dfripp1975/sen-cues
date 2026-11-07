@@ -25,14 +25,27 @@ async function get(url: string, tries = 3): Promise<any> {
 
 async function resolve(title: string, author: string) {
   const fields = 'title,author_name,cover_i,edition_count';
-  const q = `https://openlibrary.org/search.json?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}&limit=10&fields=${fields}`;
-  const data = await get(q);
-  const docs: any[] = data?.docs || [];
-  const want = norm(title), sn = surname(author);
-  const ok = docs.filter(d => d.cover_i && (norm(d.title) === want || norm(d.title).startsWith(want + ' ') || want.startsWith(norm(d.title) + ' '))
-    && (d.author_name || []).some((a: string) => surname(a) === sn || norm(a).includes(sn)));
-  ok.sort((a, b) => (b.edition_count || 0) - (a.edition_count || 0));   // the most-edited work is the canonical one
-  return ok[0]?.cover_i ?? null;
+  const clean = title.replace(/\s*\((abridged|unabridged)\)\s*/i, '').trim();
+  const want = norm(clean), sn = surname(author);
+  // Translated authors are often spelled differently (Tolstoy / Tolstoi / Tolstoj), so compare the first letters of the surname
+  const stem = sn.slice(0, Math.max(4, sn.length - 2));
+  const pick = (docs: any[], strictAuthor: boolean) => {
+    const ok = docs.filter(d => d.cover_i && (norm(d.title) === want || norm(d.title).startsWith(want + ' ') || want.startsWith(norm(d.title) + ' '))
+      && (d.author_name || []).some((a: string) => strictAuthor ? (surname(a) === sn || norm(a).includes(sn)) : norm(a).includes(stem)));
+    ok.sort((a, b) => (b.edition_count || 0) - (a.edition_count || 0));   // the most-edited work is the canonical one
+    return ok[0]?.cover_i ?? null;
+  };
+  // 1. title and author fields
+  let data = await get(`https://openlibrary.org/search.json?title=${encodeURIComponent(clean)}&author=${encodeURIComponent(author)}&limit=10&fields=${fields}`);
+  let id = pick(data?.docs || [], true);
+  if (id) return id;
+  // 2. free-text search on title plus surname, looser author match for transliterated names
+  data = await get(`https://openlibrary.org/search.json?q=${encodeURIComponent(clean + ' ' + sn)}&limit=15&fields=${fields}`);
+  id = pick(data?.docs || [], false);
+  if (id) return id;
+  // 3. title only, still requiring the author's surname stem
+  data = await get(`https://openlibrary.org/search.json?title=${encodeURIComponent(clean)}&limit=20&fields=${fields}`);
+  return pick(data?.docs || [], false);
 }
 
 async function exists(id: number) {
@@ -43,17 +56,21 @@ async function exists(id: number) {
 }
 
 const unique = [...new Map(allBooks.map(b => [b.slug, b])).values()];
-const out: Record<string, number> = {};
+// Keep covers found on earlier runs; only look up books still missing one
+let previous: Record<string, number> = {};
+try { previous = (await import('../src/data/covers.ts')).coverIds; } catch {}
+const out: Record<string, number> = { ...previous };
 const misses: string[] = [];
 let done = 0;
-const queue = [...unique];
-await Promise.all(Array.from({ length: 4 }, async () => {
+const queue = unique.filter(b => !out[b.slug]);
+console.log(`already have ${Object.keys(out).length}, looking up ${queue.length}`);
+await Promise.all(Array.from({ length: Number(process.env.CONCURRENCY || 4) }, async () => {
   while (queue.length) {
     const b = queue.shift()!;
     const id = await resolve(b.title, b.author);
     if (id && await exists(id)) out[b.slug] = id; else misses.push(`${b.title} (${b.author})`);
-    if (++done % 50 === 0) console.log(`${done}/${unique.length}`);
-    await new Promise(r => setTimeout(r, 150));
+    if (++done % 25 === 0) console.log(`${done}/${queue.length + done}`);
+    await new Promise(r => setTimeout(r, Number(process.env.PAUSE_MS || 150)));
   }
 }));
 
