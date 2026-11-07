@@ -50,7 +50,7 @@ export function PricingPage() {
 
   const freeFeatures = [
     '20 free reading & book club tools',
-    '500-book catalogue with chapter guides',
+    '485-book catalogue with reviews and reading notes',
     'Personal library with reading tracking',
     'Reading goals and streaks',
     '3 AI requests per day',

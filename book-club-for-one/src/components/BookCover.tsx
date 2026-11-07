@@ -1,6 +1,40 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import type { Book } from '@/types';
+import { coverIds } from '@/data/covers';
+import { allBooks } from '@/data/books';
+
+// Many ISBNs in the catalogue are invented or shared between different books,
+// so a cover is only trusted from an ISBN that passes its checksum and belongs
+// to exactly one book. The matched Open Library cover id always wins.
+function isbnValid(raw: string) {
+  const d = raw.replace(/[^0-9X]/gi, '');
+  if (d.length === 13) return [...d].reduce((a, c, i) => a + +c * (i % 2 ? 3 : 1), 0) % 10 === 0;
+  if (d.length === 10) return [...d].reduce((a, c, i) => a + (c.toUpperCase() === 'X' ? 10 : +c) * (10 - i), 0) % 11 === 0;
+  return false;
+}
+let isbnUse: Map<string, number> | null = null;
+function isbnIsUnique(isbn: string) {
+  if (!isbnUse) {
+    isbnUse = new Map();
+    const seen = new Set<string>();
+    for (const b of allBooks) {
+      if (!b.isbn || seen.has(b.slug)) continue;
+      seen.add(b.slug);
+      const k = b.isbn.replace(/[^0-9X]/gi, '');
+      isbnUse.set(k, (isbnUse.get(k) || 0) + 1);
+    }
+  }
+  return isbnUse.get(isbn.replace(/[^0-9X]/gi, '')) === 1;
+}
+export function coverUrlFor(book: Book): string | null {
+  const id = coverIds[book.slug];
+  if (id) return `https://covers.openlibrary.org/b/id/${id}-M.jpg`;
+  if (book.isbn && isbnValid(book.isbn) && isbnIsUnique(book.isbn)) {
+    return `https://covers.openlibrary.org/b/isbn/${book.isbn.replace(/-/g, '')}-M.jpg?default=false`;
+  }
+  return null;
+}
 
 interface BookCoverProps {
   book: Book;
@@ -26,11 +60,7 @@ const titleSize = {
 };
 
 export function BookCover({ book, size = 'md', to, className = '', eager = false }: BookCoverProps) {
-  const isbnCoverUrl = book.isbn
-    ? `https://covers.openlibrary.org/b/isbn/${book.isbn.replace(/-/g, '')}-M.jpg?default=false`
-    : null;
-  const titleCoverUrl = `https://covers.openlibrary.org/b/title/${encodeURIComponent(book.title)}-M.jpg?default=false`;
-  const [coverUrl, setCoverUrl] = useState(isbnCoverUrl ?? titleCoverUrl);
+  const coverUrl = coverUrlFor(book);
   const [imageError, setImageError] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -63,10 +93,7 @@ export function BookCover({ book, size = 'md', to, className = '', eager = false
           alt={`Cover of ${book.title} by ${book.author}`}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setLoaded(true)}
-          onError={() => {
-            if (isbnCoverUrl && coverUrl === isbnCoverUrl) setCoverUrl(titleCoverUrl);
-            else setImageError(true);
-          }}
+          onError={() => setImageError(true)}
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
         />

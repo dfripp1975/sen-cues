@@ -56,7 +56,7 @@ export const authors: Author[] = [
   ...batch14Authors,
 ];
 
-export const books: Book[] = [
+export const allBooks: Book[] = [
   {
     id: 'b1',
     slug: 'pride-and-prejudice',
@@ -686,12 +686,17 @@ export const books: Book[] = [
   ...batch14Books,
 ];
 
+// The raw list repeats 15 books (the same slug added again in a later batch).
+// Readers see each book once; getBookById still searches every entry, so any
+// id already saved in someone's library keeps working.
+export const books: Book[] = allBooks.filter((b, i, a) => a.findIndex(x => x.slug === b.slug) === i);
+
 export function getBookBySlug(slug: string): Book | undefined {
   return books.find(b => b.slug === slug);
 }
 
 export function getBookById(id: string): Book | undefined {
-  return books.find(b => b.id === id);
+  return allBooks.find(b => b.id === id);
 }
 
 export function getAuthorById(id: string): Author | undefined {
