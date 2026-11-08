@@ -40,6 +40,23 @@ values there rather than adding one-off colours in components.
 - The front page links to every section of the app in its footer. Add new pages
   there as well as in the app's own footer.
 
+## Books you can read on the site
+
+519 public-domain books can be read in full at `/read/:slug` (50 free, the rest
+with Premium). They come from Standard Ebooks, whose cleaned texts, descriptions
+and cover designs are released under CC0; the reader credits them anyway.
+
+The rule for a worldwide site: Standard Ebooks only publishes books that are
+public domain in the USA, and `scripts/import-standard-ebooks.mts` also requires
+every author and translator to have died in 1955 or earlier (life + 70 years,
+UK/EU and most countries). Anyone whose death year can't be confirmed is a fail.
+A few countries protect works for longer than life + 70; check before launching
+there. Texts are stored gzipped in `public/texts/`, covers in `public/covers/`,
+and the list in `src/data/library.ts`. To refresh or add books, run the script's
+`list`, `check`, `fetch` and `emit` stages (see the comment at its top).
+
+AI features are off unless `VITE_AI_ENABLED=true`, so the site has no AI costs.
+
 ## Notes
 
 - Every page except Home is lazy-loaded. Book chapter/character content lives in

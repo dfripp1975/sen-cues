@@ -242,26 +242,51 @@ function clean(el: HTMLElement): string {
   }
   return out;
 }
+const isUnit = (el: HTMLElement) => ['section', 'article'].includes(el.tagName?.toLowerCase());
+const typeOf = (el: HTMLElement) => el.getAttribute('epub:type') || '';
+const childUnits = (el: HTMLElement) => el.childNodes.filter(n => n.nodeType === 1 && isUnit(n as HTMLElement)) as HTMLElement[];
+const isHeadingNode = (el: HTMLElement) => /^(h[2-6]|hgroup|header)$/i.test(el.tagName);
 const headingText = (sec: HTMLElement) => {
-  const hg = sec.querySelector('hgroup') || sec.querySelector('header');
-  const h = hg || sec.querySelector('h2, h3, h4, h5, h6');
-  return h ? h.querySelectorAll('h2, h3, h4, h5, h6, p').map(x => x.text.replace(/\s+/g, ' ').trim()).filter(Boolean).join(': ') || h.text.replace(/\s+/g, ' ').trim() : '';
+  const h = sec.childNodes.find(n => n.nodeType === 1 && isHeadingNode(n as HTMLElement)) as HTMLElement | undefined;
+  if (!h) return '';
+  const parts = h.tagName.toLowerCase().match(/^h[2-6]$/) ? [h] : h.querySelectorAll('h2, h3, h4, h5, h6, p');
+  return parts.map(x => x.text.replace(/\s+/g, ' ').trim()).filter(Boolean).join(': ');
 };
+// The unit's own content, without its heading (shown as the chapter title) or nested units
+function unitHtml(sec: HTMLElement) {
+  const holder = parse('<div></div>').querySelector('div')!;
+  for (const n of sec.childNodes) {
+    if (n.nodeType === 1 && (isHeadingNode(n as HTMLElement) || isUnit(n as HTMLElement))) continue;
+    holder.appendChild(n.clone());
+  }
+  return clean(holder).replace(/\n\s*\n+/g, '\n').trim();
+}
+// Only the outermost sections are marked "bodymatter"; chapters, scenes and
+// stories sit inside them as plain sections or articles. Each leaf becomes one
+// reading page, titled with its parents ("Book I · Chapter 3", "Act 2 · Scene 1").
 function chaptersOf(html: string) {
   const root = parse(html);
-  const body = root.querySelectorAll('section').filter(s => /bodymatter/.test(s.getAttribute('epub:type') || ''));
-  // Leaf sections are the readable units (chapters); a part that holds chapters is used as a prefix
-  const leaves = body.filter(s => !s.querySelectorAll('section').some(c => /bodymatter/.test(c.getAttribute('epub:type') || '') || c.parentNode === s));
+  const all = root.querySelectorAll('section, article');
+  const tops = all.filter(el => /bodymatter/.test(typeOf(el)) && !(() => {
+    for (let p = el.parentNode as HTMLElement | null; p; p = p.parentNode as HTMLElement | null) if (p.tagName && isUnit(p) && /bodymatter/.test(typeOf(p))) return true;
+    return false;
+  })());
   const chapters: { title: string; html: string }[] = [];
-  for (const sec of leaves) {
-    const parentSec = sec.parentNode as HTMLElement | null;
-    const parentTitle = parentSec && parentSec.tagName?.toLowerCase() === 'section' ? headingText(parentSec) : '';
-    let title = headingText(sec) || `Chapter ${chapters.length + 1}`;
-    if (parentTitle && !title.includes(parentTitle)) title = `${parentTitle} · ${title}`;
-    const content = clean(sec).replace(/\n\s*\n+/g, '\n').trim();
-    if (content.replace(/<[^>]+>/g, '').trim().length < 20) continue;
-    chapters.push({ title, html: content });
-  }
+  const visit = (el: HTMLElement, trail: string[]) => {
+    const title = headingText(el);
+    const kids = childUnits(el);
+    const here = unitHtml(el);
+    const textLen = here.replace(/<[^>]+>/g, '').trim().length;
+    const names = title ? [...trail, title] : trail;
+    if (!kids.length) {
+      if (textLen >= 20) chapters.push({ title: names.join(' · ') || `Chapter ${chapters.length + 1}`, html: here });
+      return;
+    }
+    // Text before the first nested unit (a part's epigraph or opening) gets its own page when substantial
+    if (textLen >= 200) chapters.push({ title: names.join(' · ') || `Chapter ${chapters.length + 1}`, html: here });
+    for (const k of kids) visit(k, names);
+  };
+  for (const t of tops) visit(t, []);
   return chapters;
 }
 const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, 'and').replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
