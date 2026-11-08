@@ -57,6 +57,23 @@ and the list in `src/data/library.ts`. To refresh or add books, run the script's
 
 AI features are off unless `VITE_AI_ENABLED=true`, so the site has no AI costs.
 
+## Prices and currencies
+
+Premium prices live in `src/lib/pricing.ts`: £2.99/£24 (GBP), $3.99/$29.99
+(USD), €3.49/€27.99 (EUR), CA$5.49/CA$39.99 (CAD) and A$5.99/A$44.99 (AUD).
+The pricing page shows each visitor their own currency (worked out from their
+device's region; they can change it), and other countries see US$.
+
+Checkout needs matching prices in Stripe:
+
+1. In Stripe, create a monthly and a yearly price for Premium in GBP, each with
+   USD, EUR, CAD and AUD amounts added as currency options (the amounts above).
+2. Optionally turn on Adaptive Pricing in Stripe so visitors elsewhere pay in
+   their own currency.
+3. In Supabase, set the function secrets `STRIPE_PRICE_MONTHLY` and
+   `STRIPE_PRICE_YEARLY` to the two new price IDs, then redeploy
+   `stripe-checkout`. Until then checkout falls back to the old $5 / $48 prices.
+
 ## Notes
 
 - Every page except Home is lazy-loaded. Book chapter/character content lives in

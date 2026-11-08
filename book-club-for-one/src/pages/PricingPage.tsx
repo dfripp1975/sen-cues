@@ -6,13 +6,15 @@ import { SubscriptionService, type Subscription } from '@/services/SubscriptionS
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { books, FREE_READ_COUNT } from '@/data/books';
 
+import { PRICES, CURRENCY_NAMES, detectCurrency, saveCurrency, formatPrice, yearlySaving, type CurrencyCode } from '@/lib/pricing';
+
 const AI_ON = import.meta.env.VITE_AI_ENABLED === 'true';
 const READABLE = books.filter(b => b.readSlug).length;
 
 export function PricingPage() {
   useSEO({
     title: 'Pricing | The Book Club For One',
-    description: 'Upgrade to Premium for AI-powered chapter guides, spoiler-safe Q&A, and unlimited book club tools.',
+    description: 'Read 50 classics free, or every book on the shelf with Premium. All book club tools are free.',
     canonical: `${window.location.origin}/pricing`,
   });
 
@@ -20,6 +22,9 @@ export function PricingPage() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'yearly' | null>(null);
+  const [currency, setCurrency] = useState<CurrencyCode>(() => detectCurrency());
+  const price = PRICES[currency];
+  const zero = formatPrice(0, currency);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,7 +48,7 @@ export function PricingPage() {
     setCheckoutLoading(plan);
     setError(null);
     try {
-      const url = await SubscriptionService.createCheckoutSession(plan);
+      const url = await SubscriptionService.createCheckoutSession(plan, currency);
       window.location.href = url;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -80,10 +85,10 @@ export function PricingPage() {
           <Crown className="w-3 h-3" /> Premium
         </span>
         <h1 className="text-4xl md:text-5xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-4">
-          Unlock Your AI Book Club
+          Read every book on the shelf
         </h1>
         <p className="text-lg text-warmgrey dark:text-dark-sub max-w-2xl mx-auto leading-relaxed">
-          Get unlimited AI-powered insights, spoiler-safe discussions, and deeper engagement with every book you read.
+          Start free with 50 classics and every book club tool. Premium opens all {READABLE} books you can read here.
         </p>
       </div>
 
@@ -99,7 +104,7 @@ export function PricingPage() {
           <h3 className="text-xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-1">Free</h3>
           <p className="text-sm text-warmgrey dark:text-dark-sub mb-4">For casual readers</p>
           <div className="mb-6">
-            <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">$0</span>
+            <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">{zero}</span>
             <span className="text-sm text-warmgrey dark:text-dark-sub">/month</span>
           </div>
           <ul className="space-y-3 mb-6 flex-1">
@@ -133,7 +138,7 @@ export function PricingPage() {
           <h3 className="text-xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-1">Premium Monthly</h3>
           <p className="text-sm text-warmgrey dark:text-dark-sub mb-4">For active readers</p>
           <div className="mb-6">
-            <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">$5</span>
+            <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">{formatPrice(price.monthly, currency)}</span>
             <span className="text-sm text-warmgrey dark:text-dark-sub">/month</span>
           </div>
           <ul className="space-y-3 mb-6 flex-1">
@@ -163,9 +168,9 @@ export function PricingPage() {
         {/* Yearly */}
         <div className="card flex flex-col">
           <h3 className="text-xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-1">Premium Yearly</h3>
-          <p className="text-sm text-warmgrey dark:text-dark-sub mb-4">Best value: save 20%</p>
+          <p className="text-sm text-warmgrey dark:text-dark-sub mb-4">Best value: save {yearlySaving(currency)}%</p>
           <div className="mb-6">
-            <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">$48</span>
+            <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">{formatPrice(price.yearly, currency)}</span>
             <span className="text-sm text-warmgrey dark:text-dark-sub">/year</span>
           </div>
           <ul className="space-y-3 mb-6 flex-1">
@@ -193,10 +198,21 @@ export function PricingPage() {
         </div>
       </div>
 
-      <div className="text-center mt-10">
+      <div className="text-center mt-10 space-y-3">
         <p className="text-sm text-warmgrey dark:text-dark-sub">
           Cancel anytime. Payments processed securely by Stripe.
         </p>
+        <label className="inline-flex flex-wrap items-center justify-center gap-2 text-sm text-warmgrey dark:text-dark-sub">
+          Prices shown in
+          <select
+            value={currency}
+            onChange={e => { const c = e.target.value as CurrencyCode; setCurrency(c); saveCurrency(c); }}
+            className="input-field !w-auto !py-1.5 text-sm"
+          >
+            {(Object.keys(PRICES) as CurrencyCode[]).map(c => <option key={c} value={c}>{CURRENCY_NAMES[c]}</option>)}
+          </select>
+        </label>
+        <p className="text-xs text-warmgrey dark:text-dark-sub">Elsewhere in the world, checkout shows the price in your own currency.</p>
       </div>
     </div>
   );

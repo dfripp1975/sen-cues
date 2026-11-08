@@ -7,10 +7,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+// Set STRIPE_PRICE_MONTHLY / STRIPE_PRICE_YEARLY to the new prices (each with
+// GBP, USD, EUR, CAD and AUD amounts as currency options). The old $5 / $48
+// prices are the fallback until then.
 const PRICE_MAP: Record<string, string> = {
-  monthly: "price_1UQVwMRvqoxvOpTZCIDIo8Tx",
-  yearly: "price_1UQVwfRvqoxvOpTZNI0b86IU",
+  monthly: Deno.env.get("STRIPE_PRICE_MONTHLY") || "price_1UQVwMRvqoxvOpTZCIDIo8Tx",
+  yearly: Deno.env.get("STRIPE_PRICE_YEARLY") || "price_1UQVwfRvqoxvOpTZNI0b86IU",
 };
+// Currencies the prices carry; any other visitor is charged in USD, or in their
+// own currency when Adaptive Pricing is switched on in the Stripe dashboard.
+const CURRENCIES = new Set(["gbp", "usd", "eur", "cad", "aud"]);
+const MULTI_CURRENCY = !!(Deno.env.get("STRIPE_PRICE_MONTHLY") && Deno.env.get("STRIPE_PRICE_YEARLY"));
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -50,7 +57,8 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { plan } = await req.json();
+    const { plan, currency } = await req.json();
+    const wanted = String(currency || "").toLowerCase();
     if (!plan || !PRICE_MAP[plan]) {
       return new Response(JSON.stringify({ error: "Invalid plan" }), {
         status: 400,
@@ -93,6 +101,7 @@ Deno.serve(async (req: Request) => {
       customer: customerId,
       mode: "subscription",
       line_items: [{ price: PRICE_MAP[plan], quantity: 1 }],
+      ...(MULTI_CURRENCY && CURRENCIES.has(wanted) ? { currency: wanted } : {}),
       success_url: `${origin}/dashboard?upgrade=success`,
       cancel_url: `${origin}/pricing?upgrade=cancelled`,
       metadata: { supabase_user_id: user.id, plan },

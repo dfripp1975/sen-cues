@@ -19,7 +19,7 @@ export const SubscriptionService = {
     return data as Subscription | null;
   },
 
-  async createCheckoutSession(plan: 'monthly' | 'yearly'): Promise<string> {
+  async createCheckoutSession(plan: 'monthly' | 'yearly', currency = 'USD'): Promise<string> {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) throw new Error('You must be signed in to subscribe');
 
@@ -29,7 +29,7 @@ export const SubscriptionService = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, currency }),
     });
 
     if (!response.ok) {
