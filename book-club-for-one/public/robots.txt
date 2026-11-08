@@ -1,8 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /library
-Disallow: /dashboard
-Disallow: /signin
-Disallow: /signup
-
-Sitemap: https://thebookclubforone.com/sitemap.xml

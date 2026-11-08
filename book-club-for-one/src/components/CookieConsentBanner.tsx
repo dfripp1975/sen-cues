@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getConsent, setConsent, onConsentChange, type ConsentChoice } from '@/lib/consent';
+import { ADSENSE_CLIENT, USE_SITE_BANNER } from '@/lib/ads';
+
+// The site itself only sets essential storage (sign-in, settings). A banner is
+// needed only when ads run with this site's own consent banner; with Google's
+// consent message (the default), Google asks instead, so this stays hidden.
+const NEEDED = !!ADSENSE_CLIENT && USE_SITE_BANNER;
 
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (getConsent()) return;
+    if (!NEEDED || getConsent()) return;
     const t = setTimeout(() => setVisible(true), 900);
     return () => clearTimeout(t);
   }, []);

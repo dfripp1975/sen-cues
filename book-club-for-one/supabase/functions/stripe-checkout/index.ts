@@ -7,12 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-// Set STRIPE_PRICE_MONTHLY / STRIPE_PRICE_YEARLY to the new prices (each with
-// GBP, USD, EUR, CAD and AUD amounts as currency options). The old $5 / $48
-// prices are the fallback until then.
-const PRICE_MAP: Record<string, string> = {
-  monthly: Deno.env.get("STRIPE_PRICE_MONTHLY") || "price_1UQVwMRvqoxvOpTZCIDIo8Tx",
-  yearly: Deno.env.get("STRIPE_PRICE_YEARLY") || "price_1UQVwfRvqoxvOpTZNI0b86IU",
+// STRIPE_PRICE_MONTHLY / STRIPE_PRICE_YEARLY: the Premium prices in this site's
+// Stripe account, each in GBP with USD, EUR, CAD and AUD as currency options.
+// Checkout reports "Payments not configured" until both are set.
+const PRICE_MAP: Record<string, string | undefined> = {
+  monthly: Deno.env.get("STRIPE_PRICE_MONTHLY"),
+  yearly: Deno.env.get("STRIPE_PRICE_YEARLY"),
 };
 // Currencies the prices carry; any other visitor is charged in USD, or in their
 // own currency when Adaptive Pricing is switched on in the Stripe dashboard.
@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const stripeSecret = Deno.env.get("STRIPE_SECRET_KEY");
 
-    if (!stripeSecret) {
+    if (!stripeSecret || !PRICE_MAP.monthly || !PRICE_MAP.yearly) {
       return new Response(JSON.stringify({ error: "Payments not configured" }), {
         status: 503,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -100,7 +100,7 @@ Deno.serve(async (req: Request) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      line_items: [{ price: PRICE_MAP[plan], quantity: 1 }],
+      line_items: [{ price: PRICE_MAP[plan]!, quantity: 1 }],
       ...(MULTI_CURRENCY && CURRENCIES.has(wanted) ? { currency: wanted } : {}),
       success_url: `${origin}/dashboard?upgrade=success`,
       cancel_url: `${origin}/pricing?upgrade=cancelled`,

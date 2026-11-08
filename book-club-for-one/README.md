@@ -74,6 +74,19 @@ Checkout needs matching prices in Stripe:
    `STRIPE_PRICE_YEARLY` to the two new price IDs, then redeploy
    `stripe-checkout`. Until then checkout falls back to the old $5 / $48 prices.
 
+## Google AdSense
+
+1. Set `VITE_SITE_URL` and `VITE_ADSENSE_CLIENT` in the host's environment
+   settings and rebuild. The build adds the AdSense account tag to every page,
+   writes `ads.txt`, and refreshes `robots.txt` and `sitemap.xml` (every book,
+   reading page and tool).
+2. In AdSense, under Privacy & messaging, create the European regulations
+   (GDPR) message. Google shows it to visitors in the UK, EEA and Switzerland,
+   so the site's own cookie banner stays hidden.
+3. If you turn on Auto ads, add `/read/*` as a page exclusion so ads stay off
+   reading pages. Manual ad slots already skip them.
+4. Submit the sitemap in Google Search Console.
+
 ## Notes
 
 - Every page except Home is lazy-loaded. Book chapter/character content lives in

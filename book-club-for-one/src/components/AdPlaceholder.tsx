@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getConsent, onConsentChange } from '@/lib/consent';
+import { ADSENSE_CLIENT, USE_SITE_BANNER } from '@/lib/ads';
 
 declare global {
   interface Window {
@@ -7,10 +8,15 @@ declare global {
   }
 }
 
-// Set VITE_ADSENSE_CLIENT (e.g. ca-pub-1234567890) in .env to turn ads on.
-// With no client ID, or before the visitor accepts cookies, nothing renders,
-// so the layout never shows empty ad boxes.
-const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT as string | undefined;
+// Set VITE_ADSENSE_CLIENT (e.g. ca-pub-1234567890123456) in .env to turn ads on.
+// Consent: by default Google's own consent message (set up in AdSense under
+// "Privacy & messaging") asks visitors in the UK, EEA and Switzerland, so ads
+// load straight away and Google applies their choice. Set VITE_ADSENSE_CMP=site
+// to use this site's own cookie banner instead.
+// Ads never load on reading pages (/read/...): the book texts are republished
+// public-domain works, and keeping ads beside original content only helps approval.
+// With no client ID nothing renders, so the layout never shows empty ad boxes.
+const onReadingPage = () => typeof location !== 'undefined' && location.pathname.startsWith('/read/');
 
 let scriptRequested = false;
 function loadAdSense() {
@@ -32,9 +38,10 @@ interface AdPlaceholderProps {
 const minHeights = { leaderboard: 90, rectangle: 250, sidebar: 600, inline: 120 };
 
 export function AdPlaceholder({ format = 'inline', label = 'Advertisement', slot }: AdPlaceholderProps) {
-  const [allowed, setAllowed] = useState(() => !!ADSENSE_CLIENT && getConsent() === 'accepted');
+  const permitted = (c: string | null) => !!ADSENSE_CLIENT && !onReadingPage() && (!USE_SITE_BANNER || c === 'accepted');
+  const [allowed, setAllowed] = useState(() => permitted(getConsent()));
 
-  useEffect(() => onConsentChange(c => setAllowed(!!ADSENSE_CLIENT && c === 'accepted')), []);
+  useEffect(() => onConsentChange(c => setAllowed(permitted(c))), []);
 
   useEffect(() => {
     if (!allowed) return;
