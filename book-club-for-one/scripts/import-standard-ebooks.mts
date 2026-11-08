@@ -143,8 +143,12 @@ async function firstPublished(title: string, author: string): Promise<number | n
   writeJson(cacheFile, years);
   return y;
 }
+// Names can be element text or a <meta property="schema:name" content="…"> (translators are marked up that way)
 const namesIn = (root: HTMLElement, prop: string) => [...new Set(root.querySelectorAll(`[property="schema:${prop}"]`)
-  .map(el => (el.querySelector('[property="schema:name"]')?.text || el.text).replace(/\s+/g, ' ').trim())
+  .map(el => {
+    const nameEl = el.querySelector('[property="schema:name"]');
+    return (nameEl?.getAttribute('content') || nameEl?.text || el.getAttribute('content') || el.text).replace(/\s+/g, ' ').trim();
+  })
   .filter(Boolean))];
 
 interface Checked {
@@ -165,6 +169,9 @@ async function check() {
     const title = root.querySelector('h1')?.text.trim() || e.title;
     const authorNames = namesIn(root, 'author');
     const translatorNames = namesIn(root, 'translator');
+    // Safety net: a third URL segment names a translator or illustrator. If one is there but no
+    // translator was read from the page, fail the book rather than guess.
+    const hasContributorSegment = e.path.split('/').filter(Boolean).length > 3;
     const description = (root.querySelector('#description')?.querySelectorAll('p') || []).map(p => p.text.replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 3);
     const words = Number(root.querySelector('[property="schema:wordCount"]')?.getAttribute('content') || 0);
     const subjects = root.querySelectorAll('a[href^="/subjects/"]').map(a => a.text.trim()).filter(Boolean);
@@ -176,6 +183,7 @@ async function check() {
     let pass = everyone.length > 0 && everyone.every(p => p.death !== null && p.death <= DEATH_CUTOFF);
     let reason: string | undefined;
     if (!authors.length) { pass = false; reason = 'no author found'; }
+    else if (hasContributorSegment && !translatorNames.length && !/illustrat/i.test(html)) { pass = false; reason = 'contributor in URL but no translator read'; }
     else if (!pass) {
       const bad = everyone.find(p => p.death === null || p.death > DEATH_CUTOFF)!;
       reason = bad.death === null ? `death year unknown: ${bad.name}` : `${bad.name} died ${bad.death}`;
