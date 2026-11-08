@@ -12,6 +12,9 @@ import { useAuth } from '@/lib/auth';
 import { UserLibraryService } from '@/services/UserLibraryService';
 import { CustomBookService, toBook, type CustomBook } from '@/services/CustomBookService';
 import { AIService } from '@/services/AIService';
+
+// AI features cost money per request, so they are off unless VITE_AI_ENABLED=true is set.
+const AI_ON = import.meta.env.VITE_AI_ENABLED === 'true';
 import { SubscriptionService, type Subscription } from '@/services/SubscriptionService';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import type { Book } from '@/types';
@@ -246,7 +249,20 @@ export function BookDetailPage() {
             {isCustom && <span className="badge-terra">Your Book</span>}
           </div>
           {book.description && <p className="text-charcoal dark:text-dark-text leading-relaxed mb-6">{book.description}</p>}
+          {book.readSlug && (
+            <p className="mb-4 text-sm text-charcoal dark:text-dark-text">
+              <span className={book.freeToRead ? 'badge-sage' : 'badge-terra'}>{book.freeToRead ? 'Free to read' : 'Premium read'}</span>
+              <span className="ml-2 text-warmgrey dark:text-dark-sub">
+                {book.freeToRead ? 'The full book is free to read here.' : 'Chapter 1 is free. Premium opens the rest.'}
+              </span>
+            </p>
+          )}
           <div className="flex flex-wrap gap-3">
+            {book.readSlug && (
+              <Link to={`/read/${book.slug}`} className="btn-primary">
+                <BookOpen className="w-5 h-5" /> Read the book
+              </Link>
+            )}
             <button onClick={() => handleAddToLibrary('currently-reading')} className="btn-accent">
               <BookOpen className="w-5 h-5" /> Start My Book Club
             </button>
@@ -285,12 +301,16 @@ export function BookDetailPage() {
               {guided.length > 0 ? (
                 chapterCovered
                   ? <>Our built-in chapter guide covers chapters {describeChapters(guided)}, including the one you're on.</>
-                  : <>Our built-in chapter guide covers chapters {describeChapters(guided)}. For notes on exactly where you are, use the AI guide, written for {upTo} only.</>
-              ) : (
+                  : AI_ON
+                    ? <>Our built-in chapter guide covers chapters {describeChapters(guided)}. For notes on exactly where you are, use the AI guide, written for {upTo} only.</>
+                    : <>Our built-in chapter guide covers chapters {describeChapters(guided)}.</>
+              ) : AI_ON ? (
                 <>There's no built-in chapter guide for this book yet. The AI guide writes one for exactly where you are, using {upTo} only.</>
+              ) : (
+                <>There's no built-in chapter guide for this book yet. The book club tools and discussion question generator work for any book.</>
               )}
             </p>
-            {!chapterCovered && (
+            {AI_ON && !chapterCovered && (
               <button
                 onClick={() => { setActiveTab('chapter-guide'); handleAIAction('chapter-guide'); }}
                 disabled={isAILoading('chapter-guide')}
@@ -362,6 +382,7 @@ export function BookDetailPage() {
             )}
 
             {/* AI Explain section */}
+            {AI_ON && (
             <div className="card bg-sage-50 dark:bg-forest-800">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-5 h-5 text-sage-400 dark:text-dark-sage" />
@@ -379,6 +400,7 @@ export function BookDetailPage() {
                 </button>
               )}
             </div>
+            )}
           </div>
         )}
 
@@ -390,6 +412,7 @@ export function BookDetailPage() {
             </div>
 
             {/* AI-generated guide */}
+            {AI_ON && (
             <div className="card border-l-4 border-sage-400 dark:border-dark-sage">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -409,6 +432,7 @@ export function BookDetailPage() {
                 <p className="text-sm text-warmgrey dark:text-dark-sub">Get an AI-powered summary, key events, and discussion points for {upTo}.</p>
               )}
             </div>
+            )}
 
             {/* Static chapter data */}
             {chapters.length > 0 && (
@@ -429,7 +453,7 @@ export function BookDetailPage() {
             )}
             {!hasAIContent('chapter-guide') && chapters.length === 0 && !isAILoading('chapter-guide') && (
               <div className="card text-center py-8">
-                <p className="text-warmgrey dark:text-dark-sub">No built-in guide for {upTo} yet. Use the AI guide above for notes on exactly where you are.</p>
+                <p className="text-warmgrey dark:text-dark-sub">No built-in guide for {upTo} yet.{AI_ON ? ' Use the AI guide above for notes on exactly where you are.' : ''}</p>
               </div>
             )}
           </div>
@@ -443,6 +467,7 @@ export function BookDetailPage() {
             </div>
 
             {/* AI-generated characters */}
+            {AI_ON && (
             <div className="card border-l-4 border-sage-400 dark:border-dark-sage">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -462,6 +487,7 @@ export function BookDetailPage() {
                 <p className="text-sm text-warmgrey dark:text-dark-sub">Get AI-powered character descriptions based only on what's happened through chapter {selectedChapter}.</p>
               )}
             </div>
+            )}
 
             {/* Static character data */}
             {characters.length > 0 && (
@@ -491,6 +517,7 @@ export function BookDetailPage() {
           <div className="space-y-4 animate-fade-in">
             <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">Themes</h2>
 
+            {AI_ON && (
             <div className="card border-l-4 border-sage-400 dark:border-dark-sage">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -510,6 +537,7 @@ export function BookDetailPage() {
                 <p className="text-sm text-warmgrey dark:text-dark-sub">Let AI identify and explain the key themes developing through chapter {selectedChapter}.</p>
               )}
             </div>
+            )}
 
             {themes.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -536,6 +564,7 @@ export function BookDetailPage() {
               <span className="badge-terra"><Shield className="w-3 h-3" /> Up to Chapter {selectedChapter}</span>
             </div>
 
+            {AI_ON && (
             <div className="card border-l-4 border-sage-400 dark:border-dark-sage">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-5 h-5 text-sage-400 dark:text-dark-sage" />
@@ -560,6 +589,7 @@ export function BookDetailPage() {
                 </button>
               )}
             </div>
+            )}
           </div>
         )}
 
@@ -567,6 +597,7 @@ export function BookDetailPage() {
           <div className="space-y-4 animate-fade-in">
             <h2 className="text-2xl font-serif font-bold text-forest-500 dark:text-dark-sage">Vocabulary</h2>
 
+            {AI_ON && (
             <div className="card border-l-4 border-sage-400 dark:border-dark-sage">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -586,6 +617,7 @@ export function BookDetailPage() {
                 <p className="text-sm text-warmgrey dark:text-dark-sub">Let AI highlight notable words and phrases from chapters 1-{selectedChapter}.</p>
               )}
             </div>
+            )}
 
             {chapters.flatMap(ch => ch.vocabulary).length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -678,6 +710,7 @@ export function BookDetailPage() {
       <AdPlaceholder format="leaderboard" />
 
       {/* AI Book Club Chat */}
+      {AI_ON && (
       <div className="card mt-8 border-l-4 border-forest-500 dark:border-dark-sage">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -767,6 +800,7 @@ export function BookDetailPage() {
           </p>
         )}
       </div>
+      )}
     </div>
   );
 }

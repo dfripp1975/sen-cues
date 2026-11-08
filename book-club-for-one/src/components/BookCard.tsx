@@ -25,6 +25,11 @@ export function BookCard({ book, eager }: BookCardProps) {
       <p className="mt-1 text-xs text-warmgrey-light dark:text-dark-sub/80">
         {book.year} · {book.pages} pages{book.genre[0] ? ` · ${book.genre[0]}` : ''}
       </p>
+      {book.readSlug && (
+        <span className={`${book.freeToRead ? 'badge-sage' : 'badge-terra'} mt-2 self-start`}>
+          {book.freeToRead ? 'Free to read' : 'Read with Premium'}
+        </span>
+      )}
       {guided.length > 0 && (
         <span className="badge-sage mt-2 self-start" title={`Built-in guides for chapters ${describeChapters(guided)}`}>
           Chapter guides

@@ -19,6 +19,13 @@ export interface Book {
   classic?: boolean;
   reviewCommentary?: string;
   whyRead?: string;
+  /** Set when the full text can be read on the site (public domain worldwide). */
+  readSlug?: string;
+  /** Local cover image for readable books (Standard Ebooks cover design). */
+  coverImage?: string;
+  /** One of the books every reader can read for free; the rest need Premium. */
+  freeToRead?: boolean;
+  translators?: string[];
 }
 
 export interface Author {

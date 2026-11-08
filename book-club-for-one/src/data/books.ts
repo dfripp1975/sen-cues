@@ -1,4 +1,5 @@
 import type { Book, Author } from '@/types';
+import { library, type ReadableBook } from './library';
 import { batch1Authors, batch1Books } from './batch1';
 import { batch2Authors, batch2Books } from './batch2';
 import { batch3Authors, batch3Books } from './batch3';
@@ -689,14 +690,50 @@ export const allBooks: Book[] = [
 // The raw list repeats 15 books (the same slug added again in a later batch).
 // Readers see each book once; getBookById still searches every entry, so any
 // id already saved in someone's library keeps working.
-export const books: Book[] = allBooks.filter((b, i, a) => a.findIndex(x => x.slug === b.slug) === i);
+const catalogue: Book[] = allBooks.filter((b, i, a) => a.findIndex(x => x.slug === b.slug) === i);
+
+/** How many of the readable books are free for everyone; Premium unlocks the rest. */
+export const FREE_READ_COUNT = 50;
+
+// Readable books (full public-domain text on the site) are matched to the
+// existing catalogue by title and author surname; the rest are added as new books.
+const normTitle = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/&/g, 'and').replace(/^(the|a|an) /, '').replace(/[^a-z0-9]+/g, ' ').trim();
+const surname = (s: string) => normTitle(s.split(/ and |,/)[0]).split(' ').pop() || '';
+const SPINES = [['#1F3D31', '#B4502C'], ['#26386F', '#E8906A'], ['#5A2E2E', '#E2C08D'], ['#2F4A5C', '#A2C4AB'], ['#3B3355', '#D9A441'], ['#4A3A1E', '#C9D6DB']];
+
+function mergeReadable(base: Book[], readable: ReadableBook[]): Book[] {
+  const free = new Set([...readable].sort((a, b) => a.popularity - b.popularity).slice(0, FREE_READ_COUNT).map(r => r.slug));
+  const byKey = new Map(base.map(b => [`${normTitle(b.title)}|${surname(b.author)}`, b]));
+  const slugs = new Set(base.map(b => b.slug));
+  const merged = base.map(b => ({ ...b }));
+  const index = new Map(merged.map(b => [b.slug, b]));
+  readable.forEach((r, i) => {
+    const match = byKey.get(`${normTitle(r.title)}|${surname(r.author)}`);
+    const extra = { readSlug: r.slug, coverImage: r.cover ?? undefined, freeToRead: free.has(r.slug), translators: r.translators.length ? r.translators : undefined };
+    if (match) { Object.assign(index.get(match.slug)!, extra); return; }
+    let slug = r.slug;
+    if (slugs.has(slug)) slug = `${slug}-${surname(r.author)}`;
+    slugs.add(slug);
+    const [coverColor, coverAccent] = SPINES[i % SPINES.length];
+    merged.push({
+      id: `r-${r.slug}`, slug, title: r.title, author: r.author, authorId: '',
+      year: r.year ?? 0, genre: r.subjects.length ? r.subjects.slice(0, 2) : ['Classic Literature'], subgenres: r.subjects.slice(2),
+      pages: Math.max(1, Math.round(r.words / 275)), chapters: r.chapters, description: r.description,
+      coverColor, coverAccent, publicDomain: true, classic: true, ...extra,
+    });
+  });
+  return merged;
+}
+
+export const books: Book[] = mergeReadable(catalogue, library);
 
 export function getBookBySlug(slug: string): Book | undefined {
   return books.find(b => b.slug === slug);
 }
 
 export function getBookById(id: string): Book | undefined {
-  return allBooks.find(b => b.id === id);
+  return books.find(b => b.id === id) ?? allBooks.find(b => b.id === id);
 }
 
 export function getAuthorById(id: string): Author | undefined {
@@ -730,4 +767,8 @@ export function getRelatedBooks(book: Book, limit = 4): Book[] {
   return books
     .filter(b => b.id !== book.id && b.genre.some(g => book.genre.includes(g)))
     .slice(0, limit);
+}
+
+export function getReadableBooks(): Book[] {
+  return books.filter(b => b.readSlug);
 }

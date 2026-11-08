@@ -13,6 +13,8 @@ const filters = [
   { id: 'popular', label: 'Popular' },
   { id: 'trending', label: 'Trending' },
   { id: 'classic', label: 'Classics' },
+  { id: 'read', label: 'Read on the site' },
+  { id: 'free', label: 'Free to read' },
   { id: 'guides', label: 'With chapter guides' },
 ];
 
@@ -30,6 +32,8 @@ export function BooksDirectoryPage() {
     if (filter === 'trending') return getTrendingBooks();
     if (filter === 'classic') return getClassicBooks();
     if (filter === 'guides') return books.filter(b => guideCoverage[b.slug]);
+    if (filter === 'read') return books.filter(b => b.readSlug);
+    if (filter === 'free') return books.filter(b => b.freeToRead);
     return books;
   }, [query, filter]);
 

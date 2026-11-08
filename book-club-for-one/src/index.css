@@ -155,6 +155,35 @@
   }
 }
 
+/* Book text in the reader. Markup is a short whitelist from the importer. */
+.reader-text {
+  @apply font-serif text-charcoal dark:text-dark-text;
+  line-height: 1.75;
+  font-variant-ligatures: common-ligatures;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+.reader-text p { margin: 0; text-indent: 1.6em; }
+.reader-text p:first-child, .reader-text h3 + p, .reader-text h4 + p, .reader-text hr + p, .reader-text blockquote + p { text-indent: 0; }
+.reader-text p + p { margin-top: 0.15em; }
+.reader-text h3, .reader-text h4, .reader-text h5, .reader-text h6 { @apply font-serif text-forest-500 dark:text-dark-text; font-size: 1.15em; text-align: center; margin: 2em 0 1em; }
+.reader-text blockquote { margin: 1.4em 2em; font-size: 0.95em; }
+.reader-text blockquote p { text-indent: 0; }
+.reader-text hr { border: 0; text-align: center; margin: 2em 0; }
+.reader-text hr::after { content: '*  *  *'; letter-spacing: 0.4em; color: theme('colors.warmgrey.DEFAULT'); }
+.reader-text .poem, .reader-text .verse, .reader-text .song { margin: 1.4em 0 1.4em 2em; }
+.reader-text .poem p, .reader-text .verse p, .reader-text .song p { text-indent: 0; margin: 0.9em 0; }
+.reader-text .poem span, .reader-text .verse span, .reader-text .song span { display: block; padding-left: 2em; text-indent: -2em; }
+.reader-text .poem span.i1, .reader-text .verse span.i1 { padding-left: 3em; }
+.reader-text .poem span.i2, .reader-text .verse span.i2 { padding-left: 4em; }
+.reader-text .letter { margin: 1.4em 1.5em; }
+.reader-text .letter p { text-indent: 0; margin-top: 0.6em; }
+.reader-text .signature { text-align: right; font-style: italic; }
+.reader-text table { margin: 1.4em auto; border-collapse: collapse; font-size: 0.92em; }
+.reader-text td, .reader-text th { padding: 0.2em 0.6em; vertical-align: top; }
+.reader-text ol, .reader-text ul { margin: 1em 0 1em 2em; }
+.reader-text abbr { text-decoration: none; }
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

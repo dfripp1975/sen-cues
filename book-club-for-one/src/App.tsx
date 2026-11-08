@@ -18,6 +18,7 @@ function lazyPage<K extends string>(
 
 const ToolsDirectoryPage = lazyPage(() => import('@/pages/ToolsDirectoryPage'), 'ToolsDirectoryPage');
 const BooksDirectoryPage = lazyPage(() => import('@/pages/BooksDirectoryPage'), 'BooksDirectoryPage');
+const ReaderPage = lazyPage(() => import('@/pages/ReaderPage'), 'ReaderPage');
 const BookDetailPage = lazyPage(() => import('@/pages/BookDetailPage'), 'BookDetailPage');
 const LibraryPage = lazyPage(() => import('@/pages/LibraryPage'), 'LibraryPage');
 const AddBookPage = lazyPage(() => import('@/pages/AddBookPage'), 'AddBookPage');
@@ -108,6 +109,7 @@ function App() {
                 <Route path="/tools/book-rating-calculator" element={<BookRatingCalculator />} />
                 <Route path="/books" element={<BooksDirectoryPage />} />
                 <Route path="/book/:slug" element={<BookDetailPage />} />
+                <Route path="/read/:slug" element={<ReaderPage />} />
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/library/add" element={<AddBookPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
