@@ -110,7 +110,16 @@ async function deathYear(name: string): Promise<Person> {
       return names.some(n => n === want || (n.endsWith(' ' + surname) && n.split(' ')[0][0] === parts[0][0]));
     }).filter(d => d.death_date);
     same.sort((a, b) => (b.work_count || 0) - (a.work_count || 0));
-    const years = same.map(d => Number((String(d.death_date).match(/\b(1[0-9]{3}|20[0-9]{2})\b/) || [])[1])).filter(Boolean);
+    // "18 July 1817" -> 1817; ancient dates like "65", "c. 180" or "43 BC" are read too (BC as negative)
+    const parseYear = (raw: string): number | null => {
+      const s = String(raw);
+      const four = s.match(/\b(1[0-9]{3}|20[0-9]{2})\b/);
+      if (four) return Number(four[1]);
+      const m = s.match(/(\d{1,4})\s*(B\.?\s?C\.?E?\.?)?/i);
+      if (!m) return null;
+      return m[2] ? -Number(m[1]) : Number(m[1]);
+    };
+    const years = same.map(d => parseYear(d.death_date)).filter((y): y is number => y !== null);
     // Records for one person can disagree; take the LATEST year so we never under-count the copyright term
     if (years.length) result = { name, death: Math.max(...years.slice(0, 3)), olName: same[0].name };
   }

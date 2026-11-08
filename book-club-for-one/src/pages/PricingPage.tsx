@@ -4,6 +4,10 @@ import { useSEO } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
 import { SubscriptionService, type Subscription } from '@/services/SubscriptionService';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { books, FREE_READ_COUNT } from '@/data/books';
+
+const AI_ON = import.meta.env.VITE_AI_ENABLED === 'true';
+const READABLE = books.filter(b => b.readSlug).length;
 
 export function PricingPage() {
   useSEO({
@@ -49,22 +53,19 @@ export function PricingPage() {
   };
 
   const freeFeatures = [
-    '20 free reading & book club tools',
-    '485-book catalogue with reviews and reading notes',
-    'Personal library with reading tracking',
-    'Reading goals and streaks',
-    '3 AI requests per day',
+    `${FREE_READ_COUNT} classic books to read in full`,
+    'Chapter 1 of every other book on the shelf',
+    'All 20 reading and book club tools',
+    'Run your own book club: questions, schedules, invitations',
+    'Add your own books to your library',
+    'Reading goals, streaks and progress',
   ];
 
   const premiumFeatures = [
     'Everything in Free, plus:',
-    'Unlimited AI chapter guides',
-    'Spoiler-safe Q&A with any book',
-    'AI-generated discussion questions',
-    'AI character and theme analysis',
-    'AI vocabulary highlights',
-    'Things you may have missed',
-    'Priority AI responses',
+    `Read all ${READABLE} books in full`,
+    'New books as they are added',
+    ...(AI_ON ? ['AI chapter guides and questions'] : []),
   ];
 
   return (
@@ -162,7 +163,7 @@ export function PricingPage() {
         {/* Yearly */}
         <div className="card flex flex-col">
           <h3 className="text-xl font-serif font-bold text-forest-500 dark:text-dark-sage mb-1">Premium Yearly</h3>
-          <p className="text-sm text-warmgrey dark:text-dark-sub mb-4">Best value — save 20%</p>
+          <p className="text-sm text-warmgrey dark:text-dark-sub mb-4">Best value: save 20%</p>
           <div className="mb-6">
             <span className="text-4xl font-serif font-bold text-charcoal dark:text-dark-text">$48</span>
             <span className="text-sm text-warmgrey dark:text-dark-sub">/year</span>
