@@ -42,6 +42,24 @@ export const SubscriptionService = {
     return data.url;
   },
 
+  /** Stripe checkout for a question top-up pack; returns to returnPath afterwards. */
+  async createQuestionPackCheckout(pack: 'questions10' | 'questions50', currency: string, returnPath: string): Promise<string> {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('You must be signed in to buy questions');
+    const response = await fetch(CHECKOUT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ pack, currency, returnPath }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ error: 'Checkout failed' }));
+      throw new Error(err.error || `Checkout failed (${response.status})`);
+    }
+    const data = await response.json();
+    if (!data.url) throw new Error('No checkout URL returned');
+    return data.url;
+  },
+
   isPremium(sub: Subscription | null): boolean {
     return sub?.plan === 'monthly' || sub?.plan === 'yearly';
   },

@@ -17,6 +17,15 @@ const PRICE_MAP: Record<string, string | undefined> = {
 // Currencies the prices carry; any other visitor is charged in USD, or in their
 // own currency when Adaptive Pricing is switched on in the Stripe dashboard.
 const CURRENCIES = new Set(["gbp", "usd", "eur", "cad", "aud"]);
+
+// Question top-up packs for Premium readers (one-off payments). Each Stripe price
+// is in GBP with USD, EUR, CAD and AUD currency options:
+//   STRIPE_PRICE_QUESTIONS_10   10 questions, £0.99
+//   STRIPE_PRICE_QUESTIONS_50   50 questions, £2.99
+const PACKS: Record<string, { price: string | undefined; questions: number }> = {
+  questions10: { price: Deno.env.get("STRIPE_PRICE_QUESTIONS_10"), questions: 10 },
+  questions50: { price: Deno.env.get("STRIPE_PRICE_QUESTIONS_50"), questions: 50 },
+};
 const MULTI_CURRENCY = !!(Deno.env.get("STRIPE_PRICE_MONTHLY") && Deno.env.get("STRIPE_PRICE_YEARLY"));
 
 Deno.serve(async (req: Request) => {
@@ -57,8 +66,34 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const { plan, currency } = await req.json();
+    const { plan, currency, pack, returnPath } = await req.json();
     const wanted = String(currency || "").toLowerCase();
+    if (pack) {
+      const chosen = PACKS[pack];
+      if (!chosen) return new Response(JSON.stringify({ error: "Invalid pack" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!chosen.price) return new Response(JSON.stringify({ error: "Question packs are not set up yet" }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+      const { data: sub } = await admin.from("subscriptions").select("plan, status, stripe_customer_id").eq("user_id", user.id).maybeSingle();
+      const premium = !!sub && (sub.plan === "monthly" || sub.plan === "yearly") && (sub.status === "active" || sub.status === "trialing");
+      if (!premium) return new Response(JSON.stringify({ error: "Question packs are for Premium readers" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const stripeForPack = new Stripe(stripeSecret, { apiVersion: "2024-12-18.acacia" });
+      const origin = req.headers.get("origin") || "http://localhost:5173";
+      // Only send readers back to a page on this site
+      const back = typeof returnPath === "string" && /^\/[a-z0-9/-]*$/i.test(returnPath) ? returnPath : "/books";
+      const packSession = await stripeForPack.checkout.sessions.create({
+        mode: "payment",
+        customer: sub?.stripe_customer_id || undefined,
+        customer_email: sub?.stripe_customer_id ? undefined : user.email,
+        line_items: [{ price: chosen.price, quantity: 1 }],
+        ...(CURRENCIES.has(wanted) ? { currency: wanted } : {}),
+        success_url: `${origin}${back}?questions=added`,
+        cancel_url: `${origin}${back}`,
+        metadata: { supabase_user_id: user.id, pack, questions: String(chosen.questions) },
+        payment_intent_data: { metadata: { supabase_user_id: user.id, pack } },
+      });
+      return new Response(JSON.stringify({ url: packSession.url }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     if (!plan || !PRICE_MAP[plan]) {
       return new Response(JSON.stringify({ error: "Invalid plan" }), {
         status: 400,

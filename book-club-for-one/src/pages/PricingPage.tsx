@@ -6,7 +6,7 @@ import { SubscriptionService, type Subscription } from '@/services/SubscriptionS
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { books, FREE_READ_COUNT } from '@/data/books';
 
-import { PRICES, CURRENCY_NAMES, detectCurrency, saveCurrency, formatPrice, yearlySaving, type CurrencyCode } from '@/lib/pricing';
+import { PRICES, PACK_PRICES, CURRENCY_NAMES, detectCurrency, saveCurrency, formatPrice, yearlySaving, type CurrencyCode } from '@/lib/pricing';
 
 const AI_ON = import.meta.env.VITE_AI_ENABLED === 'true';
 const READABLE = books.filter(b => b.readSlug).length;
@@ -70,7 +70,10 @@ export function PricingPage() {
     'Everything in Free, plus:',
     `Read all ${READABLE} books in full`,
     'New books as they are added',
-    ...(AI_ON ? ['AI chapter guides and questions'] : []),
+    ...(AI_ON ? [
+      '10 ask-the-book questions a day',
+      `Top up anytime: 10 questions for ${formatPrice(PACK_PRICES[currency].questions10, currency)}`,
+    ] : []),
   ];
 
   return (

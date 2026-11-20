@@ -15,6 +15,17 @@ export const PRICES: Record<CurrencyCode, { monthly: number; yearly: number }> =
   AUD: { monthly: 5.99, yearly: 44.99 },
 };
 
+/** Ask-the-book question top-up packs (one-off payments, Premium only). */
+export type PackId = 'questions10' | 'questions50';
+export const PACKS: Record<PackId, number> = { questions10: 10, questions50: 50 };
+export const PACK_PRICES: Record<CurrencyCode, Record<PackId, number>> = {
+  GBP: { questions10: 0.99, questions50: 2.99 },
+  USD: { questions10: 1.29, questions50: 3.99 },
+  EUR: { questions10: 1.19, questions50: 3.49 },
+  CAD: { questions10: 1.79, questions50: 4.99 },
+  AUD: { questions10: 1.99, questions50: 5.49 },
+};
+
 export const CURRENCY_NAMES: Record<CurrencyCode, string> = {
   GBP: 'British pounds (£)',
   USD: 'US dollars ($)',

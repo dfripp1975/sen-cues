@@ -45,9 +45,30 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     switch (event.type) {
-      case "checkout.session.completed": {
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.supabase_user_id;
+
+        // Question top-up pack: add the questions once the payment has gone through.
+        // add_ai_question_credits records the session, so a retried webhook can't add them twice.
+        if (session.mode === "payment") {
+          const questions = Number(session.metadata?.questions || 0);
+          if (userId && questions > 0 && session.payment_status === "paid") {
+            const { error } = await supabase.rpc("add_ai_question_credits", {
+              p_user: userId,
+              p_pack: session.metadata?.pack || "unknown",
+              p_questions: questions,
+              p_session: session.id,
+              p_amount: session.amount_total ?? null,
+              p_currency: session.currency ?? null,
+            });
+            if (error) throw new Error(`Could not add questions: ${error.message}`);   // 500, so Stripe retries
+          }
+          break;
+        }
+
+        if (event.type !== "checkout.session.completed" || session.mode !== "subscription") break;
         const plan = session.metadata?.plan || "free";
 
         if (userId) {

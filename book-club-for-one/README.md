@@ -74,6 +74,30 @@ Checkout needs matching prices in Stripe:
    `STRIPE_PRICE_YEARLY` to the two new price IDs, then redeploy
    `stripe-checkout`. Until then checkout falls back to the old $5 / $48 prices.
 
+## AI questions for Premium readers (when AI is on)
+
+Every live AI request counts as one question. Premium readers get 10 a day
+(free readers get none) and can buy top-up packs, which never expire: 10 for
+£0.99 and 50 for £2.99 (US$1.29 / $3.99, €1.19 / €3.49, CA$1.79 / $4.99,
+A$1.99 / $5.49 in `src/lib/pricing.ts`). Today's free questions are used
+first, then bought ones. A question is given back if the AI fails.
+
+All counting happens on the server (`supabase/migrations/20261120120000_ai_question_allowance.sql`);
+readers can only read their own numbers. When the month's AI spending reaches
+the budget, questions pause site-wide until the 1st; reading and guides carry on.
+
+Supabase function secrets:
+
+- `AI_DAILY_QUESTIONS` (default 10), `AI_MONTHLY_BUDGET_PENCE` (default 2500 = £25)
+- `AI_USD_PER_GBP` (default 1.27) and the model price per million tokens,
+  `AI_PRICE_IN_PER_M` / `AI_PRICE_OUT_PER_M`, used to track spend against the budget
+- `STRIPE_PRICE_QUESTIONS_10` and `STRIPE_PRICE_QUESTIONS_50`: one-off Stripe
+  prices in GBP with USD, EUR, CAD and AUD currency options
+- The Stripe webhook must send `checkout.session.completed` and
+  `checkout.session.async_payment_succeeded`
+
+Also set an overall monthly spending limit in the AI provider's own console.
+
 ## Google AdSense
 
 1. Set `VITE_SITE_URL` and `VITE_ADSENSE_CLIENT` in the host's environment

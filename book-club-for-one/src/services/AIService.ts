@@ -13,34 +13,41 @@ interface AICallParams {
   count?: number;
 }
 
-async function callAI(params: AICallParams): Promise<string> {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('You must be signed in to use AI features');
+export interface QuestionAllowance { daily_limit: number; daily_left: number; credits: number }
 
-  const response = await fetch(EDGE_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(params),
-  });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(err.error || `Request failed (${response.status})`);
+/** Raised when a question can't be asked: not Premium, out of questions, or AI paused for the month. */
+export class AIQuestionError extends Error {
+  constructor(public code: 'premium_required' | 'out_of_questions' | 'paused' | 'other', message: string, public allowance?: QuestionAllowance) {
+    super(message);
   }
-
-  const data = await response.json();
-  return data.content || data.questions?.join('\n') || '';
 }
 
-async function trackUsage(action: string, bookTitle: string): Promise<void> {
-  try {
-    await supabase.from('ai_usage').insert({ action, book_title: bookTitle });
-  } catch {
-    // silent fail — usage tracking is best-effort
+// Pages listen for this to keep "questions left" up to date after every answer
+export const ALLOWANCE_EVENT = 'ai-allowance';
+function announce(allowance: QuestionAllowance | null | undefined) {
+  if (allowance) window.dispatchEvent(new CustomEvent(ALLOWANCE_EVENT, { detail: allowance }));
+}
+
+async function post(body: Record<string, unknown>) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new AIQuestionError('other', 'You must be signed in to use AI features');
+  return fetch(EDGE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify(body),
+  });
+}
+
+async function callAI(params: AICallParams): Promise<string> {
+  const response = await post({ ...params });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const code = ['premium_required', 'out_of_questions', 'paused'].includes(data.error) ? data.error : 'other';
+    announce(data.allowance);
+    throw new AIQuestionError(code, data.message || data.error || `Request failed (${response.status})`, data.allowance);
   }
+  announce(data.allowance);
+  return data.content || data.questions?.join('\n') || '';
 }
 
 export const AIService = {
@@ -48,44 +55,45 @@ export const AIService = {
     return true;
   },
 
+  /** How many questions the signed-in reader has left, without using one. Null when not Premium. */
+  async getAllowance(): Promise<{ premium: boolean; allowance: QuestionAllowance | null }> {
+    const response = await post({ action: 'allowance', bookTitle: '-', chapter: 1 });
+    if (!response.ok) return { premium: false, allowance: null };
+    const data = await response.json();
+    announce(data.allowance);
+    return { premium: !!data.premium, allowance: data.allowance ?? null };
+  },
+
   async generateChapterGuide(bookTitle: string, author: string, chapter: number): Promise<string> {
-    await trackUsage('chapter-guide', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'chapter-guide' });
   },
 
   async generateQuestions(bookTitle: string, author: string, chapter: number, style: string, count: number): Promise<string[]> {
-    await trackUsage('questions', bookTitle);
     const result = await callAI({ bookTitle, author, chapter, action: 'questions', style, count });
     return result.split('\n').map(q => q.replace(/^\d+\.\s*/, '').trim()).filter(q => q.length > 0);
   },
 
   async generateCharacters(bookTitle: string, author: string, chapter: number): Promise<string> {
-    await trackUsage('characters', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'characters' });
   },
 
   async generateThemes(bookTitle: string, author: string, chapter: number): Promise<string> {
-    await trackUsage('themes', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'themes' });
   },
 
   async generateVocabulary(bookTitle: string, author: string, chapter: number): Promise<string> {
-    await trackUsage('vocabulary', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'vocabulary' });
   },
 
   async generateMissedDetails(bookTitle: string, author: string, chapter: number): Promise<string> {
-    await trackUsage('missed-details', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'missed-details' });
   },
 
   async answerBookQuestion(bookTitle: string, author: string, chapter: number, question: string): Promise<string> {
-    await trackUsage('answer', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'answer', question });
   },
 
   async explainChapter(bookTitle: string, author: string, chapter: number): Promise<string> {
-    await trackUsage('explain', bookTitle);
     return callAI({ bookTitle, author, chapter, action: 'explain' });
   },
 

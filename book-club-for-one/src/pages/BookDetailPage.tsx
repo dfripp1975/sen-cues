@@ -11,7 +11,8 @@ import { guideChapters, describeChapters } from '@/data/guideHelpers';
 import { useAuth } from '@/lib/auth';
 import { UserLibraryService } from '@/services/UserLibraryService';
 import { CustomBookService, toBook, type CustomBook } from '@/services/CustomBookService';
-import { AIService } from '@/services/AIService';
+import { AIService, AIQuestionError } from '@/services/AIService';
+import { QuestionAllowance } from '@/components/QuestionAllowance';
 
 // AI features cost money per request, so they are off unless VITE_AI_ENABLED=true is set.
 const AI_ON = import.meta.env.VITE_AI_ENABLED === 'true';
@@ -44,6 +45,7 @@ export function BookDetailPage() {
   const [aiContent, setAiContent] = useState<Record<string, string>>({});
   const [aiQuestions, setAiQuestions] = useState<string[]>([]);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [outOfQuestions, setOutOfQuestions] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
@@ -146,7 +148,8 @@ export function BookDetailPage() {
         setAiContent(prev => ({ ...prev, explain: content }));
       }
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : 'AI request failed');
+      if (err instanceof AIQuestionError && err.code === 'out_of_questions') { setOutOfQuestions(true); setAiError("You've used today's questions. Top up in the book club chat below, or come back tomorrow."); }
+      else setAiError(err instanceof Error ? err.message : 'AI request failed');
     } finally {
       setAiLoading(null);
     }
@@ -163,7 +166,8 @@ export function BookDetailPage() {
       const answer = await AIService.answerBookQuestion(book.title, book.author, selectedChapter, question);
       setChatMessages(prev => [...prev, { role: 'ai', text: answer }]);
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : 'AI request failed');
+      if (err instanceof AIQuestionError && err.code === 'out_of_questions') { setOutOfQuestions(true); setAiError("You've used today's questions. Top up in the book club chat below, or come back tomorrow."); }
+      else setAiError(err instanceof Error ? err.message : 'AI request failed');
     } finally {
       setChatLoading(false);
     }
@@ -794,11 +798,7 @@ export function BookDetailPage() {
             <Link to="/signin" className="link-internal">Sign in</Link> to chat with your AI book club.
           </p>
         )}
-        {!isPremium && user && !subLoading && (
-          <p className="text-sm text-warmgrey dark:text-dark-sub mt-4">
-            Free plan includes 3 AI requests per day. <Link to="/pricing" className="link-internal">Upgrade to Premium</Link> for unlimited access.
-          </p>
-        )}
+        {user && !subLoading && <QuestionAllowance outOfQuestions={outOfQuestions} />}
       </div>
       )}
     </div>
