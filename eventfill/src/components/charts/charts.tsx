@@ -19,7 +19,7 @@ export function SalesChart({ data, target, height = 280 }: { data: { date: strin
           <CartesianGrid stroke={GRID} vertical={false} />
           <XAxis dataKey="date" tickFormatter={shortDate} tick={AXIS} tickLine={false} axisLine={false} minTickGap={24} />
           <YAxis yAxisId="d" tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
-          <YAxis yAxisId="c" orientation="right" tick={{ ...AXIS, fill: TEAL }} tickLine={false} axisLine={false} allowDecimals={false} width={36} />
+          <YAxis yAxisId="c" orientation="right" tick={{ ...AXIS, fill: TEAL }} tickLine={false} axisLine={false} allowDecimals={false} width={36} domain={[0, (max: number) => Math.max(max, target ?? 0)]} />
           <Tooltip contentStyle={tooltipStyle} labelFormatter={(l) => shortDate(String(l))} />
           <Bar yAxisId="d" dataKey="tickets" name="Tickets that day" fill={BRAND} radius={[4, 4, 0, 0]} maxBarSize={18} />
           <Line yAxisId="c" dataKey="cumulative" name="Total sold" stroke={TEAL} strokeWidth={2.5} dot={false} type="monotone" />
