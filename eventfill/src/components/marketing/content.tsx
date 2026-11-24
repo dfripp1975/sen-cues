@@ -1,0 +1,107 @@
+import { SalesPreview, RescuePreview, PlannerPreview, LinksPreview, ContentPreview, ProfitPreview, SurveyPreview, ForecastPreview, CompetitorPreview } from "./previews";
+import type { ShowcaseItem } from "./showcase";
+
+export const FEATURE_ITEMS: ShowcaseItem[] = [
+  {
+    title: "Event Rescue Mode",
+    category: "Early warnings",
+    description: "Spots events that are falling behind their sales pace, tells you how many tickets a day you need, and turns practical recommendations into a dated action plan.",
+    audience: "Organisers who want to act weeks before the event, not the night before.",
+    href: "/features#rescue",
+    linkLabel: "See Event Rescue Mode",
+    preview: <RescuePreview />,
+  },
+  {
+    title: "Ticket Sales Tracker",
+    category: "Sales & targets",
+    description: "Record daily sales by hand or import a CSV export from your booking platform. Track revenue, refunds, tickets remaining and progress to target.",
+    audience: "Anyone selling through Eventbrite, Ticket Tailor, Humanitix or similar.",
+    href: "/features#sales",
+    linkLabel: "Explore sales tracking",
+    preview: <SalesPreview />,
+  },
+  {
+    title: "Sales Forecasting",
+    category: "Projections",
+    description: "Conservative, expected and optimistic projections from your own sales history, using simple formulas you can see — clearly labelled as estimates.",
+    audience: "Organisers deciding whether to spend more on promotion.",
+    href: "/features#forecast",
+    linkLabel: "How forecasts work",
+    preview: <ForecastPreview />,
+  },
+  {
+    title: "Marketing Planner",
+    category: "Campaigns",
+    description: "Plan campaigns across social, email, community groups and partnerships with a calendar, checklists, budgets and ready-made plans for common event types.",
+    audience: "Small teams juggling promotion alongside everything else.",
+    href: "/features#planner",
+    linkLabel: "View the planner",
+    preview: <PlannerPreview />,
+  },
+  {
+    title: "Tracking Links",
+    category: "Channel insight",
+    description: "Create a separate short link and QR code for each channel, with UTM tags, and compare which channels generate the most interest.",
+    audience: "Organisers promoting one event in many places.",
+    href: "/features#links",
+    linkLabel: "Learn about tracking links",
+    preview: <LinksPreview />,
+  },
+  {
+    title: "AI Content Studio",
+    category: "Promotional copy",
+    description: "Draft event descriptions, social posts, emails and outreach messages from your event details. Every draft is editable and never invents facts.",
+    audience: "Organisers short on time for writing.",
+    href: "/features#content",
+    linkLabel: "Try the Content Studio",
+    preview: <ContentPreview />,
+  },
+  {
+    title: "Profit Calculator",
+    category: "Finance",
+    description: "Track income and costs, see estimated profit, margin and break-even ticket numbers, and model what-if scenarios.",
+    audience: "Anyone who needs an event to at least break even.",
+    href: "/features#profit",
+    linkLabel: "See the profit calculator",
+    preview: <ProfitPreview />,
+  },
+  {
+    title: "Audience Surveys",
+    category: "Insights",
+    description: "Shareable survey links and QR codes for interest checks, feedback and reasons people didn't book, with anonymous responses supported.",
+    audience: "Organisers who want to learn from every event.",
+    href: "/features#surveys",
+    linkLabel: "Explore surveys",
+    preview: <SurveyPreview />,
+  },
+  {
+    title: "Competitor Watch",
+    category: "Positioning",
+    description: "Keep notes on competing events — dates, published prices and advertised benefits — side by side with yours. Entered by you; no scraping.",
+    audience: "Organisers in busy local event calendars.",
+    href: "/features#competitors",
+    linkLabel: "See Competitor Watch",
+    preview: <CompetitorPreview />,
+  },
+];
+
+export const INDUSTRIES = [
+  ["Business networking", "Breakfast clubs, founder meetups and chamber events."],
+  ["Workshops & training", "Courses, masterclasses and CPD sessions."],
+  ["Conferences", "Single and multi-track conferences and summits."],
+  ["Music promoters", "Gigs, club nights and festivals."],
+  ["Charity events", "Fundraisers, galas, sponsored runs and quizzes."],
+  ["Exhibitions", "Trade shows, fairs and makers markets."],
+  ["Community events", "Local festivals, fetes and neighbourhood events."],
+  ["Event agencies", "Teams managing many clients' events at once."],
+] as const;
+
+export const FAQS = [
+  ["Does EventFill sell tickets?", "No. EventFill works alongside the ticketing platform you already use. You keep selling through Eventbrite, Ticket Tailor, Humanitix or your own site, and use EventFill to plan, track and improve promotion."],
+  ["Does it sync automatically with Eventbrite?", "Not yet. Today you can enter sales manually or upload a CSV export from your booking platform. EventFill always shows where each figure came from and when it was last updated. Official integrations are on the roadmap."],
+  ["Can EventFill guarantee I'll sell more tickets?", "No tool can honestly promise that. EventFill helps you see problems earlier, focus effort on the channels that generate interest, and act on a clear plan."],
+  ["How are forecasts calculated?", "From your own recorded sales: average daily sales, your most recent 7-day pace and the days remaining. The formulas are shown next to every forecast and all projections are labelled as estimates."],
+  ["Is the AI optional?", "Yes. The AI Content Studio is optional and has monthly limits on each plan so costs stay predictable. Everything else works without it."],
+  ["Can I cancel at any time?", "Yes. You can upgrade, downgrade or cancel from your billing settings. Paid features stay available until the end of the period you've paid for."],
+  ["Where is my data stored?", "In a managed PostgreSQL database with row-level security, so each organisation can only access its own records. See the Privacy Policy for details."],
+] as const;
