@@ -7,6 +7,8 @@ export interface EventRow {
   venue: string | null;
   is_online: boolean;
   event_date: string;
+  end_date: string | null;
+  series_id: string | null;
   start_time: string | null;
   end_time: string | null;
   timezone: string;
@@ -24,6 +26,14 @@ export interface EventRow {
   is_template: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface SeriesRow {
+  id: string;
+  org_id: string;
+  name: string;
+  recurrence: "weekly" | "fortnightly" | "monthly";
+  created_at: string;
 }
 
 export interface TierRow {

@@ -40,6 +40,12 @@ export const EVENT_CATEGORIES = [
   ["charity", "Charity / fundraiser"],
   ["exhibition", "Exhibition / trade show"],
   ["community", "Community event"],
+  ["sport", "Sport / fitness"],
+  ["performing_arts", "Theatre / comedy / performing arts"],
+  ["food_drink", "Food & drink"],
+  ["festival", "Festival"],
+  ["class", "Class / course"],
+  ["tour", "Tour / experience"],
   ["other", "Other"],
 ] as const;
 export const CATEGORY_LABELS = Object.fromEntries(EVENT_CATEGORIES) as Record<string, string>;
@@ -73,7 +79,8 @@ export const onboardingSchema = z.object({
   timezone: z.string().trim().min(3).max(60),
 });
 
-export const eventSchema = z.object({
+export const eventSchema = z
+  .object({
   name: z.string().trim().min(1, "Enter an event name").max(160),
   description: optionalText(5000),
   category: z.enum(EVENT_CATEGORIES.map(([v]) => v) as [string, ...string[]]),
@@ -83,6 +90,7 @@ export const eventSchema = z.object({
     .optional()
     .transform((v) => v === "on" || v === "true"),
   event_date: isoDate,
+  end_date: optionalDate,
   start_time: time,
   end_time: time,
   timezone: z.string().trim().min(3).max(60),
@@ -98,6 +106,13 @@ export const eventSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === "on" || v === "true"),
+  })
+  .refine((e) => !e.end_date || e.end_date >= e.event_date, { message: "The last day must be on or after the first day", path: ["end_date"] })
+  .transform((e) => ({ ...e, end_date: e.end_date && e.end_date > e.event_date ? e.end_date : null }));
+
+export const repeatSchema = z.object({
+  recurrence: z.enum(["none", "weekly", "fortnightly", "monthly"]).default("none"),
+  repeat_count: z.coerce.number().int().min(2, "A series needs at least 2 dates").max(52, "Up to 52 dates at a time").optional(),
 });
 export type EventInput = z.infer<typeof eventSchema>;
 

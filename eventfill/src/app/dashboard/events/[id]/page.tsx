@@ -6,7 +6,7 @@ import { EventOverviewView } from "@/components/events/views";
 import { DeleteTierButton, ImageUploadForm, OutcomeForm, TierForm } from "@/components/events/forms";
 import { Alert } from "@/components/ui/misc";
 
-export default async function EventOverviewPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string; saved?: string }> }) {
+export default async function EventOverviewPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string; saved?: string; seriesUpdated?: string }> }) {
   const ctx = await requireOrg();
   const { id } = await params;
   const sp = await searchParams;
@@ -16,7 +16,7 @@ export default async function EventOverviewPage({ params, searchParams }: { para
   return (
     <>
       {sp.created && <Alert tone="success" className="mb-6" title="Event created">Next, add your ticket tiers below and record your first sales on the Sales tab.</Alert>}
-      {sp.saved && <Alert tone="success" className="mb-6">Changes saved.</Alert>}
+      {sp.saved && <Alert tone="success" className="mb-6">Changes saved{sp.seriesUpdated ? ` here and on ${Number(sp.seriesUpdated)} other upcoming date(s) in the series` : ""}.</Alert>}
       <EventOverviewView
         s={s}
         sales={sales}

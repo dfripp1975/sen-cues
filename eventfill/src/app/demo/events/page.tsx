@@ -14,7 +14,7 @@ export default async function DemoEvents({ searchParams }: { searchParams: Promi
   return (
     <>
       <PageHeader eyebrow={<DemoBadge />} title="Events" description="Fictional events showing different sales situations." actions={<Button asChild><Link href="/demo/events/new"><PlusCircle /> New event</Link></Button>} />
-      <EventList base="/demo" summaries={d.summaries} q={sp.q} status={sp.status} />
+      <EventList base="/demo" summaries={d.summaries} q={sp.q} status={sp.status} seriesNames={Object.fromEntries(d.series.map((x) => [x.id, x.name]))} />
     </>
   );
 }

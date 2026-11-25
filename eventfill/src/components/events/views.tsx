@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { BarsChart, SalesChart, TrendChart } from "@/components/charts/charts";
 import { RISK_LABEL, RISK_TONE, type EventSummary } from "@/lib/event-summary";
 import { comparePeriods, dailySeries, weeklySeries } from "@/lib/forecast";
-import { formatDate } from "@/lib/dates";
+import { formatDate, formatDateRange } from "@/lib/dates";
 import { formatMoney, formatNumber, timeAgo } from "@/lib/utils";
 import type { SaleRecord, TierRow } from "@/types/db";
 
@@ -26,7 +26,7 @@ export function KeyStats({ s, currency }: { s: EventSummary; currency: string })
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       <StatCard label="Tickets sold" value={`${formatNumber(f.ticketsSold)} / ${formatNumber(s.event.ticket_target)}`} sub={`${f.percentOfTarget}% of target${s.event.capacity ? ` · capacity ${formatNumber(s.event.capacity)}` : ""}`} icon={Ticket} />
       <StatCard label="Ticket revenue" value={formatMoney(f.netRevenue, currency)} sub={f.refunds ? `${f.refunds} ticket(s) refunded` : "Net of refunds"} icon={PoundSterling} tone="emerald" />
-      <StatCard label={f.eventPassed ? "Event date" : "Days until event"} value={f.eventPassed ? "Finished" : f.daysRemaining} sub={formatDate(s.event.event_date)} icon={CalendarClock} tone="amber" />
+      <StatCard label={f.eventPassed ? "Event date" : s.event.end_date ? "Days until last day" : "Days until event"} value={f.eventPassed ? "Finished" : f.daysRemaining} sub={formatDateRange(s.event.event_date, s.event.end_date)} icon={CalendarClock} tone="amber" />
       <StatCard label="Needed per day" value={f.requiredPerDay ?? "—"} sub={f.eventPassed ? "Event finished" : `Current pace: ${f.recentVelocity}/day (last 7 days)`} icon={Gauge} tone="teal" />
     </div>
   );
@@ -43,7 +43,7 @@ export function RiskBanner({ s, base }: { s: EventSummary; base: string }) {
 
 export function EventOverviewView({ s, sales, tiers, currency, base, isDemo, tierForm, tierAction, imageForm, outcomeForm }: { s: EventSummary; sales: SaleRecord[]; tiers: TierRow[]; currency: string; base: string; isDemo?: boolean; tierForm?: React.ReactNode; tierAction?: (id: string) => React.ReactNode; imageForm?: React.ReactNode; outcomeForm?: React.ReactNode }) {
   const e = s.event;
-  const series = dailySeries(sales.filter((x) => x.sale_date <= (s.forecast.eventPassed ? e.event_date : new Date().toISOString().slice(0, 10))));
+  const series = dailySeries(sales.filter((x) => x.sale_date <= (s.forecast.eventPassed ? e.end_date ?? e.event_date : new Date().toISOString().slice(0, 10))));
   return (
     <div className="space-y-6">
       <RiskBanner s={s} base={base} />
@@ -88,6 +88,7 @@ export function EventOverviewView({ s, sales, tiers, currency, base, isDemo, tie
           <CardContent>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               {[
+                ["Dates", formatDateRange(e.event_date, e.end_date)],
                 ["Ticket target", formatNumber(e.ticket_target)],
                 ["Capacity", e.capacity != null ? formatNumber(e.capacity) : "—"],
                 ["Marketing budget", formatMoney(e.marketing_budget, currency)],

@@ -7,7 +7,9 @@ export const metadata: Metadata = { title: "Help Centre" };
 const TOPICS: [string, [string, React.ReactNode][]][] = [
   ["Getting started", [
     ["How do I create my first event?", "After registering and completing onboarding, go to Events → New event. Add the date, ticket target and capacity. You can add ticket tiers and prices from the event page."],
-    ["What does 'active event' mean for my plan?", "Events with status Active or Draft count towards your plan's limit. Archive or mark events as Completed to free up space. Templates don't count."],
+    ["What does 'active event' mean for my plan?", "Events with status Active or Draft count towards your plan's limit. A recurring series (for example a weekly class with 12 dates) counts as one. Archive or mark events as Completed to free up space. Templates don't count."],
+    ["How do I set up a recurring event?", "When creating an event, choose how often it repeats (weekly, every 2 weeks or monthly) and how many dates to create. Each date gets its own sales tracking and forecast. On the series page you can add more dates or complete past ones, and when editing a date you can apply changes to all upcoming dates."],
+    ["How do multi-day events work?", "Tick 'This event runs over more than one day' and set the first and last day. Sales, forecasts and Event Rescue run until the last day. Use ticket tiers for day passes and weekend passes."],
     ["Can I reuse an event setup?", "Yes. Tick 'Save as template' when creating an event, or use Duplicate on any event page."],
   ]],
   ["Ticket sales", [

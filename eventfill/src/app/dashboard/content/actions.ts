@@ -44,7 +44,7 @@ export async function generateAction(raw: z.input<typeof inputSchema>): Promise<
     const gen: GenerateInput = {
       contentType: input.contentType as GenerateInput["contentType"],
       eventName: event.name,
-      eventDate: event.event_date,
+      eventDate: event.end_date ? `${event.event_date} to ${event.end_date}` : event.event_date,
       venue: event.venue,
       isOnline: event.is_online,
       bookingUrl: event.booking_url,

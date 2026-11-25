@@ -87,12 +87,16 @@ export const FEATURE_ITEMS: ShowcaseItem[] = [
 
 export const INDUSTRIES = [
   ["Business networking", "Breakfast clubs, founder meetups and chamber events."],
-  ["Workshops & training", "Courses, masterclasses and CPD sessions."],
+  ["Workshops & classes", "Courses, masterclasses, CPD and weekly classes."],
   ["Conferences", "Single and multi-track conferences and summits."],
   ["Music promoters", "Gigs, club nights and festivals."],
   ["Charity events", "Fundraisers, galas, sponsored runs and quizzes."],
   ["Exhibitions", "Trade shows, fairs and makers markets."],
-  ["Community events", "Local festivals, fetes and neighbourhood events."],
+  ["Sport & fitness", "Races, tournaments, sports camps and fitness events."],
+  ["Theatre & comedy", "Shows, stand-up nights and performances."],
+  ["Food & drink", "Tastings, supper clubs and food markets."],
+  ["Festivals & community events", "Multi-day festivals, fetes and neighbourhood events."],
+  ["Tours & experiences", "Guided tours and bookable experiences, including recurring dates."],
   ["Event agencies", "Teams managing many clients' events at once."],
 ] as const;
 

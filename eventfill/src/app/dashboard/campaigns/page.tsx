@@ -36,7 +36,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
       <PageHeader
         title="Marketing planner"
         description={`${open.length} of ${ctx.plan.campaignTasks.toLocaleString()} open tasks used. EventFill doesn't post for you — tick tasks off as you complete them.`}
-        actions={planner ? <><TemplateButton events={eventOpts} /><NewCampaignButton events={eventOpts} currency={ctx.org.currency} /></> : undefined}
+        actions={planner ? <><TemplateButton events={events.map((e) => ({ id: e.id, name: e.name, category: e.category }))} /><NewCampaignButton events={eventOpts} currency={ctx.org.currency} /></> : undefined}
       />
       {!planner && <Alert tone="info" className="mb-6" title="Campaigns, calendar and ready-made plans are on Starter and above" action={<Link href="/dashboard/settings/billing" className="text-sm font-semibold underline">Upgrade</Link>}>On the Free plan you can keep a simple list of up to {ctx.plan.campaignTasks} open marketing tasks.</Alert>}
 
@@ -57,7 +57,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
                   {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => <div key={d} className="bg-slate-50 px-2 py-1.5 text-xs font-semibold text-slate-500">{d}</div>)}
                   {days.map((d) => {
                     const dayTasks = tasks.filter((t) => t.due_date === d);
-                    const dayEvents = events.filter((e) => e.event_date === d);
+                    const dayEvents = events.filter((e) => e.event_date === d || (e.end_date && d > e.event_date && d <= e.end_date));
                     return (
                       <div key={d} className={cn("min-h-24 bg-white p-1.5", d.slice(0, 7) !== month && "bg-slate-50/70 text-slate-400")}>
                         <p className={cn("mb-1 text-xs", d === asOf && "inline-grid size-5 place-items-center rounded-full bg-brand-600 font-semibold text-white")}>{Number(d.slice(8))}</p>

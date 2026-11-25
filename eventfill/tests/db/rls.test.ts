@@ -127,6 +127,22 @@ d("row-level security / tenant isolation", () => {
     expect(r.rows.map((x) => x.id).sort()).toEqual([B, "00000000-0000-0000-0000-00000000000c"].sort());
   });
 
+  it("series are private to their organisation and can't be borrowed", async () => {
+    const seriesB = await as(B, async () => (await db.query("insert into event_series(org_id,name,recurrence) values ($1,'B weekly','weekly') returning id", [orgB])).rows[0].id);
+    const seen = await as(A, () => db.query("select * from event_series"));
+    expect(seen.rows).toHaveLength(0);
+    await expect(
+      as(A, () => db.query("insert into events(org_id,name,event_date,series_id) values ($1,'sneaky','2030-01-01',$2)", [orgA, seriesB])),
+    ).rejects.toThrow(/series does not belong/);
+    await as(B, () => db.query("insert into events(org_id,name,event_date,series_id) values ($1,'B week 1','2030-01-01',$2)", [orgB, seriesB]));
+  });
+
+  it("multi-day events can't end before they start", async () => {
+    await expect(
+      as(A, () => db.query("insert into events(org_id,name,event_date,end_date) values ($1,'backwards','2030-01-05','2030-01-01')", [orgA])),
+    ).rejects.toThrow(/events_end_after_start/);
+  });
+
   it("the rate limiter is not callable by end users", async () => {
     await expect(as(A, () => db.query("select public.rate_limit_hit('x', 60, 5)"))).rejects.toThrow(/permission denied/);
   });

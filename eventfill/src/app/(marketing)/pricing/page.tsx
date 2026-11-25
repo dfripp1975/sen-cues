@@ -26,7 +26,7 @@ export default function PricingPage() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {[
-                ["Active events", (p: (typeof PLANS)["free"]) => p.activeEvents],
+                ["Active events (a recurring series counts as one)", (p: (typeof PLANS)["free"]) => p.activeEvents],
                 ["Open campaign tasks", (p: (typeof PLANS)["free"]) => p.campaignTasks.toLocaleString()],
                 ["AI credits / month", (p: (typeof PLANS)["free"]) => p.aiCreditsPerMonth],
                 ["Tracking links", (p: (typeof PLANS)["free"]) => p.trackingLinks || "—"],

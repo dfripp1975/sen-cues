@@ -9,9 +9,9 @@ export const metadata: Metadata = { title: "Features" };
 
 const DETAILS: Record<string, string[]> = {
   rescue: ["Risk levels: on track, watch, behind and at risk", "Tickets per day needed to reach your target", "Recommendations based on category, description, booking link, pricing and channels", "Turn recommendations into tasks with owners and deadlines", "See sales before and after each action"],
-  sales: ["Manual daily entries with tiers, revenue and refunds", "CSV import with validation and clear error messages", "Daily and weekly charts, sales velocity, tickets remaining", "Period comparisons and CSV export", "Source and freshness shown on every figure"],
+  sales: ["Single-date, multi-day and recurring events (a series counts as one on your plan)", "Manual daily entries with tiers, revenue and refunds", "CSV import with validation and clear error messages", "Daily and weekly charts, sales velocity, tickets remaining", "Period comparisons and CSV export", "Source and freshness shown on every figure"],
   forecast: ["Average daily sales and recent 7-day velocity", "Conservative, expected and optimistic scenarios", "Shortfall against target", "Confidence indicator when history is short", "Save snapshots to compare over time"],
-  planner: ["Calendar of campaign tasks and deadlines", "Campaign budgets and statuses", "Ready-made plans for 7 event types", "Facebook, Instagram, TikTok, LinkedIn, email, community and partnership channels"],
+  planner: ["Calendar of campaign tasks and deadlines", "Campaign budgets and statuses", "Ready-made plans for 13 event types", "Facebook, Instagram, TikTok, LinkedIn, email, community and partnership channels"],
   links: ["Unique short link per channel", "UTM parameters added automatically", "QR codes for print", "Click trends by day and device type", "Clicks are reported as interest — never as ticket sales"],
   content: ["10 content types from descriptions to TikTok scripts", "Choose audience, platform, tone and objective", "Generate variations, edit, save and add to campaigns", "Monthly limits per plan keep costs predictable"],
   profit: ["Income: tickets, sponsorship, exhibitor fees, other", "Expenses across 9 categories", "Profit, margin, break-even tickets and revenue per ticket", "Mark lines as estimates and model what-if scenarios"],

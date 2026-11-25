@@ -41,3 +41,13 @@ export function weekStart(s: string): string {
   const dow = (d.getUTCDay() + 6) % 7;
   return addDays(s, -dow);
 }
+
+/** "6 Dec 2026", "5 – 7 Dec 2026", or with weekdays "Fri 5 – Sun 7 Dec 2026". */
+export function formatDateRange(start: string, end?: string | null, opts: { weekday?: boolean } = {}): string {
+  const wd = (d: string) => (opts.weekday ? `${formatDate(d, { weekday: "short" })} ` : "");
+  if (!end || end <= start) return `${wd(start)}${formatDate(start, { day: "numeric", month: "short", year: "numeric" })}`;
+  const sameMonth = start.slice(0, 7) === end.slice(0, 7);
+  const sameYear = start.slice(0, 4) === end.slice(0, 4);
+  const first = formatDate(start, { day: "numeric", ...(sameMonth ? {} : { month: "short" }), ...(sameYear ? {} : { year: "numeric" }) });
+  return `${wd(start)}${first} – ${wd(end)}${formatDate(end, { day: "numeric", month: "short", year: "numeric" })}`;
+}

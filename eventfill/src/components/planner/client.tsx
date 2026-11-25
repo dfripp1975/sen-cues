@@ -31,13 +31,17 @@ export function NewCampaignButton({ events, currency }: { events: Opt[]; currenc
   );
 }
 
-export function TemplateButton({ events }: { events: Opt[] }) {
+export function TemplateButton({ events }: { events: (Opt & { category?: string })[] }) {
   const [open, setOpen] = React.useState(false);
   const [tpl, setTpl] = React.useState("networking");
+  const pickEvent = (id: string) => {
+    const cat = events.find((e) => e.id === id)?.category;
+    if (cat && CAMPAIGN_TEMPLATES[cat]) setTpl(cat);
+  };
   return (
     <Modal open={open} onOpenChange={setOpen} title="Use a ready-made promotional plan" description="Creates a campaign and dated tasks counted back from your event date." trigger={<Button variant="secondary">Ready-made plans</Button>}>
       <ActionForm action={applyTemplate} onSuccess={() => setOpen(false)} className="space-y-4">
-        <FormField name="event_id" label="Event"><Select required defaultValue="">{[<option key="" value="" disabled>Choose an event</option>, ...events.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)]}</Select></FormField>
+        <FormField name="event_id" label="Event"><Select required defaultValue="" onChange={(e) => pickEvent(e.target.value)}>{[<option key="" value="" disabled>Choose an event</option>, ...events.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)]}</Select></FormField>
         <FormField name="template" label="Plan"><Select value={tpl} onChange={(e) => setTpl(e.target.value)}>{Object.entries(CAMPAIGN_TEMPLATES).map(([k, v]) => <option key={k} value={k}>{v.name}</option>)}</Select></FormField>
         <div className="rounded-xl bg-canvas p-4 text-sm ring-1 ring-slate-200">
           <p className="text-slate-600">{CAMPAIGN_TEMPLATES[tpl].summary}</p>

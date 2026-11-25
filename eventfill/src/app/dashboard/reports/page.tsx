@@ -4,7 +4,7 @@ import { BarChart3, FileText } from "lucide-react";
 import { requireOrg } from "@/lib/auth";
 import { listEvents, listSales, listTiers } from "@/lib/data/queries";
 import { summariseEvent } from "@/lib/event-summary";
-import { today, formatDate } from "@/lib/dates";
+import { today, formatDateRange } from "@/lib/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState, PageHeader, StatCard, Table } from "@/components/ui/misc";
 import { BarsChart } from "@/components/charts/charts";
@@ -42,7 +42,7 @@ export default async function ReportsPage() {
                 <thead><tr><th>Event</th><th>Date</th><th>Sold</th><th>Target</th><th>Revenue</th><th><span className="sr-only">Report</span></th></tr></thead>
                 <tbody>{s.map((x) => (
                   <tr key={x.event.id}>
-                    <td className="font-medium">{x.event.name}</td><td>{formatDate(x.event.event_date)}</td><td>{formatNumber(x.forecast.ticketsSold)}</td><td>{formatNumber(x.event.ticket_target)}</td><td>{formatMoney(x.forecast.netRevenue, ctx.org.currency)}</td>
+                    <td className="font-medium">{x.event.name}</td><td className="whitespace-nowrap">{formatDateRange(x.event.event_date, x.event.end_date)}</td><td>{formatNumber(x.forecast.ticketsSold)}</td><td>{formatNumber(x.event.ticket_target)}</td><td>{formatMoney(x.forecast.netRevenue, ctx.org.currency)}</td>
                     <td><Link href={`/dashboard/events/${x.event.id}/report`} className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:underline"><FileText className="size-4" /> Report</Link></td>
                   </tr>
                 ))}</tbody>

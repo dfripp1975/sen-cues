@@ -41,7 +41,7 @@ export const PLANS: Record<PlanId, Plan> = {
     trackingLinks: 0,
     teamMembers: 1,
     features: ["surveys"],
-    highlights: ["1 active event", "Basic dashboard", "Manual ticket tracking", "Up to 10 campaign tasks", "Profit calculator", "No AI generation"],
+    highlights: ["1 active event or series", "Basic dashboard", "Manual ticket tracking", "Up to 10 campaign tasks", "Profit calculator", "No AI generation"],
   },
   starter: {
     id: "starter",
@@ -55,7 +55,7 @@ export const PLANS: Record<PlanId, Plan> = {
     trackingLinks: 25,
     teamMembers: 1,
     features: ["forecasting", "marketingPlanner", "trackingLinks", "surveys", "aiContent"],
-    highlights: ["3 active events", "Sales forecasting", "Marketing planner", "Tracking links & QR codes", "50 AI credits / month"],
+    highlights: ["3 active events or series", "Sales forecasting", "Marketing planner", "Tracking links & QR codes", "50 AI credits / month"],
   },
   growth: {
     id: "growth",
@@ -69,7 +69,7 @@ export const PLANS: Record<PlanId, Plan> = {
     trackingLinks: 200,
     teamMembers: 3,
     features: ["forecasting", "marketingPlanner", "trackingLinks", "rescueMode", "competitorWatch", "advancedReporting", "surveys", "aiContent"],
-    highlights: ["15 active events", "Event Rescue Mode", "Advanced reporting", "Competitor Watch", "200 AI credits / month"],
+    highlights: ["15 active events or series", "Event Rescue Mode", "Advanced reporting", "Competitor Watch", "200 AI credits / month"],
   },
   pro: {
     id: "pro",
@@ -83,7 +83,7 @@ export const PLANS: Record<PlanId, Plan> = {
     trackingLinks: 1000,
     teamMembers: 15,
     features: ["forecasting", "marketingPlanner", "trackingLinks", "rescueMode", "competitorWatch", "advancedReporting", "teamCollaboration", "surveys", "aiContent"],
-    highlights: ["50 active events", "Team collaboration (15 seats)", "Advanced reporting", "500 AI credits / month", "Higher usage limits", "Priority support"],
+    highlights: ["50 active events or series", "Team collaboration (15 seats)", "Advanced reporting", "500 AI credits / month", "Higher usage limits", "Priority support"],
   },
 };
 

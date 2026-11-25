@@ -1,7 +1,7 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import type { OrgContext } from "@/lib/auth";
-import type { CampaignRow, EventRow, LinkRow, MoneyRow, RescueActionRow, SaleRecord, TaskRow, TierRow } from "@/types/db";
+import type { CampaignRow, EventRow, LinkRow, MoneyRow, RescueActionRow, SaleRecord, SeriesRow, TaskRow, TierRow } from "@/types/db";
 
 const num = <T extends object>(rows: T[] | null, keys: (keyof T)[]): T[] =>
   (rows ?? []).map((r) => {
@@ -89,4 +89,17 @@ export async function listMembers(ctx: OrgContext) {
   const { data: profiles } = ids.length ? await ctx.supabase.from("profiles").select("id, full_name").in("id", ids) : { data: [] };
   const names = new Map((profiles ?? []).map((p) => [p.id as string, (p.full_name as string) || ""]));
   return (data ?? []).map((m) => ({ user_id: m.user_id as string, role: m.role as string, name: names.get(m.user_id as string) || (m.user_id === ctx.user.id ? ctx.user.email : "Team member") }));
+}
+
+export async function listSeries(ctx: OrgContext) {
+  const { data } = await ctx.supabase.from("event_series").select("*").eq("org_id", ctx.org.id);
+  return (data ?? []) as SeriesRow[];
+}
+
+export async function getSeries(ctx: OrgContext, id: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  const { data } = await ctx.supabase.from("event_series").select("*").eq("org_id", ctx.org.id).eq("id", id).maybeSingle();
+  if (!data) notFound();
+  const { data: events } = await ctx.supabase.from("events").select("*").eq("org_id", ctx.org.id).eq("series_id", id).order("event_date");
+  return { series: data as SeriesRow, events: num((events ?? []) as EventRow[], ["marketing_budget"]) };
 }

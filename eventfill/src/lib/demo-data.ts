@@ -2,8 +2,9 @@
 // Every organisation, event, figure and response here is invented and is
 // labelled "Demo data" wherever it is shown. Dates are relative to today so the
 // demo always looks current. Generation is deterministic.
-import { addDays, today } from "./dates";
-import type { CampaignRow, EventRow, LinkRow, MoneyRow, RescueActionRow, SaleRecord, TaskRow, TierRow } from "@/types/db";
+import { addDays, daysBetween, today } from "./dates";
+import { addMonthsClamped } from "./series";
+import type { CampaignRow, EventRow, LinkRow, MoneyRow, RescueActionRow, SaleRecord, SeriesRow, TaskRow, TierRow } from "@/types/db";
 
 function seeded(seed: number) {
   let s = seed;
@@ -24,6 +25,8 @@ export function buildDemo(asOf = today()) {
     venue: null,
     is_online: false,
     event_date: asOf,
+    end_date: null,
+    series_id: null,
     start_time: "18:30:00",
     end_time: "21:00:00",
     timezone: "Europe/London",
@@ -71,8 +74,9 @@ export function buildDemo(asOf = today()) {
         "A hands-on, three-hour workshop for small business teams who want to use AI tools responsibly in day-to-day work. Attendees will leave with a simple written plan, a set of tested prompts for common tasks, and a checklist for reviewing AI output before it reaches customers. Suitable for beginners; no technical background required.",
     }),
     ev("demo-3", {
-      name: "Riverside Summer Charity Gig",
-      category: "charity",
+      name: "Riverside Charity Music Weekend",
+      category: "festival",
+      end_date: addDays(asOf, 46),
       venue: "Riverside Hall, Leeds (fictional)",
       event_date: addDays(asOf, 45),
       ticket_target: 300,
@@ -94,7 +98,25 @@ export function buildDemo(asOf = today()) {
       attendance: 371,
       lessons_learned: "Partner shares drove most link clicks. Start exhibitor promotion earlier next time.",
     }),
+    ...[-1, 0, 1, 2].map((m) => daysBetween(asOf, addMonthsClamped(addDays(asOf, 10), m))).map((offset, i) =>
+      ev(`demo-s${i + 1}`, {
+        name: "Founders Breakfast Club",
+        category: "networking",
+        series_id: "demo-series-1",
+        venue: "The Corner Café, Bristol (fictional)",
+        event_date: addDays(asOf, offset),
+        start_time: "07:45:00",
+        end_time: "09:00:00",
+        ticket_target: 40,
+        capacity: 45,
+        sales_start_date: addDays(asOf, offset - 21),
+        status: offset < 0 ? "completed" : "active",
+        attendance: offset < 0 ? 36 : null,
+        description: "A monthly early-morning breakfast for local founders: short introductions, one guest speaker, coffee.",
+      }),
+    ),
   ];
+  const series: SeriesRow[] = [{ id: "demo-series-1", org_id: "demo-org", name: "Founders Breakfast Club", recurrence: "monthly", created_at: created }];
 
   const tiers: TierRow[] = [
     { id: "t1", event_id: "demo-1", name: "General", price: 15, quantity: 160 },
@@ -104,6 +126,7 @@ export function buildDemo(asOf = today()) {
     { id: "t5", event_id: "demo-3", name: "Adult", price: 18, quantity: 300 },
     { id: "t6", event_id: "demo-3", name: "Concession", price: 10, quantity: 50 },
     { id: "t7", event_id: "demo-4", name: "Entry", price: 5, quantity: 500 },
+    ...[1, 2, 3, 4].map((i) => ({ id: `ts${i}`, event_id: `demo-s${i}`, name: "Breakfast ticket", price: 12, quantity: 45 })),
   ];
 
   const rand = seeded(42);
@@ -135,6 +158,9 @@ export function buildDemo(asOf = today()) {
   gen("demo-2", addDays(asOf, -30), addDays(asOf, -1), 1.2, 0.03, 49); // on track
   gen("demo-3", addDays(asOf, -21), addDays(asOf, -1), 2.5, 0.12, 18); // behind
   gen("demo-4", addDays(asOf, -75), addDays(asOf, -19), 4, 0.06, 5); // finished
+  const pastBreakfast = daysBetween(asOf, addMonthsClamped(addDays(asOf, 10), -1));
+  gen("demo-s1", addDays(asOf, pastBreakfast - 21), addDays(asOf, pastBreakfast - 1), 1.7, 0.06, 12); // past breakfast
+  gen("demo-s2", addDays(asOf, -11), addDays(asOf, -1), 1.8, 0.1, 12); // next breakfast
 
   const campaigns: CampaignRow[] = [
     { id: "c1", event_id: "demo-1", name: "LinkedIn founder outreach", channel: "linkedin", status: "active", start_date: addDays(asOf, -30), end_date: addDays(asOf, 12), budget: 150, notes: null },
@@ -187,6 +213,7 @@ export function buildDemo(asOf = today()) {
   return {
     org: { name: "Northlight Events (fictional)", currency: "GBP" },
     events,
+    series,
     tiers,
     sales,
     campaigns,

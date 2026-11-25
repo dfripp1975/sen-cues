@@ -120,6 +120,28 @@ test.describe("demo", () => {
     await expect(page.getByRole("link", { name: "Create free account" }).first()).toBeVisible();
   });
 
+  test("a recurring series appears once in the events list and has its own page", async ({ page }) => {
+    await page.goto("/demo/events");
+    await expect(page.getByRole("link", { name: "Founders Breakfast Club", exact: true })).toHaveCount(1);
+    await page.getByRole("link", { name: /upcoming dates · view series/ }).click();
+    await expect(page).toHaveURL(/\/demo\/series\/demo-series-1/);
+    await expect(page.getByText("Recurring series")).toBeVisible();
+    await expect(page.getByText(/counts as one active event/)).toBeVisible();
+    await expect(page.locator("tbody tr")).toHaveCount(4);
+  });
+
+  test("showing all events lists every date of the series", async ({ page }) => {
+    await page.goto("/demo/events?status=active");
+    await expect(page.getByRole("link", { name: "Founders Breakfast Club", exact: true })).toHaveCount(3);
+  });
+
+  test("multi-day events show a date range", async ({ page }) => {
+    await page.goto("/demo/events/demo-3");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Riverside Charity Music Weekend");
+    await expect(page.getByText(/\w{3} \d+ – \w{3} \d+ \w{3} \d{4}/).first()).toBeVisible();
+    await expect(page.getByText("Days until last day")).toBeVisible();
+  });
+
   test("unknown demo events 404", async ({ page }) => {
     const res = await page.goto("/demo/events/nope");
     expect(res?.status()).toBe(404);

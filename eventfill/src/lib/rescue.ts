@@ -94,6 +94,12 @@ const CATEGORY_CHANNELS: Record<string, string[]> = {
   charity: ["Facebook", "community groups", "partner charities and local press"],
   exhibition: ["Instagram", "trade associations", "exhibitor networks"],
   community: ["Facebook community groups", "Nextdoor-style neighbourhood groups", "local libraries and noticeboards"],
+  sport: ["local clubs and leagues", "Instagram", "Strava or running/cycling groups"],
+  performing_arts: ["Instagram", "local what's-on listings", "the venue's own mailing list"],
+  food_drink: ["Instagram", "local food bloggers and listings", "partner restaurants, bars or producers"],
+  festival: ["Instagram", "TikTok", "local and regional what's-on listings"],
+  class: ["Instagram", "local community groups", "email to past learners"],
+  tour: ["TripAdvisor-style review and listing sites", "Instagram", "local hotels and visitor centres"],
   other: ["your strongest existing social channel", "community groups", "email to opted-in contacts"],
 };
 

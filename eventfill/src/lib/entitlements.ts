@@ -1,6 +1,7 @@
 import "server-only";
 import type { OrgContext } from "@/lib/auth";
 import { FEATURE_LABELS, minimumPlanFor, planHasFeature, type Feature } from "@/lib/plans";
+import { countActiveUnits, type CountableEvent } from "@/lib/series";
 
 export class PlanLimitError extends Error {
   constructor(message: string) {
@@ -19,21 +20,29 @@ export function assertFeature(ctx: OrgContext, feature: Feature) {
   }
 }
 
-export async function countActiveEvents(ctx: OrgContext): Promise<number> {
-  const { count } = await ctx.supabase
+async function activeRows(ctx: OrgContext): Promise<CountableEvent[]> {
+  const { data } = await ctx.supabase
     .from("events")
-    .select("id", { count: "exact", head: true })
+    .select("id, series_id, status, is_template")
     .eq("org_id", ctx.org.id)
     .in("status", ["active", "draft"])
-    .eq("is_template", false);
-  return count ?? 0;
+    .eq("is_template", false)
+    .limit(20000);
+  return (data ?? []) as CountableEvent[];
 }
 
-export async function assertCanAddActiveEvent(ctx: OrgContext) {
-  const n = await countActiveEvents(ctx);
-  if (n >= ctx.plan.activeEvents) {
+/** Active events for the plan limit. A recurring series counts as one. */
+export async function countActiveEvents(ctx: OrgContext): Promise<number> {
+  return countActiveUnits(await activeRows(ctx));
+}
+
+/** Throws if adding an active event (or a new series) would exceed the plan. Adding a date to an already-active series is free. */
+export async function assertCanAddActiveEvent(ctx: OrgContext, opts: { seriesId?: string | null } = {}) {
+  const rows = await activeRows(ctx);
+  if (opts.seriesId && rows.some((r) => r.series_id === opts.seriesId)) return;
+  if (countActiveUnits(rows) >= ctx.plan.activeEvents) {
     throw new PlanLimitError(
-      `Your ${ctx.plan.name} plan allows ${ctx.plan.activeEvents} active event${ctx.plan.activeEvents === 1 ? "" : "s"}. Archive an event or upgrade to add more.`,
+      `Your ${ctx.plan.name} plan allows ${ctx.plan.activeEvents} active event${ctx.plan.activeEvents === 1 ? "" : "s"} (a recurring series counts as one). Archive an event or upgrade to add more.`,
     );
   }
 }

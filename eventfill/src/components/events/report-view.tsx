@@ -5,7 +5,7 @@ import { SalesChart } from "@/components/charts/charts";
 import { PrintButton } from "./print-button";
 import { computeProfit } from "@/lib/finance";
 import { dailySeries } from "@/lib/forecast";
-import { formatDate } from "@/lib/dates";
+import { formatDateRange } from "@/lib/dates";
 import { formatMoney, formatNumber } from "@/lib/utils";
 import { CHANNEL_LABELS, type Channel } from "@/lib/tracking";
 import type { EventSummary } from "@/lib/event-summary";
@@ -42,7 +42,7 @@ export function ReportView(d: ReportData) {
       </div>
       <div className="hidden print:block">
         <h1 className="text-2xl font-bold">{s.event.name} — Event report</h1>
-        <p className="text-sm">{d.orgName} · {formatDate(s.event.event_date)}</p>
+        <p className="text-sm">{d.orgName} · {formatDateRange(s.event.event_date, s.event.end_date)}</p>
       </div>
       {d.isDemo && <DemoBadge />}
       <Alert tone="info">Figures marked &quot;recorded&quot; come from data entered in EventFill. Forecasts and items marked &quot;estimate&quot; are not actual results.</Alert>

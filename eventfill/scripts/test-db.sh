@@ -13,5 +13,9 @@ if [ "$(id -u)" = "0" ]; then chown postgres "$DIR"; RUN=(runuser -u postgres --
 trap '"${RUN[@]}" "$PGBIN/pg_ctl" -D "$DIR" stop >/dev/null; rm -rf "$DIR"' EXIT
 export TEST_DATABASE_URL="postgresql://postgres@localhost:$PORT/postgres"
 psql "$TEST_DATABASE_URL" -q -v ON_ERROR_STOP=1 -f tests/db/supabase-stub.sql
-psql "$TEST_DATABASE_URL" -q -v ON_ERROR_STOP=1 -f supabase/migrations/0001_init.sql
+# Apply every migration except storage (Supabase Storage isn't part of the stub).
+for f in supabase/migrations/*.sql; do
+  case "$f" in *storage*) continue ;; esac
+  psql "$TEST_DATABASE_URL" -q -v ON_ERROR_STOP=1 -f "$f"
+done
 npx vitest run tests/db

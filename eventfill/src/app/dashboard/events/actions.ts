@@ -5,10 +5,11 @@ import { z } from "zod";
 import { requireOrg, type OrgContext } from "@/lib/auth";
 import { safeAction, formToObject, type ActionResult } from "@/lib/action";
 import { assertCanAddActiveEvent, assertFeature, PlanLimitError } from "@/lib/entitlements";
-import { eventSchema, moneyLineSchema, saleSchema, tierSchema } from "@/lib/validation";
+import { eventSchema, moneyLineSchema, repeatSchema, saleSchema, tierSchema } from "@/lib/validation";
+import { generateSeriesDates, salesDeadline, type Recurrence } from "@/lib/series";
 import { aggregateDaily, parseSalesCsv, MAX_CSV_BYTES } from "@/lib/csv";
 import { computeForecast } from "@/lib/forecast";
-import { addDays, today } from "@/lib/dates";
+import { addDays, daysBetween, today } from "@/lib/dates";
 import { audit, rateLimit } from "@/lib/ops";
 import { getEvent, listSales } from "@/lib/data/queries";
 import type { ActionState } from "@/components/ui/action-form";
@@ -26,48 +27,81 @@ function refresh(eventId?: string) {
 }
 
 // ---------------------------------------------------------------- events
+// Fields copied to every date of a series (dates, status and outcomes are per date).
+const SHARED_FIELDS = ["name", "description", "category", "venue", "is_online", "start_time", "end_time", "timezone", "ticketing_platform", "booking_url", "capacity", "ticket_target", "marketing_budget", "notes"] as const;
+
 export async function createEvent(_: ActionState, fd: FormData): Promise<ActionState> {
-  let newId = "";
+  let target = "";
   const res = await safeAction("createEvent", async () => {
     const ctx = await requireOrg();
     const input = eventSchema.parse(formToObject(fd));
+    const repeat = repeatSchema.parse({ recurrence: fd.get("recurrence") || "none", repeat_count: fd.get("recurrence") && fd.get("recurrence") !== "none" ? fd.get("repeat_count") : undefined });
+    const isSeries = repeat.recurrence !== "none" && !input.is_template;
     if (!input.is_template && (input.status === "active" || input.status === "draft")) await assertCanAddActiveEvent(ctx);
+
+    let seriesId: string | null = null;
+    let rows = [{ ...input }];
+    if (isSeries) {
+      const { data: series, error: sErr } = await ctx.supabase.from("event_series").insert({ org_id: ctx.org.id, name: input.name, recurrence: repeat.recurrence }).select("id").single();
+      if (sErr) throw sErr;
+      seriesId = series.id;
+      rows = generateSeriesDates({ start: input.event_date, end: input.end_date, salesStart: input.sales_start_date, recurrence: repeat.recurrence as Recurrence, count: repeat.repeat_count ?? 2 }).map((d) => ({ ...input, ...d }));
+    }
     const { data, error } = await ctx.supabase
       .from("events")
-      .insert({ ...input, org_id: ctx.org.id, created_by: ctx.user.id })
-      .select("id")
-      .single();
-    if (error) throw error;
-    newId = data.id;
-    // Optional first ticket tier from the create form
+      .insert(rows.map((r) => ({ ...r, series_id: seriesId, org_id: ctx.org.id, created_by: ctx.user.id })))
+      .select("id");
+    if (error) {
+      if (seriesId) await ctx.supabase.from("event_series").delete().eq("id", seriesId).eq("org_id", ctx.org.id);
+      throw error;
+    }
+    const ids = (data ?? []).map((d) => d.id as string);
+    // Optional first ticket tier from the create form, added to every date
     const tierName = String(fd.get("tier_name") ?? "").trim();
     if (tierName) {
       const tier = tierSchema.parse({ name: tierName, price: fd.get("tier_price") || 0, quantity: fd.get("tier_quantity") ?? "" });
-      await ctx.supabase.from("ticket_tiers").insert({ ...tier, org_id: ctx.org.id, event_id: newId });
+      await ctx.supabase.from("ticket_tiers").insert(ids.map((id) => ({ ...tier, org_id: ctx.org.id, event_id: id })));
     }
-    await audit(ctx.org.id, ctx.user.id, "event.created", "event", newId);
+    await audit(ctx.org.id, ctx.user.id, isSeries ? "series.created" : "event.created", isSeries ? "series" : "event", seriesId ?? ids[0], { dates: ids.length });
+    target = isSeries ? `/dashboard/series/${seriesId}?created=1` : `/dashboard/events/${ids[0]}?created=1`;
     return { ok: true };
   });
   if (!res.ok) return res;
   refresh();
-  redirect(`/dashboard/events/${newId}?created=1`);
+  redirect(target);
 }
 
 export async function updateEvent(eventId: string, _: ActionState, fd: FormData): Promise<ActionState> {
+  let updatedOthers = 0;
   const res = await safeAction("updateEvent", async () => {
     const ctx = await requireOrg();
     const current = await ownedEvent(ctx, eventId);
     const input = eventSchema.parse(formToObject(fd));
     const becomingActive = (input.status === "active" || input.status === "draft") && !(current.status === "active" || current.status === "draft");
-    if (becomingActive && !input.is_template) await assertCanAddActiveEvent(ctx);
+    if (becomingActive && !input.is_template) await assertCanAddActiveEvent(ctx, { seriesId: current.series_id });
     const { error } = await ctx.supabase.from("events").update({ ...input, updated_at: new Date().toISOString() }).eq("id", eventId).eq("org_id", ctx.org.id);
     if (error) throw error;
-    await audit(ctx.org.id, ctx.user.id, "event.updated", "event", eventId);
+    if (current.series_id && fd.get("apply_to_series") === "on") {
+      const shared = Object.fromEntries(SHARED_FIELDS.map((k) => [k, input[k]]));
+      const { data, error: e2 } = await ctx.supabase
+        .from("events")
+        .update({ ...shared, updated_at: new Date().toISOString() })
+        .eq("org_id", ctx.org.id)
+        .eq("series_id", current.series_id)
+        .neq("id", eventId)
+        .gte("event_date", today())
+        .in("status", ["active", "draft"])
+        .select("id");
+      if (e2) throw e2;
+      updatedOthers = data?.length ?? 0;
+      await ctx.supabase.from("event_series").update({ name: input.name }).eq("id", current.series_id).eq("org_id", ctx.org.id);
+    }
+    await audit(ctx.org.id, ctx.user.id, "event.updated", "event", eventId, { series_dates_updated: updatedOthers });
     return { ok: true };
   });
   if (!res.ok) return res;
   refresh(eventId);
-  redirect(`/dashboard/events/${eventId}?saved=1`);
+  redirect(`/dashboard/events/${eventId}?saved=1${updatedOthers ? `&seriesUpdated=${updatedOthers}` : ""}`);
 }
 
 export async function duplicateEvent(eventId: string): Promise<ActionResult> {
@@ -77,9 +111,21 @@ export async function duplicateEvent(eventId: string): Promise<ActionResult> {
     const e = await ownedEvent(ctx, eventId);
     await assertCanAddActiveEvent(ctx);
     const { id: _id, created_at: _c, updated_at: _u, attendance: _a, lessons_learned: _l, ...rest } = e;
+    const start = e.event_date < today() ? addDays(today(), 30) : e.event_date;
+    const shift = daysBetween(e.event_date, start);
     const { data, error } = await ctx.supabase
       .from("events")
-      .insert({ ...rest, name: e.is_template ? e.name : `${e.name} (copy)`, status: "draft", is_template: false, event_date: e.event_date < today() ? addDays(today(), 30) : e.event_date, created_by: ctx.user.id })
+      .insert({
+        ...rest,
+        name: e.is_template ? e.name : `${e.name} (copy)`,
+        status: "draft",
+        is_template: false,
+        series_id: null, // a duplicate is a standalone event
+        event_date: start,
+        end_date: e.end_date ? addDays(e.end_date, shift) : null,
+        sales_start_date: e.sales_start_date ? addDays(e.sales_start_date, shift) : null,
+        created_by: ctx.user.id,
+      })
       .select("id")
       .single();
     if (error) throw error;
@@ -98,7 +144,7 @@ export async function setEventStatus(eventId: string, status: "active" | "archiv
   const res = await safeAction("setEventStatus", async () => {
     const ctx = await requireOrg();
     const e = await ownedEvent(ctx, eventId);
-    if (status === "active" && e.status !== "active" && e.status !== "draft" && !e.is_template) await assertCanAddActiveEvent(ctx);
+    if (status === "active" && e.status !== "active" && e.status !== "draft" && !e.is_template) await assertCanAddActiveEvent(ctx, { seriesId: e.series_id });
     const { error } = await ctx.supabase.from("events").update({ status, updated_at: new Date().toISOString() }).eq("id", eventId).eq("org_id", ctx.org.id);
     if (error) throw error;
     await audit(ctx.org.id, ctx.user.id, `event.${status}`, "event", eventId);
@@ -275,7 +321,7 @@ export async function saveForecastSnapshot(eventId: string): Promise<ActionResul
     assertFeature(ctx, "forecasting");
     const e = await ownedEvent(ctx, eventId);
     const sales = await listSales(ctx, [eventId]);
-    const f = computeForecast({ sales, target: e.ticket_target, eventDate: e.event_date, asOf: today(), salesStartDate: e.sales_start_date, capacity: e.capacity });
+    const f = computeForecast({ sales, target: e.ticket_target, eventDate: salesDeadline(e), asOf: today(), salesStartDate: e.sales_start_date, capacity: e.capacity });
     const { error } = await ctx.supabase.from("sales_forecasts").insert({
       org_id: ctx.org.id,
       event_id: eventId,
@@ -309,7 +355,7 @@ export async function createRescuePlan(eventId: string, items: z.infer<typeof re
       recommendation_key: i.key,
       title: i.title,
       description: i.description ?? null,
-      due_date: [addDays(base, i.dueInDays), e.event_date].sort()[0],
+      due_date: [addDays(base, i.dueInDays), salesDeadline(e)].sort()[0],
       tickets_at_creation: sold,
       assignee_id: ctx.user.id,
     }));

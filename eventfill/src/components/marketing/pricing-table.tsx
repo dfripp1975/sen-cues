@@ -47,7 +47,7 @@ export function PricingTable({ ctaHref = "/register" }: { ctaHref?: string }) {
           );
         })}
       </div>
-      <p className="mt-6 text-center text-xs text-slate-500">Prices in US dollars. Taxes may apply depending on your location. Cancel any time from your billing settings.</p>
+      <p className="mt-6 text-center text-xs text-slate-500">A recurring series (e.g. a weekly class) counts as one active event. Prices in US dollars. Taxes may apply depending on your location. Cancel any time from your billing settings.</p>
     </div>
   );
 }

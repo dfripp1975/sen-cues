@@ -1,6 +1,8 @@
 import { computeForecast, dailySeries, type Forecast } from "./forecast";
 import { assessRisk, type RiskAssessment } from "./rescue";
 import type { EventRow, SaleRecord, TierRow } from "@/types/db";
+import { salesDeadline } from "./series";
+import { daysBetween } from "./dates";
 
 export interface EventSummary {
   event: EventRow;
@@ -16,14 +18,14 @@ export function summariseEvent(event: EventRow, sales: SaleRecord[], tiers: Tier
   const forecast = computeForecast({
     sales: own,
     target: event.ticket_target,
-    eventDate: event.event_date,
+    eventDate: salesDeadline(event),
     asOf,
     salesStartDate: event.sales_start_date,
     capacity: event.capacity,
   });
   const prices = tiers.filter((t) => t.event_id === event.id).map((t) => Number(t.price));
   const lowestPrice = prices.length ? Math.min(...prices) : null;
-  const risk = assessRisk({ ...event, lowestPrice }, forecast, asOf);
+  const risk = assessRisk({ ...event, event_date: salesDeadline(event), lowestPrice }, forecast, asOf);
   const latest = [...own].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
   return { event, forecast, risk, lowestPrice, lastSaleRecordedAt: latest?.created_at ?? null, lastSaleSource: latest?.source ?? null };
 }
@@ -49,3 +51,11 @@ export const RISK_LABEL = {
   critical: "At risk",
   not_applicable: "—",
 } as const;
+
+/** "12 days to go", "Happening now", "Finished". */
+export function timingLabel(event: { event_date: string; end_date?: string | null }, asOf: string): string {
+  const toStart = daysBetween(asOf, event.event_date);
+  if (toStart > 0) return `${toStart} day${toStart === 1 ? "" : "s"} to go`;
+  if (toStart === 0) return "Today";
+  return asOf <= salesDeadline(event) ? "Happening now" : "Finished";
+}

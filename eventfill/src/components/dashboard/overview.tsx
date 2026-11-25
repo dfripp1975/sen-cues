@@ -6,9 +6,9 @@ import { Badge, DemoBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SalesChart } from "@/components/charts/charts";
 import { QueryFilter } from "@/components/dashboard/filters";
-import { RISK_LABEL, RISK_TONE, type EventSummary } from "@/lib/event-summary";
+import { RISK_LABEL, RISK_TONE, timingLabel, type EventSummary } from "@/lib/event-summary";
 import { dailySeries } from "@/lib/forecast";
-import { addDays, daysBetween, formatDate } from "@/lib/dates";
+import { addDays, formatDate, formatDateRange } from "@/lib/dates";
 import { formatMoney, formatNumber, timeAgo } from "@/lib/utils";
 import { CHANNEL_LABELS, type Channel } from "@/lib/tracking";
 import type { CampaignRow, SaleRecord, TaskRow } from "@/types/db";
@@ -95,7 +95,7 @@ export function DashboardOverview(p: OverviewProps) {
             <StatCard label="Active events" value={upcoming.length} sub={`${p.summaries.length} total`} icon={CalendarDays} />
             <StatCard label="Tickets sold" value={formatNumber(ticketsInRange)} sub={RANGES.find(([v]) => v === (p.range ?? "30"))?.[1] ?? "Last 30 days"} icon={Ticket} tone="teal" />
             <StatCard label="Ticket revenue" value={formatMoney(revenueInRange, p.currency)} sub="Net of recorded refunds" icon={PoundSterling} tone="emerald" />
-            <StatCard label="Next event" value={next ? `${next.forecast.daysRemaining} days` : "—"} sub={next ? next.event.name : "No upcoming events"} icon={CalendarClock} tone="amber" />
+            <StatCard label="Next event" value={next ? timingLabel(next.event, p.asOf).replace(" to go", "") : "—"} sub={next ? next.event.name : "No upcoming events"} icon={CalendarClock} tone="amber" />
           </div>
 
           <Card>
@@ -134,8 +134,8 @@ export function DashboardOverview(p: OverviewProps) {
                         <Link href={`${p.base}/events/${s.event.id}`} className="font-semibold hover:text-brand-600">{s.event.name}</Link>
                       </td>
                       <td className="whitespace-nowrap text-slate-600">
-                        {formatDate(s.event.event_date)}
-                        <span className="block text-xs text-slate-400">{s.forecast.eventPassed ? "Finished" : `${daysBetween(p.asOf, s.event.event_date)} days to go`}</span>
+                        {formatDateRange(s.event.event_date, s.event.end_date)}
+                        <span className="block text-xs text-slate-400">{timingLabel(s.event, p.asOf)}</span>
                       </td>
                       <td className="min-w-40">
                         <div className="flex justify-between text-xs">
