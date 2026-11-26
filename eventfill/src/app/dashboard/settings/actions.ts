@@ -8,7 +8,8 @@ import { assertFeature, PlanLimitError } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 import { env, isStripeConfigured } from "@/lib/env";
-import { isPlanId, stripePriceId, PLANS } from "@/lib/plans";
+import { hasOwnCurrencyPrice, isPlanId, stripePriceId, PLANS } from "@/lib/plans";
+import { DEFAULT_CURRENCY, toCurrency } from "@/lib/pricing";
 import { audit } from "@/lib/ops";
 import type { ActionState } from "@/components/ui/action-form";
 
@@ -105,8 +106,12 @@ export async function startCheckout(_: ActionState, fd: FormData): Promise<Actio
     const plan = fd.get("plan");
     const interval = fd.get("interval") === "year" ? "year" : "month";
     if (!isPlanId(plan) || plan === "free") return { ok: false, error: "Choose a paid plan." };
-    const price = stripePriceId(plan, interval);
+    const currency = toCurrency(fd.get("currency")) ?? DEFAULT_CURRENCY;
+    const price = stripePriceId(plan, interval, currency);
     if (!price) return { ok: false, error: `No Stripe price is configured for ${PLANS[plan].name} (${interval}ly).` };
+    // A shared price charges in another currency through its currency options;
+    // a currency's own price is already in that currency.
+    const checkoutCurrency = hasOwnCurrencyPrice(plan, interval, currency) ? undefined : currency.toLowerCase();
     const stripe = getStripe();
     if (ctx.subscription.plan !== "free" && ctx.subscription.stripe_customer_id) {
       // Existing subscribers change plan in the Stripe customer portal (handles proration).
@@ -114,21 +119,30 @@ export async function startCheckout(_: ActionState, fd: FormData): Promise<Actio
       url = portal.url;
       return { ok: true };
     }
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      line_items: [{ price, quantity: 1 }],
-      client_reference_id: ctx.org.id,
-      customer: ctx.subscription.stripe_customer_id ?? undefined,
-      customer_email: ctx.subscription.stripe_customer_id ? undefined : ctx.user.email,
-      subscription_data: { metadata: { org_id: ctx.org.id } },
-      metadata: { org_id: ctx.org.id },
-      allow_promotion_codes: true,
-      success_url: `${env.siteUrl}/dashboard/settings/billing?checkout=success`,
-      cancel_url: `${env.siteUrl}/dashboard/settings/billing?checkout=cancelled`,
-    });
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        currency: checkoutCurrency,
+        line_items: [{ price, quantity: 1 }],
+        client_reference_id: ctx.org.id,
+        customer: ctx.subscription.stripe_customer_id ?? undefined,
+        customer_email: ctx.subscription.stripe_customer_id ? undefined : ctx.user.email,
+        subscription_data: { metadata: { org_id: ctx.org.id } },
+        metadata: { org_id: ctx.org.id },
+        allow_promotion_codes: true,
+        success_url: `${env.siteUrl}/dashboard/settings/billing?checkout=success`,
+        cancel_url: `${env.siteUrl}/dashboard/settings/billing?checkout=cancelled`,
+      });
+    } catch (e) {
+      if (/currenc/i.test(e instanceof Error ? e.message : "")) {
+        return { ok: false, error: `${PLANS[plan].name} can't be paid in ${currency} yet. Choose another currency, or contact us.` };
+      }
+      throw e;
+    }
     if (!session.url) return { ok: false, error: "Stripe didn't return a checkout link." };
     url = session.url;
-    await audit(ctx.org.id, ctx.user.id, "billing.checkout_started", "subscription", undefined, { plan, interval });
+    await audit(ctx.org.id, ctx.user.id, "billing.checkout_started", "subscription", undefined, { plan, interval, currency });
     return { ok: true };
   });
   if (!r.ok) return r;

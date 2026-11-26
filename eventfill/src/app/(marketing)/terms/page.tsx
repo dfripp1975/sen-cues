@@ -22,7 +22,7 @@ export default function TermsPage() {
           <h2>Acceptable use</h2>
           <p>You must not use EventFill to send unsolicited bulk messages, scrape other websites, upload malicious files, attempt to access other customers&apos; data, or break any law, including data protection and consumer protection law. Promotions you create must be genuine.</p>
           <h2>Subscriptions and payment</h2>
-          <p>Paid plans are billed in advance monthly or annually through Stripe and renew automatically until cancelled. You can cancel at any time; access continues until the end of the paid period. Plan limits are enforced by the service. We may change prices with at least 30 days&apos; notice.</p>
+          <p>Paid plans are billed in advance monthly or annually through Stripe, in the currency you choose at checkout, and renew automatically until cancelled. You can cancel at any time; access continues until the end of the paid period. Plan limits are enforced by the service. We may change prices with at least 30 days&apos; notice.</p>
           <h2>AI content</h2>
           <p>AI-generated drafts may contain mistakes. Review and edit all content before publishing. AI credits are limited per plan and do not roll over.</p>
           <h2>Availability and liability</h2>

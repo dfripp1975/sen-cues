@@ -11,6 +11,7 @@ export interface SubscriptionRecord {
   stripe_subscription_id: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
+  currency?: string | null;
 }
 
 export interface BillingStore {
@@ -43,6 +44,7 @@ export function subscriptionToRecord(sub: Stripe.Subscription): Partial<Subscrip
     stripe_subscription_id: ended ? null : sub.id,
     current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
     cancel_at_period_end: Boolean(sub.cancel_at_period_end),
+    currency: sub.currency ? sub.currency.toUpperCase() : null,
   };
 }
 

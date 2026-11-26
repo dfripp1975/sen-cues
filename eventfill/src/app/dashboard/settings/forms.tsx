@@ -52,11 +52,12 @@ export function RemoveMember({ userId, name }: { userId: string; name: string })
   return <ConfirmButton variant="ghost" size="icon" aria-label={`Remove ${name}`} title={`Remove ${name}?`} description="They will immediately lose access to this organisation's data." confirmLabel="Remove" onConfirm={() => removeMember(userId)}><Trash2 /></ConfirmButton>;
 }
 
-export function CheckoutButton({ plan, interval, label, variant = "primary" }: { plan: string; interval: "month" | "year"; label: string; variant?: "primary" | "secondary" }) {
+export function CheckoutButton({ plan, interval, currency, label, variant = "primary" }: { plan: string; interval: "month" | "year"; currency: string; label: string; variant?: "primary" | "secondary" }) {
   return (
     <ActionForm action={startCheckout} successToast={false}>
       <input type="hidden" name="plan" value={plan} />
       <input type="hidden" name="interval" value={interval} />
+      <input type="hidden" name="currency" value={currency} />
       <SubmitButton variant={variant} className="w-full" pendingText="Opening Stripe…">{label}</SubmitButton>
     </ActionForm>
   );

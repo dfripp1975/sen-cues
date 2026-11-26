@@ -37,6 +37,22 @@ test.describe("marketing site", () => {
     await expect(page.getByText("Billed $290 yearly")).toBeVisible();
   });
 
+  test("UK visitors see pounds and can switch currency", async ({ page }) => {
+    await page.setExtraHTTPHeaders({ "x-vercel-ip-country": "GB" });
+    await page.goto("/pricing");
+    const picker = page.getByLabel("Prices for");
+    await expect(picker).toHaveValue("GBP");
+    await expect(page.getByText("£25").first()).toBeVisible();
+    await expect(page.getByText(/Bacs Direct Debit/)).toBeVisible();
+    await picker.selectOption("EUR");
+    await expect(page.getByText("€29").first()).toBeVisible();
+    await expect(page.getByText(/SEPA Direct Debit/)).toBeVisible();
+    // The choice is remembered on the next page load.
+    await page.reload();
+    await expect(page.getByLabel("Prices for")).toHaveValue("EUR");
+    await expect(page.getByRole("link", { name: "Choose Growth" })).toHaveAttribute("href", /currency=EUR/);
+  });
+
   test("Start Free leads to registration", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: /Start free/i }).first().click();

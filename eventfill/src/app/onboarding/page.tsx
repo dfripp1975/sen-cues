@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getOptionalOrgContext, getUser } from "@/lib/auth";
 import { Logo } from "@/components/logo";
 import { OnboardingForm } from "./form";
+import { getVisitorCurrency } from "@/lib/pricing-server";
 
 export const metadata: Metadata = { title: "Set up your account" };
 
@@ -19,7 +20,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         <main id="main" className="mt-10">
           <h1 className="text-3xl font-bold">Welcome to EventFill</h1>
           <p className="mt-2 text-slate-600">A few quick questions so we can set things up for you. You can change any of this later.</p>
-          <OnboardingForm defaultName={(user.user_metadata?.full_name as string) ?? ""} plan={sp.plan} interval={sp.interval} />
+          <OnboardingForm defaultName={(user.user_metadata?.full_name as string) ?? ""} plan={sp.plan} interval={sp.interval} currency={await getVisitorCurrency()} />
         </main>
       </div>
     </div>

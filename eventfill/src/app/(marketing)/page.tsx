@@ -3,13 +3,15 @@ import { ArrowRight, BookOpen, CalendarRange, FileSpreadsheet, LifeBuoy, LineCha
 import { Button } from "@/components/ui/button";
 import { Chip, Section, SectionHeading, SplitHeading } from "@/components/marketing/section";
 import { PricingTable } from "@/components/marketing/pricing-table";
+import { getVisitorCurrency } from "@/lib/pricing-server";
 import { FAQS, INDUSTRIES } from "@/components/marketing/content";
 import { DraftFragment, LinksFragment, PlannerFragment, ProductShot, ProfitFragment, RescueAlert, SalesFragment, SurveyFragment } from "@/components/marketing/fragments";
 import { cn } from "@/lib/utils";
 
 const PLATFORMS = ["Eventbrite", "Ticket Tailor", "Humanitix", "Tito", "Skiddle", "Your own website"];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const currency = await getVisitorCurrency();
   return (
     <>
       {/* Hero: words on the left, the product on the right */}
@@ -173,7 +175,7 @@ export default function HomePage() {
       {/* Pricing */}
       <Section id="pricing" className="pt-0 sm:pt-0">
         <SectionHeading title="Simple plans that grow with you" intro="Start free on one event. Upgrade when you need forecasting, Event Rescue Mode or your team." center />
-        <PricingTable />
+        <PricingTable currency={currency} />
       </Section>
 
       {/* Explore cards */}

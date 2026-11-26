@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { monthStartISO } from "@/lib/entitlements";
 import { PLANS, PLAN_ORDER, isPlanId } from "@/lib/plans";
+import { DEFAULT_CURRENCY, formatPrice, planPrice, toCurrency, type Currency } from "@/lib/pricing";
 import { Logo } from "@/components/logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, StatCard, Table } from "@/components/ui/misc";
@@ -23,7 +24,7 @@ export default async function AdminPage() {
   try { db = createAdminClient(); } catch { return <main className="p-8"><Alert tone="danger">SUPABASE_SERVICE_ROLE_KEY is not configured.</Alert></main>; }
   const [orgs, subs, usage, errors, support, events, campaigns, links, surveys, content, rescue] = await Promise.all([
     db.from("organisations").select("id, name, created_at, onboarding_completed").order("created_at", { ascending: false }).limit(500),
-    db.from("subscriptions").select("org_id, plan, status, billing_interval, cancel_at_period_end"),
+    db.from("subscriptions").select("org_id, plan, status, billing_interval, cancel_at_period_end, currency"),
     db.from("ai_usage").select("estimated_cost_usd, input_tokens, output_tokens").gte("created_at", monthStartISO()).limit(100000),
     db.from("app_errors").select("id, route, message, created_at").order("created_at", { ascending: false }).limit(20),
     db.from("support_messages").select("id, name, email, topic, message, status, created_at").eq("status", "open").order("created_at", { ascending: false }).limit(20),
@@ -31,7 +32,15 @@ export default async function AdminPage() {
   ]);
   const subRows = subs.data ?? [];
   const paidActive = subRows.filter((s) => s.plan !== "free" && ["active", "trialing", "past_due"].includes(s.status));
-  const mrr = paidActive.reduce((a, s) => a + (isPlanId(s.plan) ? (s.billing_interval === "year" ? PLANS[s.plan].annualPrice / 12 : PLANS[s.plan].monthlyPrice) : 0), 0);
+  // Monthly recurring revenue at list price, kept per currency (no exchange-rate conversion).
+  const mrrBy = new Map<Currency, number>();
+  for (const s of paidActive) {
+    if (!isPlanId(s.plan)) continue;
+    const c = toCurrency(s.currency) ?? DEFAULT_CURRENCY;
+    const monthly = s.billing_interval === "year" ? planPrice(s.plan, c, "year") / 12 : planPrice(s.plan, c, "month");
+    mrrBy.set(c, (mrrBy.get(c) ?? 0) + monthly);
+  }
+  const mrrText = mrrBy.size ? [...mrrBy].map(([c, v]) => formatPrice(Math.round(v), c)).join(" + ") : formatPrice(0, DEFAULT_CURRENCY);
   const dist = PLAN_ORDER.map((p) => ({ label: PLANS[p].name, value: subRows.filter((s) => (p === "free" ? s.plan === "free" || !paidActive.includes(s) : s.plan === p && paidActive.includes(s))).length }));
   const aiCost = (usage.data ?? []).reduce((a, r) => a + Number(r.estimated_cost_usd), 0);
   const planOf = (id: string) => { const s = subRows.find((x) => x.org_id === id); return s ? `${s.plan}${s.plan !== "free" ? ` · ${s.status}` : ""}` : "free"; };
@@ -43,7 +52,7 @@ export default async function AdminPage() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatCard label="Organisations" value={orgs.data?.length ?? 0} sub={`${(orgs.data ?? []).filter((o) => !o.onboarding_completed).length} not finished onboarding`} />
           <StatCard label="Active paid subscriptions" value={paidActive.length} sub={`${paidActive.filter((s) => s.cancel_at_period_end).length} cancelling`} tone="emerald" />
-          <StatCard label="MRR (list price)" value={formatMoney(mrr, "USD")} sub="Estimate from plan prices, excludes discounts and tax" tone="teal" />
+          <StatCard label="MRR (list price)" value={mrrText} sub="Per currency, from list prices; excludes discounts and tax" tone="teal" />
           <StatCard label="AI cost this month" value={formatMoney(aiCost, "USD")} sub={`${usage.data?.length ?? 0} generations (estimated)`} tone="amber" />
         </div>
         <div className="grid gap-6 lg:grid-cols-2">

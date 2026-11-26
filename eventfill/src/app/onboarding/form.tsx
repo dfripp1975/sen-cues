@@ -28,7 +28,9 @@ function EventTypes() {
   );
 }
 
-export function OnboardingForm({ defaultName, plan, interval }: { defaultName: string; plan?: string; interval?: string }) {
+const COUNTRY_FOR_CURRENCY: Record<string, string> = { GBP: "United Kingdom", USD: "United States", EUR: "Ireland", CAD: "Canada", AUD: "Australia", NZD: "New Zealand" };
+
+export function OnboardingForm({ defaultName, plan, interval, currency = "GBP" }: { defaultName: string; plan?: string; interval?: string; currency?: string }) {
   const [step, setStep] = React.useState(0);
   const [tz, setTz] = React.useState("Europe/London");
   React.useEffect(() => {
@@ -85,12 +87,12 @@ export function OnboardingForm({ defaultName, plan, interval }: { defaultName: s
         </div>
         <div className={cn("space-y-4", step !== 2 && "hidden")}>
           <FormField name="country" label="Country">
-            <Select defaultValue="United Kingdom">
+            <Select defaultValue={COUNTRY_FOR_CURRENCY[currency] ?? "United Kingdom"}>
               {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
             </Select>
           </FormField>
           <FormField name="currency" label="Preferred currency">
-            <Select defaultValue="GBP">
+            <Select defaultValue={CURRENCIES.includes(currency) ? currency : "GBP"}>
               {CURRENCIES.map((c) => <option key={c}>{c}</option>)}
             </Select>
           </FormField>

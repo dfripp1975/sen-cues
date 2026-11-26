@@ -73,19 +73,45 @@ Open <http://localhost:3000>. The marketing site and `/demo` work immediately. L
 Use **test mode** (toggle top-right in Stripe) until you're ready to launch.
 
 1. Create a Stripe account. In **Developers → API keys**, copy the **Secret key** (`sk_test_...`) into `STRIPE_SECRET_KEY`.
-2. In **Product catalogue**, create three products — *Starter*, *Growth*, *Pro*. For each, add two recurring prices:
+2. In **Product catalogue**, create three products — *Starter*, *Growth*, *Pro*. For each, add two recurring prices in **US dollars**:
    - Starter: $29 / month and $290 / year
    - Growth: $79 / month and $790 / year
    - Pro: $149 / month and $1,490 / year
 3. Copy each price ID (`price_...`) into the matching `STRIPE_PRICE_*` variable.
-4. Turn on the **Customer portal** (Settings → Billing → Customer portal). Allow customers to update payment methods, view invoices, cancel, and **switch plans** (add all six prices to the portal's product list). This is how upgrades, downgrades and cancellations work.
-5. Webhooks tell EventFill when someone pays or cancels:
+4. Add the other currencies, as in [Charging in several currencies](#charging-in-several-currencies) below.
+5. Turn on the **Customer portal** (Settings → Billing → Customer portal). Allow customers to update payment methods, view invoices, cancel, and **switch plans** (add all six prices to the portal's product list). This is how upgrades, downgrades and cancellations work.
+6. Webhooks tell EventFill when someone pays or cancels:
    - **Locally:** install the [Stripe CLI](https://stripe.com/docs/stripe-cli), then run
      `stripe listen --forward-to localhost:3000/api/stripe/webhook` and copy the `whsec_...` it prints into `STRIPE_WEBHOOK_SECRET`.
    - **In production:** Developers → Webhooks → Add endpoint → `https://your-domain/api/stripe/webhook`, with events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Copy its signing secret into `STRIPE_WEBHOOK_SECRET` on Vercel.
-6. Test with card number `4242 4242 4242 4242`, any future date, any CVC.
+7. Test with card number `4242 4242 4242 4242`, any future date, any CVC.
 
 The plan shown in the app only changes after Stripe's webhook arrives — there are no fake "payment successful" screens. Plan limits are enforced on the server for every action.
+
+### Charging in several currencies
+
+Visitors see prices in their own currency. EventFill guesses it from the country their connection comes from (Vercel and Cloudflare supply this), then from their browser language, and anyone can change it with the **Prices for** menu on the pricing section and the billing page. Their choice is remembered.
+
+| Who | Currency | Starter | Growth | Pro | Ways to pay shown |
+| --- | --- | --- | --- | --- | --- |
+| United Kingdom | GBP | £25 | £65 | £125 | Card, Apple Pay, Google Pay, Bacs Direct Debit |
+| United States and everywhere not listed | USD | $29 | $79 | $149 | Card, Apple Pay, Google Pay, US bank account (ACH) |
+| Ireland and the eurozone | EUR | €29 | €75 | €139 | Card, Apple Pay, Google Pay, SEPA Direct Debit |
+| Canada | CAD | C$39 | C$109 | C$199 | Card, Apple Pay, Google Pay, pre-authorised debit |
+| Australia | AUD | A$45 | A$119 | A$229 | Card, Apple Pay, Google Pay, BECS Direct Debit |
+| New Zealand | NZD | NZ$49 | NZ$129 | NZ$249 | Card, Apple Pay, Google Pay |
+
+These are monthly prices; annual is ten times the monthly price (two months free). They are set amounts per currency rather than exchange-rate conversions, so they stay round. Change them, the regions and the ways to pay in `src/lib/pricing.ts`.
+
+**Stripe must charge the same amounts.** The easiest way: open each of your six US-dollar prices in Stripe, choose **Add currency** (Stripe calls these *currency options*) and add GBP, EUR, CAD, AUD and NZD with the amounts above. Nothing else to configure: EventFill asks Stripe Checkout for the customer's chosen currency.
+
+Alternatively, create a separate price per currency and set `STRIPE_PRICE_<PLAN>_<MONTHLY|ANNUAL>_<CURRENCY>`, e.g. `STRIPE_PRICE_STARTER_MONTHLY_GBP`. When set, these are used instead of the shared price. Remember to add them to the Customer portal's product list too.
+
+**Ways to pay:** in Stripe, open **Settings → Payment methods** and switch on Bacs Direct Debit, SEPA Direct Debit, ACH, pre-authorised debits and BECS Direct Debit, plus Apple Pay and Google Pay. Checkout then offers each customer the methods that work in their country and currency. The pricing page lists these methods, so turn them on before launch, or remove the ones you don't want from `src/lib/pricing.ts`.
+
+Once someone subscribes, they stay in that currency (Stripe doesn't allow a subscription's currency to change); the billing page shows it. The admin page totals monthly revenue per currency, with no exchange-rate conversion.
+
+**Tax:** prices are shown before tax. If you are VAT-registered in the UK, or need to collect tax elsewhere, turn on **Stripe Tax** and review the tax wording on the pricing page.
 
 ## 5. Optional: turn on AI
 
@@ -145,7 +171,7 @@ The calculations in `src/lib/forecast.ts`, `rescue.ts`, `finance.ts` and `csv.ts
 
 ## 9. Changing prices and plan limits
 
-Edit `src/lib/plans.ts`. It controls the prices shown on the website, each plan's limits (events, tasks, AI credits, links, seats) and which features each plan includes. Remember that Stripe charges the price set in Stripe — keep the two in sync.
+Edit `src/lib/plans.ts` for each plan's limits (events, tasks, AI credits, links, seats) and which features each plan includes, and `src/lib/pricing.ts` for the price in each currency. Remember that Stripe charges the price set in Stripe — keep the two in sync.
 
 ## 10. Troubleshooting
 
@@ -167,5 +193,6 @@ Edit `src/lib/plans.ts`. It controls the prices shown on the website, each plan'
 - [ ] Configure SMTP for authentication emails.
 - [ ] Have the Privacy Policy, Terms and Cookie pages reviewed by a legal professional for your jurisdiction and company details. They are sensible starting templates, not legal advice.
 - [ ] Switch Stripe to live mode and replace all Stripe keys and price IDs.
+- [ ] Add every currency to each Stripe price, and switch on the payment methods listed in `src/lib/pricing.ts` (see *Charging in several currencies*).
 - [ ] Set `AI_MONTHLY_BUDGET_USD` to a figure you're comfortable with.
 - [ ] Replace the logo in `src/components/logo.tsx` and `public/icon.svg` if you have a designed one.

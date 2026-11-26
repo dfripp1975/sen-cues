@@ -16,7 +16,7 @@ export type Feature =
 export interface Plan {
   id: PlanId;
   name: string;
-  monthlyPrice: number; // USD, display only - Stripe is the source of truth for charges
+  monthlyPrice: number; // USD list price; other currencies live in src/lib/pricing.ts. Stripe is the source of truth for charges
   annualPrice: number; // USD per year
   description: string;
   activeEvents: number;
@@ -114,12 +114,32 @@ export function isPlanId(v: unknown): v is PlanId {
   return typeof v === "string" && (PLAN_ORDER as string[]).includes(v);
 }
 
-/** Stripe price ID for a plan/interval, from env. */
-export function stripePriceId(plan: PlanId, interval: "month" | "year"): string | undefined {
+/**
+ * Stripe price ID for a plan, interval and currency, from env.
+ *
+ * Two ways to charge in several currencies (README, "Charging in several currencies"):
+ *  1. One Stripe price per plan/interval with extra currencies added to it
+ *     (Stripe calls these currency options). Set only STRIPE_PRICE_STARTER_MONTHLY etc.
+ *  2. A separate Stripe price per currency. Set STRIPE_PRICE_STARTER_MONTHLY_GBP etc.;
+ *     these win over the shared price when present.
+ */
+export function stripePriceId(plan: PlanId, interval: "month" | "year", currency?: string): string | undefined {
   if (plan === "free") return undefined;
   const key = `STRIPE_PRICE_${plan.toUpperCase()}_${interval === "month" ? "MONTHLY" : "ANNUAL"}`;
+  if (currency) {
+    const own = process.env[`${key}_${currency.toUpperCase()}`];
+    if (own) return own;
+  }
   return process.env[key] || undefined;
 }
+
+/** True when the price for this currency is its own Stripe price, not a currency option. */
+export function hasOwnCurrencyPrice(plan: PlanId, interval: "month" | "year", currency: string): boolean {
+  if (plan === "free") return false;
+  return Boolean(process.env[`STRIPE_PRICE_${plan.toUpperCase()}_${interval === "month" ? "MONTHLY" : "ANNUAL"}_${currency.toUpperCase()}`]);
+}
+
+const PRICE_CURRENCIES = ["GBP", "USD", "EUR", "CAD", "AUD", "NZD"];
 
 /** Reverse lookup used by the Stripe webhook. */
 export function planFromPriceId(priceId: string | null | undefined): { plan: PlanId; interval: "month" | "year" } | null {
@@ -127,6 +147,7 @@ export function planFromPriceId(priceId: string | null | undefined): { plan: Pla
   for (const plan of PLAN_ORDER) {
     for (const interval of ["month", "year"] as const) {
       if (stripePriceId(plan, interval) === priceId) return { plan, interval };
+      if (PRICE_CURRENCIES.some((c) => hasOwnCurrencyPrice(plan, interval, c) && stripePriceId(plan, interval, c) === priceId)) return { plan, interval };
     }
   }
   return null;
