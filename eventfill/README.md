@@ -54,7 +54,7 @@ Open <http://localhost:3000>. The marketing site and `/demo` work immediately. L
 
 1. Create a free account at [supabase.com](https://supabase.com) and click **New project**. Pick a region close to your customers (e.g. London for UK) and save the database password somewhere safe.
 2. In your project, open **SQL Editor → New query**. Open the file `supabase/migrations/0001_init.sql` from this project, copy **all** of it, paste it in, and click **Run**. You should see "Success".
-3. Do the same with `supabase/migrations/0002_storage.sql` (storage for event images), then `supabase/migrations/0003_series_and_multiday.sql` (recurring series and multi-day events). Run them in number order.
+3. Do the same with `supabase/migrations/0002_storage.sql` (storage for event images), then `supabase/migrations/0003_series_and_multiday.sql` (recurring series and multi-day events), then `supabase/migrations/0004_billing_currency.sql` (which currency each subscription is paid in). Run them in number order.
 4. Go to **Project Settings → API** and copy these into `.env.local`:
    - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
    - `anon` `public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`

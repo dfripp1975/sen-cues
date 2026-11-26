@@ -12,6 +12,8 @@ export default function CookiesPage() {
         <Prose>
           <h2>Essential cookies (always on)</h2>
           <p>These keep you signed in securely (authentication session cookies set by Supabase) and remember your cookie choice. The service can&apos;t work without them.</p>
+          <h2>Preference cookie</h2>
+          <p>If you choose a currency with the &ldquo;Prices for&rdquo; menu, a cookie called <code>ef_currency</code> remembers it for a year so prices stay in that currency. It holds only the currency code and is set only when you make that choice.</p>
           <h2>Analytics cookies</h2>
           <p>EventFill does not currently use analytics or advertising cookies. If that changes, they will be off by default and only enabled with your consent here.</p>
         </Prose>
