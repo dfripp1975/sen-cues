@@ -1,19 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-navy: #111827;
-  --color-teal-accent: #14b8a6;
-  --color-canvas: #f8fafc;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(15 23 42 / 0.06);
-  --shadow-lift: 0 10px 30px -12px rgb(30 27 75 / 0.25);
+  /* Deep green brand with mint, on white; pastel surfaces for feature cards. */
+  --color-brand-50: #e4fde7;
+  --color-brand-100: #c4f7ca;
+  --color-brand-200: #a3ebb0;
+  --color-brand-500: #0a8a60;
+  --color-brand-600: #027653;
+  --color-brand-700: #015e42;
+  --color-brand-900: #003d29;
+  --color-navy: #1a1f2e;
+  --color-teal-accent: #0160c1;
+  --color-canvas: #faf8f8;
+  --color-mint: #e4fde7;
+  --color-butter: #fcf6d9;
+  --color-lavender: #f4effe;
+  --color-sky: #e2f5fe;
+  --color-blush: #feecf6;
+  --color-lime: #f3fad5;
+  --color-plum: #6a47b8;
+  --color-plum-soft: #e9dffe;
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: 0 1px 2px rgb(26 31 46 / 0.05), 0 2px 8px rgb(26 31 46 / 0.05);
+  --shadow-lift: 0 16px 40px -18px rgb(26 31 46 / 0.28);
   --animate-fade-up: fade-up 0.5s ease-out both;
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(8px); }
@@ -24,7 +34,7 @@
 @layer base {
   html { -webkit-text-size-adjust: 100%; }
   body { @apply bg-canvas text-navy antialiased; }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.015em; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.024em; }
   :focus-visible { @apply outline-2 outline-offset-2 outline-brand-600; }
   input[type="date"], input[type="time"] { min-height: 2.5rem; }
 }

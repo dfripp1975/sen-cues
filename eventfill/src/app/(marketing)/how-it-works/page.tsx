@@ -33,7 +33,7 @@ export default function HowItWorksPage() {
         </ol>
         <div className="mt-12 text-center">
           <Button asChild size="lg">
-            <Link href="/register">Start Free</Link>
+            <Link href="/register">Start free</Link>
           </Button>
         </div>
       </Section>

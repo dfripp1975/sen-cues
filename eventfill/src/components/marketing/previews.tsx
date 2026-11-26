@@ -152,9 +152,9 @@ export function ForecastPreview() {
   return (
     <Frame>
       <svg viewBox="0 0 100 50" className="h-[80%] w-full">
-        <path d="M0 45 L30 35 L55 26" stroke="#4F46E5" strokeWidth="2" fill="none" />
+        <path d="M0 45 L30 35 L55 26" stroke="#027653" strokeWidth="2" fill="none" />
         <path d="M55 26 L100 4" stroke="#14B8A6" strokeWidth="1.5" strokeDasharray="3 2" fill="none" />
-        <path d="M55 26 L100 14" stroke="#4F46E5" strokeWidth="1.5" strokeDasharray="3 2" fill="none" />
+        <path d="M55 26 L100 14" stroke="#027653" strokeWidth="1.5" strokeDasharray="3 2" fill="none" />
         <path d="M55 26 L100 24" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="3 2" fill="none" />
         <line x1="0" y1="10" x2="100" y2="10" stroke="#CBD5E1" strokeDasharray="2 2" />
       </svg>

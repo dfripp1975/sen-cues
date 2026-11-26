@@ -1,8 +1,8 @@
 "use client";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis, Cell, PieChart, Pie } from "recharts";
 
-const BRAND = "#4F46E5";
-const TEAL = "#14B8A6";
+const BRAND = "#027653";
+const TEAL = "#0160C1";
 const GRID = "#E2E8F0";
 const AXIS = { fontSize: 11, fill: "#64748B" };
 
@@ -73,7 +73,7 @@ export function BarsChart({ data, height = 220, color = BRAND, horizontal = fals
               <YAxis tick={AXIS} tickLine={false} axisLine={false} allowDecimals={false} />
             </>
           )}
-          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#EEF2FF" }} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#E4FDE7" }} />
           <Bar dataKey="value" name={name} fill={color} radius={horizontal ? [0, 6, 6, 0] : [6, 6, 0, 0]} maxBarSize={36} />
         </BarChart>
       </ResponsiveContainer>
@@ -81,7 +81,7 @@ export function BarsChart({ data, height = 220, color = BRAND, horizontal = fals
   );
 }
 
-const PIE_COLORS = ["#CBD5E1", BRAND, TEAL, "#F59E0B", "#10B981", "#EC4899"];
+const PIE_COLORS = ["#CDCDD0", BRAND, TEAL, "#F59E0B", "#6A47B8", "#EC4899"];
 export function DonutChart({ data, height = 220 }: { data: { label: string; value: number }[]; height?: number }) {
   if (!data.some((d) => d.value > 0)) return <ChartEmpty height={height} />;
   return (

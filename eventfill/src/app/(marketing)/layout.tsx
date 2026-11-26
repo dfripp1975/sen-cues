@@ -6,10 +6,10 @@ import { getUser } from "@/lib/auth";
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const user = isSupabaseConfigured() ? await getUser().catch(() => null) : null;
   return (
-    <>
+    <div className="bg-white">
       <MarketingHeader signedIn={Boolean(user)} />
       <main id="main">{children}</main>
       <MarketingFooter />
-    </>
+    </div>
   );
 }

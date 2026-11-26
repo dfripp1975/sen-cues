@@ -46,10 +46,10 @@ export default function FeaturesPage() {
         </div>
         <div className="mt-10 flex gap-3">
           <Button asChild>
-            <Link href="/register">Start Free</Link>
+            <Link href="/register">Start free</Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link href="/demo">Explore Demo</Link>
+            <Link href="/demo">Explore demo</Link>
           </Button>
         </div>
       </Section>

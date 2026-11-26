@@ -1,183 +1,249 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, BarChart3, CalendarCheck, CheckCircle2, FileSpreadsheet, LineChart, Megaphone, Siren, Target } from "lucide-react";
+import { ArrowRight, BookOpen, CalendarRange, FileSpreadsheet, LifeBuoy, LineChart, Mail, Megaphone, MonitorPlay, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Section, SectionHeading } from "@/components/marketing/section";
-import { ShowcaseList } from "@/components/marketing/showcase";
+import { Chip, Section, SectionHeading, SplitHeading } from "@/components/marketing/section";
 import { PricingTable } from "@/components/marketing/pricing-table";
-import { FAQS, FEATURE_ITEMS, INDUSTRIES } from "@/components/marketing/content";
+import { FAQS, INDUSTRIES } from "@/components/marketing/content";
+import { DraftFragment, LinksFragment, PlannerFragment, ProductShot, ProfitFragment, RescueAlert, SalesFragment, SurveyFragment } from "@/components/marketing/fragments";
+import { cn } from "@/lib/utils";
+
+const PLATFORMS = ["Eventbrite", "Ticket Tailor", "Humanitix", "Tito", "Skiddle", "Your own website"];
 
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
-        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,#E0E7FF_0%,rgba(248,250,252,0)_70%)]" />
-        <div className="mx-auto max-w-6xl">
-          <div className="mx-auto max-w-3xl text-center animate-fade-up">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-700 shadow-card ring-1 ring-brand-100">
-              <Siren className="size-3.5" aria-hidden /> Event Rescue Mode spots slow sales early
-            </p>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl">
-              Stop Guessing. <span className="bg-gradient-to-r from-brand-600 to-teal-accent bg-clip-text text-transparent">Start Filling Your Events.</span>
-            </h1>
-            <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600">
-              EventFill helps event organisers track ticket sales, create smarter marketing campaigns and take action before empty seats turn into lost revenue.
-            </p>
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+      {/* Hero: words on the left, the product on the right */}
+      <section className="px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+          <div>
+            <h1 className="text-5xl font-medium leading-[1.02] tracking-tight sm:text-6xl xl:text-7xl">Stop guessing. Start filling your events.</h1>
+            <p className="mt-6 max-w-xl text-lg text-navy/80 sm:text-xl">EventFill helps you track ticket sales, plan promotion and act before seats go empty.</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="/register">
-                  Start Free <ArrowRight />
-                </Link>
+                <Link href="/register">Start free</Link>
               </Button>
-              <Button asChild size="lg" variant="secondary">
-                <Link href="/demo">Explore Demo</Link>
+              <Button asChild size="lg" variant="mint">
+                <Link href="/demo">Explore demo</Link>
               </Button>
             </div>
-            <p className="mt-3 text-xs text-slate-500">Free plan available. No card required.</p>
+            <p className="mt-4 text-sm text-navy/60">Free plan for one event. No card required.</p>
           </div>
-          <HeroPreview />
+          <div className="relative rounded-3xl bg-canvas p-4 sm:p-8">
+            <ProductShot src="/images/product/overview.webp" alt="The EventFill dashboard for a demo organiser, showing tickets sold, revenue and events that need attention" width={2368} height={1192} priority className="shadow-lift" />
+            <RescueAlert className="absolute -bottom-6 -left-2 hidden w-72 sm:block lg:-left-10" />
+            <p className="mt-3 text-right text-xs text-navy/55">Demo data from a fictional organiser</p>
+          </div>
         </div>
       </section>
 
-      <div className="border-y border-slate-200 bg-white px-4 py-6 sm:px-6">
-        <p className="mx-auto max-w-4xl text-center text-sm text-slate-500">
-          Works alongside the booking platform you already use — enter sales manually or import CSV exports from <strong className="text-slate-700">Eventbrite</strong>, <strong className="text-slate-700">Ticket Tailor</strong>, <strong className="text-slate-700">Humanitix</strong> and others.
-        </p>
-      </div>
+      {/* Platforms, as plain text: no logos */}
+      <section className="px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl text-center">
+          <p className="text-base text-navy/70">Works alongside the booking platform you already use. Enter sales by hand or import a CSV export from</p>
+          <ul className="mt-5 flex flex-wrap justify-center gap-x-10 gap-y-3 text-xl font-medium text-navy/45">
+            {PLATFORMS.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
-      {/* Features in the reference list layout */}
+      {/* Bento of pastel feature cards */}
       <Section>
-        <SectionHeading eyebrow="Features" title="Everything you need to fill the room" intro="One place to track sales, plan promotion and act early. Here's what's inside." />
-        <ShowcaseList items={FEATURE_ITEMS.slice(0, 6)} />
-        <div className="mt-10">
-          <Button asChild variant="secondary">
-            <Link href="/features">
-              See all features <ArrowRight />
-            </Link>
-          </Button>
+        <SplitHeading
+          chip={<Chip href="/features">Platform overview</Chip>}
+          title="Everything you need to fill the room"
+          intro="Sales, forecasts, promotion and early warnings, in one place built for organisers."
+          link={{ href: "/features", label: "See all features" }}
+        />
+        <div className="grid gap-5 md:grid-cols-3">
+          <BentoCard href="/features#rescue" tone="bg-sky" title="Event Rescue Mode" body="Know weeks ahead when an event is slipping, and get a dated plan to respond." className="md:col-span-2">
+            <ProductShot src="/images/product/rescue.webp" alt="Event Rescue Mode on a demo event, showing the sales gap and recommended actions" width={2368} height={1356} />
+          </BentoCard>
+          <BentoCard href="/features#forecast" tone="bg-blush" title="Sales forecasting" body="Three projections from your own sales, with the formula shown.">
+            <ProductShot src="/images/product/forecast.webp" alt="A sales forecast for a demo event with conservative, expected and optimistic lines" width={2368} height={1448} />
+          </BentoCard>
+          <BentoCard href="/features#sales" tone="bg-lime" title="Ticket sales tracker" body="Daily sales, revenue and progress to target, by hand or by CSV.">
+            <SalesFragment />
+          </BentoCard>
+          <BentoCard href="/features#planner" tone="bg-butter" title="Marketing planner" body="Campaigns, checklists and ready-made plans for each event type.">
+            <PlannerFragment />
+          </BentoCard>
+          <BentoCard href="/features#links" tone="bg-lavender" title="Tracking links" body="A short link and QR code per channel, so you see what works.">
+            <LinksFragment />
+          </BentoCard>
         </div>
       </Section>
 
-      {/* How it works */}
-      <Section className="bg-white">
-        <SectionHeading eyebrow="How it works" title="From first listing to full house" center />
-        <ol className="grid gap-5 md:grid-cols-4">
+      {/* One big centred feature panel */}
+      <section className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] bg-canvas px-4 py-16 sm:px-10 sm:py-20">
+          <div className="mx-auto max-w-3xl text-center">
+            <Chip href="/demo/events/demo-1">Event Rescue Mode</Chip>
+            <h2 className="mt-6 text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">See trouble coming while there is still time to act</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-lg text-navy/75">EventFill compares your sales with the pace you need. When an event falls behind, it shows the gap in tickets per day and suggests practical next steps you can assign and track.</p>
+          </div>
+          <div className="mx-auto mt-12 max-w-5xl rounded-3xl bg-white p-3 shadow-lift sm:p-5">
+            <ProductShot src="/images/product/series.webp" alt="A demo weekly class series, showing sales across each date" width={2368} height={1410} />
+          </div>
+          <p className="mt-4 text-center text-xs text-navy/55">Demo data from a fictional organiser</p>
+        </div>
+      </section>
+
+      {/* Four steps with pastel tops */}
+      <Section>
+        <SplitHeading chip={<Chip href="/how-it-works" tone="lavender">How it works</Chip>} title="From first listing to full house" link={{ href: "/how-it-works", label: "Read the full guide" }} />
+        <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            [Target, "Set your target", "Add your event, capacity, ticket tiers and the number of tickets you want to sell."],
-            [FileSpreadsheet, "Record sales", "Enter daily sales or upload a CSV export. Every figure shows its source and when it was updated."],
-            [Megaphone, "Plan promotion", "Use ready-made plans, tracking links and AI-drafted posts to promote across channels."],
-            [LineChart, "Act early", "Forecasts and Event Rescue Mode flag slow sales and suggest what to do next."],
-          ].map(([Icon, title, body], i) => {
+            [Target, "bg-mint", "Set your target", "Add your event, capacity, ticket tiers and how many tickets you want to sell."],
+            [FileSpreadsheet, "bg-sky", "Record sales", "Enter daily sales or upload a CSV export. Every figure shows its source."],
+            [Megaphone, "bg-blush", "Plan promotion", "Use ready-made plans, tracking links and AI-drafted posts."],
+            [LineChart, "bg-butter", "Act early", "Forecasts and Event Rescue Mode flag slow sales and suggest what to do."],
+          ].map(([Icon, tone, title, body], i) => {
             const I = Icon as React.ElementType;
             return (
-              <li key={i} className="rounded-2xl bg-canvas p-6 ring-1 ring-slate-200">
-                <span className="grid size-10 place-items-center rounded-xl bg-brand-600 text-white">
-                  <I className="size-5" aria-hidden />
-                </span>
-                <p className="mt-4 text-xs font-semibold text-brand-600">Step {i + 1}</p>
-                <h3 className="mt-1 text-lg font-bold">{title as string}</h3>
-                <p className="mt-2 text-sm text-slate-600">{body as string}</p>
+              <li key={title as string} className="overflow-hidden rounded-3xl bg-white ring-1 ring-navy/8">
+                <div className={cn("grid h-36 place-items-center", tone as string)}>
+                  <span className="grid size-14 place-items-center rounded-2xl bg-white text-brand-700 shadow-card">
+                    <I className="size-6" aria-hidden />
+                  </span>
+                </div>
+                <div className="p-6">
+                  <p className="text-sm font-medium text-teal-accent">Step {i + 1}</p>
+                  <h3 className="mt-1 text-xl font-medium">{title as string}</h3>
+                  <p className="mt-2 text-navy/70">{body as string}</p>
+                </div>
               </li>
             );
           })}
         </ol>
       </Section>
 
-      {/* Rescue showcase */}
-      <section className="bg-navy px-4 py-16 text-white sm:px-6 sm:py-24">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-teal-accent">Flagship feature</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">Event Rescue Mode</h2>
-            <p className="mt-4 text-lg text-slate-300">
-              EventFill compares your sales with the pace needed to hit your target. When an event slips behind, you&apos;ll see exactly how far — and a practical plan to respond.
-            </p>
-            <ul className="mt-6 space-y-3 text-slate-200">
-              {["Risk levels based on your own sales pace", "Tickets per day needed to reach your goal", "Personalised recommendations from your event details", "Assign tasks, set deadlines and track what happens next"].map((t) => (
-                <li key={t} className="flex gap-3">
-                  <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-teal-accent" aria-hidden /> {t}
-                </li>
-              ))}
-            </ul>
-            <Button asChild className="mt-8" variant="teal" size="lg">
-              <Link href="/demo/events/demo-1">See it on a demo event</Link>
-            </Button>
-          </div>
-          <div className="rounded-3xl bg-white/5 p-5 ring-1 ring-white/10">
-            <div className="rounded-2xl bg-amber-50 p-5 text-amber-950">
-              <div className="flex items-center gap-2 font-semibold">
-                <AlertTriangle className="size-5 text-amber-600" aria-hidden /> Behind sales target
-              </div>
-              <p className="mt-1 text-sm">Your event is currently behind its sales target. You need to sell an average of 12 tickets per day to reach your goal.</p>
-              <p className="mt-2 text-[11px] uppercase tracking-wide text-amber-700">Example message</p>
-            </div>
-            <ul className="mt-4 space-y-2">
-              {[
-                ["High", "Contact your existing opted-in audience"],
-                ["High", "Start a community partnership campaign"],
-                ["Medium", "Strengthen your call to action"],
-              ].map(([p, t]) => (
-                <li key={t} className="flex items-center justify-between gap-3 rounded-xl bg-white/10 px-4 py-3 text-sm">
-                  <span>{t}</span>
-                  <span className={p === "High" ? "rounded-full bg-red-400/20 px-2 py-0.5 text-xs text-red-200" : "rounded-full bg-amber-400/20 px-2 py-0.5 text-xs text-amber-200"}>{p}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* More tools, as a second bento row */}
+      <Section className="pt-0 sm:pt-0">
+        <div className="grid gap-5 md:grid-cols-3">
+          <BentoCard href="/features#content" tone="bg-mint" title="AI Content Studio" body="Draft posts, emails and descriptions from your event details. Always editable.">
+            <DraftFragment />
+          </BentoCard>
+          <BentoCard href="/features#profit" tone="bg-butter" title="Profit calculator" body="Income, costs, margin and the ticket count where you break even.">
+            <ProfitFragment />
+          </BentoCard>
+          <BentoCard href="/features#surveys" tone="bg-sky" title="Audience surveys" body="Ask why people didn’t book, and collect feedback after the event.">
+            <SurveyFragment />
+          </BentoCard>
+        </div>
+      </Section>
+
+      {/* Organisers: butter band */}
+      <section className="px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] bg-butter px-6 py-16 sm:px-12 sm:py-20">
+          <SplitHeading title="Built for organisers of every kind" intro="One-off evenings, weekly classes and multi-day festivals all work the same way." link={{ href: "/how-it-works", label: "See supported event types" }} />
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {INDUSTRIES.map(([t, d]) => (
+              <li key={t} className="rounded-2xl bg-white p-5">
+                <CalendarRange className="size-5 text-brand-600" aria-hidden />
+                <h3 className="mt-3 text-lg font-medium">{t}</h3>
+                <p className="mt-1 text-sm text-navy/65">{d}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* Industries */}
+      {/* Purple band: bring your sales in */}
       <Section>
-        <SectionHeading eyebrow="Who it's for" title="Built for organisers of every kind" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {INDUSTRIES.map(([t, d]) => (
-            <div key={t} className="rounded-2xl bg-white p-5 shadow-card ring-1 ring-slate-200">
-              <CalendarCheck className="size-5 text-teal-accent" aria-hidden />
-              <h3 className="mt-3 font-semibold">{t}</h3>
-              <p className="mt-1 text-sm text-slate-500">{d}</p>
+        <div className="rounded-[2rem] bg-plum px-6 py-16 text-white sm:px-12 sm:py-20">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <Chip href="/help" tone="white">CSV import guide</Chip>
+              <h2 className="mt-6 text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">Bring your sales in from anywhere</h2>
+              <p className="mt-5 max-w-lg text-lg text-white/80">Export a CSV from your booking platform and upload it, or type in each day’s sales. EventFill doesn’t sync automatically yet, so every figure shows where it came from and when it was last updated.</p>
             </div>
-          ))}
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {PLATFORMS.map((p) => (
+                <li key={p} className="grid min-h-24 place-items-center rounded-2xl bg-white/10 p-4 text-center font-medium ring-1 ring-white/15">
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </Section>
 
       {/* Pricing */}
-      <Section className="bg-white" id="pricing">
-        <SectionHeading eyebrow="Pricing" title="Simple plans that grow with you" intro="Start free on one event. Upgrade when you need forecasting, Event Rescue Mode or your team." center />
+      <Section id="pricing" className="pt-0 sm:pt-0">
+        <SectionHeading title="Simple plans that grow with you" intro="Start free on one event. Upgrade when you need forecasting, Event Rescue Mode or your team." center />
         <PricingTable />
       </Section>
 
-      {/* FAQ */}
-      <Section>
-        <SectionHeading eyebrow="FAQ" title="Questions organisers ask" center />
-        <div className="mx-auto max-w-3xl divide-y divide-slate-200 rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
-          {FAQS.map(([q, a]) => (
-            <details key={q} className="group px-6 py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
-                {q}
-                <span className="text-brand-600 transition group-open:rotate-45" aria-hidden>
-                  +
-                </span>
-              </summary>
-              <p className="mt-3 text-slate-600">{a}</p>
-            </details>
-          ))}
+      {/* Explore cards */}
+      <Section className="pt-0 sm:pt-0">
+        <SplitHeading title="Explore EventFill" />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["/demo", MonitorPlay, "bg-mint", "Try the demo", "Click around a full account filled with fictional events."],
+            ["/how-it-works", BookOpen, "bg-lavender", "How it works", "A short guide from first event to final report."],
+            ["/help", LifeBuoy, "bg-sky", "Help Centre", "CSV templates, forecasting formulas and setup guides."],
+            ["/contact", Mail, "bg-blush", "Contact us", "Questions about plans, data or your events."],
+          ].map(([href, Icon, tone, title, body]) => {
+            const I = Icon as React.ElementType;
+            return (
+              <Link key={href as string} href={href as string} className="group overflow-hidden rounded-3xl bg-white ring-1 ring-navy/8 transition-shadow hover:shadow-lift">
+                <div className={cn("grid h-32 place-items-center", tone as string)}>
+                  <I className="size-9 text-navy/80" aria-hidden />
+                </div>
+                <div className="p-6">
+                  <h3 className="flex items-center justify-between text-xl font-medium">
+                    {title as string}
+                    <ArrowRight className="size-5 text-brand-600 transition-transform group-hover:translate-x-1" aria-hidden />
+                  </h3>
+                  <p className="mt-2 text-navy/70">{body as string}</p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </Section>
 
-      {/* CTA */}
-      <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 px-6 py-14 text-center text-white sm:px-12">
-          <BarChart3 className="mx-auto size-10 text-brand-200" aria-hidden />
-          <h2 className="mx-auto mt-4 max-w-2xl text-3xl font-extrabold sm:text-4xl">Your next event deserves a full room</h2>
-          <p className="mx-auto mt-3 max-w-xl text-brand-100">Set up your first event in a few minutes. Free plan, no card required.</p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="bg-white text-brand-700 hover:bg-brand-50">
-              <Link href="/register">Start Free</Link>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="text-white ring-1 ring-white/40 hover:bg-white/10 hover:text-white">
-              <Link href="/demo">Explore Demo</Link>
-            </Button>
+      {/* FAQ */}
+      <Section className="pt-0 sm:pt-0">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div>
+            <h2 className="text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">Questions organisers ask</h2>
+            <p className="mt-4 text-lg text-navy/75">
+              Something else? <Link href="/contact" className="border-b-2 border-brand-600 font-medium hover:text-brand-700">Get in touch</Link>
+            </p>
+          </div>
+          <div className="divide-y divide-navy/10 border-y border-navy/10">
+            {FAQS.map(([q, a]) => (
+              <details key={q} className="group py-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-medium">
+                  {q}
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700 transition-transform group-open:rotate-45" aria-hidden>
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-navy/75">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Final CTA: white card on a grey panel */}
+      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] bg-canvas p-4 sm:p-10">
+          <div className="rounded-3xl bg-white px-6 py-14 text-center sm:px-12 sm:py-20">
+            <h2 className="mx-auto max-w-2xl text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">Your next event deserves a full room</h2>
+            <p className="mx-auto mt-4 max-w-xl text-lg text-navy/75">Set up your first event in a few minutes. Free plan, no card required.</p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link href="/register">Start free</Link>
+              </Button>
+              <Button asChild size="lg" variant="mint">
+                <Link href="/demo">Explore demo</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -185,54 +251,15 @@ export default function HomePage() {
   );
 }
 
-function HeroPreview() {
-  const bars = [3, 5, 4, 6, 5, 8, 7, 6, 9, 8, 10, 7, 11, 9, 12, 10, 13, 12];
+function BentoCard({ href, tone, title, body, className, children }: { href: string; tone: string; title: string; body: string; className?: string; children: React.ReactNode }) {
   return (
-    <div className="relative mx-auto mt-14 max-w-5xl animate-fade-up [animation-delay:150ms]">
-      <div className="rounded-3xl bg-white/60 p-2 shadow-lift ring-1 ring-slate-200 backdrop-blur">
-        <div className="overflow-hidden rounded-2xl bg-canvas ring-1 ring-slate-200">
-          <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <span className="size-2.5 rounded-full bg-teal-accent" /> Spring Networking Evening
-            </div>
-            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">Example data</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
-            {[
-              ["Tickets sold", "86 / 150"],
-              ["Revenue", "£1,290"],
-              ["Days to go", "14"],
-              ["Needed per day", "4.6"],
-            ].map(([l, v]) => (
-              <div key={l} className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
-                <p className="text-xs text-slate-500">{l}</p>
-                <p className="mt-1 font-display text-xl font-bold">{v}</p>
-              </div>
-            ))}
-          </div>
-          <div className="grid gap-3 px-4 pb-4 sm:grid-cols-3">
-            <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 sm:col-span-2">
-              <p className="text-xs font-semibold text-slate-500">Daily sales</p>
-              <div className="mt-3 flex h-28 items-end gap-1.5" aria-hidden>
-                {bars.map((b, i) => (
-                  <div key={i} className="flex-1 rounded-t bg-brand-500" style={{ height: `${b * 7}%` }} />
-                ))}
-              </div>
-            </div>
-            <div className="rounded-xl bg-amber-50 p-4 ring-1 ring-amber-200">
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-amber-800">
-                <AlertTriangle className="size-3.5" aria-hidden /> Behind pace
-              </p>
-              <p className="mt-2 text-sm text-amber-900">3 rescue actions suggested</p>
-              <div className="mt-3 space-y-1.5" aria-hidden>
-                <div className="h-2 rounded bg-amber-200" />
-                <div className="h-2 w-4/5 rounded bg-amber-200" />
-                <div className="h-2 w-3/5 rounded bg-amber-200" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Link href={href} className={cn("group flex flex-col overflow-hidden rounded-3xl p-6 transition-shadow hover:shadow-lift sm:p-8", tone, className)}>
+      <h3 className="flex items-center gap-2 text-2xl font-medium">
+        {title}
+        <ArrowRight className="size-5 text-brand-700 transition-transform group-hover:translate-x-1" aria-hidden />
+      </h3>
+      <p className="mt-2 max-w-md text-navy/75">{body}</p>
+      <div className="mt-6 flex flex-1 items-end">{<div className="w-full">{children}</div>}</div>
+    </Link>
   );
 }

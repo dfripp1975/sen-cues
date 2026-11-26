@@ -18,10 +18,10 @@ test.describe("marketing site", () => {
 
   test("homepage shows the headline and both calls to action", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Stop Guessing.");
-    await expect(page.getByRole("link", { name: /Start Free/ }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Explore Demo" }).first()).toBeVisible();
-    await expect(page.getByText("Example data").first()).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Stop guessing.");
+    await expect(page.getByRole("link", { name: /Start free/i }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Explore demo/i }).first()).toBeVisible();
+    await expect(page.getByText("Demo data from a fictional organiser").first()).toBeVisible();
   });
 
   test("homepage does not contain invented testimonials or customer counts", async ({ page }) => {
@@ -39,7 +39,7 @@ test.describe("marketing site", () => {
 
   test("Start Free leads to registration", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: /Start Free/ }).first().click();
+    await page.getByRole("link", { name: /Start free/i }).first().click();
     await expect(page).toHaveURL(/\/register/);
     await expect(page.getByLabel("Password")).toBeVisible();
     await expect(page.getByText(/At least 10 characters/)).toBeVisible();
