@@ -1,0 +1,1 @@
+Hallmark v2.0.0 from https://github.com/Nutlope/hallmark (commit 04977e1), MIT licence. Copied unmodified.
