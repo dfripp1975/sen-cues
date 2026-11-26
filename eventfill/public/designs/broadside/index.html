@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EventFill: fill more seats, sell more tickets</title>
+<meta name="description" content="EventFill tracks ticket sales against your target, forecasts the finish and warns you early when an event falls behind.">
+<link rel="icon" href="/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Six+Caps&family=Bevan&family=Archivo+Narrow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="container nav__row">
+    <a class="wordmark" href="/" aria-label="EventFill home">EventFill</a>
+    <nav aria-label="Main">
+      <ul class="nav__links">
+        <li><a href="/features">Features</a></li>
+        <li><a href="/how-it-works">How it works</a></li>
+        <li><a href="/pricing">Pricing</a></li>
+        <li><a href="/demo">Demo</a></li>
+        <li><a href="/help">Help</a></li>
+        <li><a href="/login">Log in</a></li>
+      </ul>
+    </nav>
+    <a class="nav__action" href="/register">Start free</a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- Hero: Counter. The free plan is the offer, set like the price on a sale bill. -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <h1 class="fitted" aria-label="Stop guessing. Start filling your events.">
+          <span class="fit" style="--n: 14" aria-hidden="true">Stop guessing.</span>
+          <span class="fit" style="--n: 13" aria-hidden="true">Start filling</span>
+          <span class="fit" style="--n: 12" aria-hidden="true">your events.</span>
+        </h1>
+        <p class="lead">Track ticket sales, plan promotion and act before seats go empty.</p>
+      </div>
+      <div class="ticket frame" aria-labelledby="ticket-title">
+        <p class="ticket__plan" id="ticket-title">The free plan</p>
+        <p class="ticket__price"><span class="fit" style="--n: 10">$0 a month</span></p>
+        <p class="ticket__terms">One active event or series, sales tracking and the profit calculator. No card required.</p>
+        <div class="ticket__actions">
+          <a class="btn" href="/register">Start free</a>
+          <a class="btn btn--frame" href="/demo">Explore demo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="platforms container">Works alongside Eventbrite, Ticket Tailor, Humanitix and others. Enter sales by hand or import their CSV exports.</p>
+
+  <!-- The product at work, Pinned: the Event Rescue screen held while the tools pass beside it. -->
+  <section class="tools" aria-labelledby="tools-title">
+    <div class="container">
+      <div class="head-split rule-bar">
+        <h2 id="tools-title">Six tools around one ticket target</h2>
+        <a class="link" href="/features">See all features</a>
+      </div>
+      <div class="pinned">
+        <figure class="pinned__visual">
+          <div class="frame frame--photo shot" data-slot="product-rescue" style="aspect-ratio: 2368 / 1298" data-kind="product" data-alt="EventFill's Event Rescue screen for an event behind its target">
+            <img src="../screens/rescue.webp" width="2368" height="1298" alt="Event Rescue Mode on a demo event: significantly behind target, 7.4 tickets a day needed" loading="lazy">
+          </div>
+          <figcaption>Event Rescue on a fictional demo event, 12 days out.</figcaption>
+        </figure>
+        <ol class="pinned__panels">
+          <li><h3><a href="/features#rescue">Event Rescue Mode</a></h3><p>Spots events falling behind their sales pace, tells you how many tickets a day you need, and turns recommendations into a dated action plan.</p></li>
+          <li><h3><a href="/features#sales">Ticket sales tracker</a></h3><p>Record daily sales by hand or import a CSV export. Track revenue, refunds, tickets remaining and progress to target.</p></li>
+          <li><h3><a href="/features#forecast">Sales forecasting</a></h3><p>Conservative, expected and optimistic projections from your own sales, with the formulas shown and every figure labelled an estimate.</p></li>
+          <li><h3><a href="/features#planner">Marketing planner</a></h3><p>A calendar, checklists, budgets and ready-made plans for 13 kinds of event.</p></li>
+          <li><h3><a href="/features#links">Tracking links</a></h3><p>A short link and QR code for each channel, so you can see which one sparks interest.</p></li>
+          <li><h3><a href="/features#content">AI Content Studio</a></h3><p>Drafts posts, emails and descriptions from your event details. Every draft is editable and never invents facts.</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Figures: the rules Event Rescue runs on, each a fact of the product. -->
+  <section class="rules band" aria-labelledby="rules-title">
+    <div class="container">
+      <h2 id="rules-title">Event Rescue Mode, by the numbers it uses</h2>
+      <dl class="figures">
+        <div><dt>The recent pace window</dt><dd><span class="fig"><span class="fit" style="--n: 6">7 days</span></span><span>Recent sales speed is read over the last week.</span></dd></div>
+        <div><dt>The warning line</dt><dd><span class="fig fig--accent"><span class="fit" style="--n: 3">75%</span></span><span>Expected to finish under this share of target, an event is at risk.</span></dd></div>
+        <div><dt>The forecasts</dt><dd><span class="fig"><span class="fit" style="--n: 1">3</span></span><span>Conservative, expected and optimistic, each one labelled an estimate.</span></dd></div>
+      </dl>
+      <a class="btn btn--frame" href="/demo/events/demo-1">See it on a demo event</a>
+    </div>
+  </section>
+
+  <!-- How it works, as particulars rows. -->
+  <section class="how" aria-labelledby="how-title">
+    <div class="container">
+      <h2 id="how-title">From first listing to full house</h2>
+      <ol class="particulars rule-bar">
+        <li><h3>Set your target</h3><p>Add your event, capacity, ticket tiers and the number of tickets you want to sell.</p></li>
+        <li><h3>Record sales</h3><p>Enter daily sales or upload a CSV export. Every figure shows its source and when it was updated.</p></li>
+        <li><h3>Plan promotion</h3><p>Use ready-made plans, tracking links and drafted posts to promote across channels.</p></li>
+        <li><h3>Act early</h3><p>Forecasts and Event Rescue Mode flag slow sales and suggest what to do next.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Who it's for, as a timetable-style bill in three columns. -->
+  <section class="kinds" aria-labelledby="kinds-title">
+    <div class="container">
+      <h2 id="kinds-title">Twelve kinds of organiser, one target</h2>
+      <ul class="kinds__list">
+        <li><strong>Business networking</strong><span>Breakfast clubs, founder meetups and chamber events.</span></li><li><strong>Workshops &amp; classes</strong><span>Courses, masterclasses, CPD and weekly classes.</span></li><li><strong>Conferences</strong><span>Single and multi-track conferences and summits.</span></li><li><strong>Music promoters</strong><span>Gigs, club nights and festivals.</span></li><li><strong>Charity events</strong><span>Fundraisers, galas, sponsored runs and quizzes.</span></li><li><strong>Exhibitions</strong><span>Trade shows, fairs and makers markets.</span></li><li><strong>Sport &amp; fitness</strong><span>Races, tournaments, sports camps and fitness events.</span></li><li><strong>Theatre &amp; comedy</strong><span>Shows, stand-up nights and performances.</span></li><li><strong>Food &amp; drink</strong><span>Tastings, supper clubs and food markets.</span></li><li><strong>Festivals &amp; community events</strong><span>Multi-day festivals, fetes and neighbourhood events.</span></li><li><strong>Tours &amp; experiences</strong><span>Guided tours and bookable experiences, including recurring dates.</span></li><li><strong>Event agencies</strong><span>Teams managing many clients’ events at once.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pricing table with its period switch. -->
+  <section class="pricing" id="pricing" aria-labelledby="pricing-title">
+    <div class="container">
+      <div class="head-split rule-bar">
+        <h2 id="pricing-title">Four plans, priced by active events</h2>
+        <fieldset class="seg" data-period>
+          <legend class="visually-hidden">Billing period</legend>
+          <input type="radio" name="period" id="p-month" value="month" checked><label for="p-month">Monthly</label>
+          <input type="radio" name="period" id="p-year" value="year"><label for="p-year">Annual, 2 months free</label>
+        </fieldset>
+      </div>
+      <div class="table-wrap">
+        <table class="plans">
+          <thead>
+            <tr><th scope="col">Plan</th><th scope="col">Free</th><th scope="col">Starter</th><th scope="col">Growth</th><th scope="col">Pro</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Who it’s for</th><td>Trying EventFill on a single event</td><td>Organisers running a few events at a time</td><td>Catching slow-selling events before it’s too late</td><td>Agencies and teams running many events</td></tr>
+            <tr class="plans__price"><th scope="row">A month</th>
+              <td><span class="price">$0</span></td>
+              <td><span class="price" data-month="$29" data-year="$24">$29</span><small data-yearnote="Billed $290 a year"></small></td>
+              <td><span class="price price--accent" data-month="$79" data-year="$66">$79</span><small data-yearnote="Billed $790 a year"></small></td>
+              <td><span class="price" data-month="$149" data-year="$124">$149</span><small data-yearnote="Billed $1,490 a year"></small></td>
+            </tr>
+            <tr><th scope="row">Active events or series</th><td class="num">1</td><td class="num">3</td><td class="num">15</td><td class="num">50</td></tr>
+            <tr><th scope="row">Event Rescue Mode</th><td>Not included</td><td>Not included</td><td><strong>Included</strong></td><td><strong>Included</strong></td></tr>
+            <tr><th scope="row">AI credits a month</th><td class="num">0</td><td class="num">50</td><td class="num">200</td><td class="num">500</td></tr>
+            <tr><th scope="row">What it adds</th>
+              <td>Basic dashboard, manual ticket tracking, up to 10 campaign tasks, profit calculator</td>
+              <td>Sales forecasting, marketing planner, tracking links and QR codes</td>
+              <td>Event Rescue Mode, advanced reporting, Competitor Watch</td>
+              <td>Team collaboration (15 seats), higher usage limits, priority support</td>
+            </tr>
+            <tr class="plans__go"><th scope="row"><span class="visually-hidden">Choose a plan</span></th>
+              <td><a class="link" href="/register">Start free</a></td>
+              <td><a class="link" data-plan="starter" href="/register?plan=starter&amp;interval=month">Choose Starter</a></td>
+              <td><a class="link" data-plan="growth" href="/register?plan=growth&amp;interval=month">Choose Growth</a></td>
+              <td><a class="link" data-plan="pro" href="/register?plan=pro&amp;interval=month">Choose Pro</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">Prices in US dollars; taxes may apply. A recurring series counts as one active event. Cancel any time from your billing settings.</p>
+    </div>
+  </section>
+
+  <!-- Questions as rows. -->
+  <section class="faq" aria-labelledby="faq-title">
+    <div class="container faq__grid">
+      <h2 id="faq-title">Questions organisers ask</h2>
+      <div class="faq__rows">
+        <details><summary>Does EventFill sell tickets?</summary><p>No. It works alongside the platform you already use. You keep selling through Eventbrite, Ticket Tailor, Humanitix or your own site, and use EventFill to plan, track and improve promotion.</p></details>
+        <details><summary>Does it sync automatically with Eventbrite?</summary><p>Not yet. Enter sales by hand or upload a CSV export from your booking platform. EventFill shows where each figure came from and when it was last updated. Official integrations are on the roadmap.</p></details>
+        <details><summary>Can EventFill guarantee I’ll sell more tickets?</summary><p>No tool can honestly promise that. EventFill helps you see problems earlier, focus on the channels that spark interest and act on a clear plan.</p></details>
+        <details><summary>How are forecasts calculated?</summary><p>From your own recorded sales: average daily sales, your latest 7-day pace and the days remaining. The formulas sit next to every forecast, and every projection is labelled an estimate.</p></details>
+        <details><summary>Is the AI optional?</summary><p>Yes. The AI Content Studio is optional and has monthly limits on each plan, so costs stay predictable. Everything else works without it.</p></details>
+        <details><summary>Can I cancel at any time?</summary><p>Yes. Upgrade, downgrade or cancel from your billing settings. Paid features stay available until the end of the period you’ve paid for.</p></details>
+        <details><summary>Where is my data stored?</summary><p>In a managed PostgreSQL database with row-level security, so each organisation can only reach its own records. See the <a href="/privacy">Privacy Policy</a> for details.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Close: the hero's action again, as the last line of the bill. -->
+  <section class="close" aria-labelledby="close-title">
+    <div class="container close__inner rule-bar">
+      <h2 id="close-title" class="fitted" aria-label="Your next event deserves a full room">
+        <span class="fit" style="--n: 24" aria-hidden="true">Your next event deserves</span>
+        <span class="fit" style="--n: 12" aria-hidden="true">a full room.</span>
+      </h2>
+      <div class="close__actions">
+        <a class="btn" href="/register">Start free</a>
+        <a class="link" href="/demo">Explore the demo</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p class="footer__mast">EventFill</p>
+    <div class="footer__cols">
+      <nav aria-labelledby="f-product"><h2 id="f-product">Product</h2><ul><li><a href="/features">Features</a></li><li><a href="/how-it-works">How it works</a></li><li><a href="/pricing">Pricing</a></li><li><a href="/demo">Explore demo</a></li></ul></nav>
+      <nav aria-labelledby="f-company"><h2 id="f-company">Company</h2><ul><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/help">Help Centre</a></li></ul></nav>
+      <nav aria-labelledby="f-legal"><h2 id="f-legal">Legal</h2><ul><li><a href="/privacy">Privacy Policy</a></li><li><a href="/terms">Terms and Conditions</a></li><li><a href="/cookies">Cookie Preferences</a></li></ul></nav>
+      <p class="footer__note">EventFill is independent and works alongside your ticketing platform. It is not affiliated with Eventbrite, Ticket Tailor or Humanitix.</p>
+    </div>
+    <p class="footer__legal">© 2026 EventFill</p>
+  </div>
+</footer>
+
+<script>
+// Fit each block of display lines to one shared width: the widest line sets the measure (capped so
+// the hero fits its screen) and every other line is sized to match it. Refits before paint on resize.
+const fitBox = (box) => {
+  const lines = [...box.querySelectorAll('.fit')];
+  lines.forEach((l) => { l.style.fontSize = '100px'; });
+  const nat = lines.map((l) => l.getBoundingClientRect().width);
+  const cap = box.classList.contains('ticket__price') ? 200 : box.classList.contains('fig') ? 170 : box.matches('h1') ? 176 : 150;
+  const W = Math.min(box.clientWidth * 0.98, Math.max(...nat) * cap / 100);
+  lines.forEach((l, i) => { if (nat[i]) l.style.fontSize = (W / nat[i] * 100) + 'px'; });
+};
+const boxes = document.querySelectorAll('.fitted, .ticket__price, .fig');
+const ro = new ResizeObserver((entries) => entries.forEach((e) => fitBox(e.target)));
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => boxes.forEach((b) => { fitBox(b); ro.observe(b); }));
+
+// Billing period switch: prices and the plan links follow it.
+document.querySelectorAll('[data-period] input').forEach((r) => r.addEventListener('change', () => {
+  const p = r.value;
+  document.querySelectorAll('.price[data-month]').forEach((el) => { el.textContent = el.dataset[p]; });
+  document.querySelectorAll('[data-yearnote]').forEach((el) => { el.textContent = p === 'year' ? el.dataset.yearnote : ''; });
+  document.querySelectorAll('a[data-plan]').forEach((a) => { a.href = `/register?plan=${a.dataset.plan}&interval=${p}`; });
+}));
+</script>
+<script>window.hallmarkSlots = (m) => { for (const [k, v] of Object.entries(m)) { const s = document.querySelector(`[data-slot="${k}"]`); if (!s) continue; const im = new Image(); im.src = typeof v === 'string' ? v : v.src; im.alt = (typeof v === 'object' && v.alt) || s.dataset.alt || ''; s.querySelectorAll(':scope > img').forEach((o) => o.remove()); s.prepend(im); } };
+document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
+</body>
+</html>
