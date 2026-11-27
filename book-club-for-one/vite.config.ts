@@ -53,7 +53,7 @@ function siteFiles(env: Record<string, string>): Plugin {
         this.emitFile({ type: 'asset', fileName: 'ads.txt', source: `google.com, ${client.replace('ca-', '')}, DIRECT, f08c47fec0942fa0\n` });
       }
       this.emitFile({ type: 'asset', fileName: 'robots.txt', source:
-        ['User-agent: *', 'Allow: /', 'Disallow: /library', 'Disallow: /dashboard', 'Disallow: /signin', 'Disallow: /signup', '', `Sitemap: ${site}/sitemap.xml`, ''].join('\n') });
+        ['User-agent: *', 'Allow: /', 'Disallow: /library', 'Disallow: /dashboard', 'Disallow: /signin', 'Disallow: /signup', 'Disallow: /clubs', '', `Sitemap: ${site}/sitemap.xml`, ''].join('\n') });
       const paths = [
         '/', '/books', '/tools', '/pricing', '/about', '/contact', '/privacy', '/cookies', '/terms', '/disclaimer', '/reading-goals',
         ...tools.map(t => `/tools/${t.slug}`),

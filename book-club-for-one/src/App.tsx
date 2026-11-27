@@ -18,6 +18,9 @@ function lazyPage<K extends string>(
 
 const ToolsDirectoryPage = lazyPage(() => import('@/pages/ToolsDirectoryPage'), 'ToolsDirectoryPage');
 const BooksDirectoryPage = lazyPage(() => import('@/pages/BooksDirectoryPage'), 'BooksDirectoryPage');
+const ClubsPage = lazyPage(() => import('@/pages/ClubsPage'), 'ClubsPage');
+const ClubJoinPage = lazyPage(() => import('@/pages/ClubJoinPage'), 'ClubJoinPage');
+const ClubPage = lazyPage(() => import('@/pages/ClubPage'), 'ClubPage');
 const ReaderPage = lazyPage(() => import('@/pages/ReaderPage'), 'ReaderPage');
 const BookDetailPage = lazyPage(() => import('@/pages/BookDetailPage'), 'BookDetailPage');
 const LibraryPage = lazyPage(() => import('@/pages/LibraryPage'), 'LibraryPage');
@@ -110,6 +113,9 @@ function App() {
                 <Route path="/books" element={<BooksDirectoryPage />} />
                 <Route path="/book/:slug" element={<BookDetailPage />} />
                 <Route path="/read/:slug" element={<ReaderPage />} />
+                <Route path="/clubs" element={<ClubsPage />} />
+                <Route path="/clubs/join/:code" element={<ClubJoinPage />} />
+                <Route path="/clubs/:id" element={<ClubPage />} />
                 <Route path="/library" element={<LibraryPage />} />
                 <Route path="/library/add" element={<AddBookPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />

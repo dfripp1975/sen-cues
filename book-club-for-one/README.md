@@ -74,6 +74,19 @@ Checkout needs matching prices in Stripe:
    `STRIPE_PRICE_YEARLY` to the two new price IDs, then redeploy
    `stripe-checkout`. Until then checkout falls back to the old $5 / $48 prices.
 
+## Book clubs
+
+Invite-only clubs at `/clubs`: start a club, pick a book, share the invite link.
+Anyone signed in can start 1 club of up to 3 people; Premium readers up to 5
+clubs of 12. Joining is always free, and Premium is always per person (a Premium
+host does not unlock books for members). Each member sets the chapter they've
+reached and only sees comments up to that chapter; later ones show as a count.
+
+All rules are enforced in the database
+(`supabase/migrations/20261127120000_book_clubs.sql`): limits in `create_club`
+and `join_club`, spoiler hiding in the `club_posts` row policies. If you change
+the limits, change them there and in the page copy (`ClubsPage`, `PricingPage`).
+
 ## AI questions for Premium readers (when AI is on)
 
 Every live AI request counts as one question. Premium readers get 10 a day

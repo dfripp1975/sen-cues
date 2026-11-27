@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { safeRedirect } from '@/lib/redirect';
 import { BookOpen, AlertCircle, CheckCircle } from 'lucide-react';
 import { useSEO } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
@@ -13,6 +14,7 @@ export function SignUpPage() {
 
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export function SignUpPage() {
       setError(error);
     } else {
       setSuccess(true);
-      setTimeout(() => navigate('/library'), 2000);
+      setTimeout(() => navigate(safeRedirect(location.search)), 2000);
     }
   };
 
@@ -68,7 +70,7 @@ export function SignUpPage() {
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
         <p className="text-center text-sm text-warmgrey dark:text-dark-sub">
-          Already have an account? <Link to="/signin" className="link-internal">Sign in</Link>
+          Already have an account? <Link to={`/signin${location.search}`} className="link-internal">Sign in</Link>
         </p>
       </form>
     </div>

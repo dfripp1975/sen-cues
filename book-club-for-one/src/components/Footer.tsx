@@ -24,6 +24,7 @@ const sections = [
     title: 'My reading',
     links: [
       { label: 'My library', to: '/library' },
+      { label: 'Book clubs', to: '/clubs' },
       { label: 'Dashboard', to: '/dashboard' },
       { label: 'Reading goals', to: '/reading-goals' },
       { label: 'Add a book', to: '/library/add' },

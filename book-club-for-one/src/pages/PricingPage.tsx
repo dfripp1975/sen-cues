@@ -61,7 +61,8 @@ export function PricingPage() {
     `${FREE_READ_COUNT} classic books to read in full`,
     'Chapter 1 of every other book on the shelf',
     'All 20 reading and book club tools',
-    'Run your own book club: questions, schedules, invitations',
+    'Start a book club with up to 2 friends',
+    'Book club tools: questions, schedules, invitations',
     'Add your own books to your library',
     'Reading goals, streaks and progress',
   ];
@@ -70,6 +71,7 @@ export function PricingPage() {
     'Everything in Free, plus:',
     `Read all ${READABLE} books in full`,
     'New books as they are added',
+    'Run up to 5 book clubs of 12 people',
     ...(AI_ON ? [
       '10 ask-the-book questions a day',
       `Top up anytime: 10 questions for ${formatPrice(PACK_PRICES[currency].questions10, currency)}`,

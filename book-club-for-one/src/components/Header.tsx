@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Moon, Sun, Monitor, BookOpen, LayoutDashboard, LogOut, Target, Crown } from 'lucide-react';
+import { Menu, X, Moon, Sun, Monitor, BookOpen, LayoutDashboard, LogOut, Target, Crown, Users } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { useAuth } from '@/lib/auth';
 import { useDismiss } from '@/hooks/useDismiss';
@@ -11,7 +11,7 @@ const navLinks = [
   { label: 'Books', to: '/books' },
   { label: 'Free tools', to: '/tools' },
   { label: 'My library', to: '/library' },
-  { label: 'Reading goals', to: '/reading-goals' },
+  { label: 'Book clubs', to: '/clubs' },
   { label: 'Pricing', to: '/pricing' },
 ];
 
@@ -117,6 +117,7 @@ export function Header() {
                     <Link role="menuitem" to="/dashboard" className="menu-item"><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
                     <Link role="menuitem" to="/library" className="menu-item"><BookOpen className="h-4 w-4" /> My library</Link>
                     <Link role="menuitem" to="/reading-goals" className="menu-item"><Target className="h-4 w-4" /> Reading goals</Link>
+                    <Link role="menuitem" to="/clubs" className="menu-item"><Users className="h-4 w-4" /> Book clubs</Link>
                     <Link role="menuitem" to="/pricing" className="menu-item"><Crown className="h-4 w-4" /> Premium</Link>
                     <button role="menuitem" onClick={() => { signOut(); setUserMenuOpen(false); }} className="menu-item border-t border-stone dark:border-dark-border">
                       <LogOut className="h-4 w-4" /> Sign out
