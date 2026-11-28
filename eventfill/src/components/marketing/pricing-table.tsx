@@ -76,7 +76,7 @@ export function PricingTable({ ctaHref = "/register", currency: initialCurrency 
                 ))}
               </ul>
               <Button asChild className="mt-6 w-full" variant={featured ? "primary" : "mint"}>
-                <Link href={`${ctaHref}${id === "free" ? "" : `?plan=${id}&interval=${annual ? "year" : "month"}&currency=${currency}`}`}>{id === "free" ? "Start free" : `Choose ${p.name}`}</Link>
+                <Link href={`${ctaHref}${id === "free" ? "" : `?plan=${id}&interval=${annual ? "year" : "month"}&currency=${currency}`}`}>{ctaHref !== "/register" ? (id === "free" ? "Get in touch" : `Ask about ${p.name}`) : id === "free" ? "Start free" : `Choose ${p.name}`}</Link>
               </Button>
             </div>
           );

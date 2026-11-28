@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero, Section } from "@/components/marketing/section";
 import { Button } from "@/components/ui/button";
+import { primaryCta } from "@/lib/site-mode";
 
 export const metadata: Metadata = { title: "How It Works" };
 
@@ -16,6 +17,7 @@ const STEPS = [
 ];
 
 export default function HowItWorksPage() {
+  const cta = primaryCta();
   return (
     <>
       <PageHero eyebrow="How it works" title="A clear routine for every event" intro="EventFill fits around your existing ticketing platform. Here's a typical journey." />
@@ -33,7 +35,7 @@ export default function HowItWorksPage() {
         </ol>
         <div className="mt-12 text-center">
           <Button asChild size="lg">
-            <Link href="/register">Start free</Link>
+            <Link href={cta.href}>{cta.label}</Link>
           </Button>
         </div>
       </Section>

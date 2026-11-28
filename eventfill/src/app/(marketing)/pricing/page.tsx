@@ -4,17 +4,19 @@ import { PricingTable } from "@/components/marketing/pricing-table";
 import { getVisitorCurrency } from "@/lib/pricing-server";
 import { PLANS, PLAN_ORDER, FEATURE_LABELS, planHasFeature, type Feature } from "@/lib/plans";
 import { Check, Minus } from "lucide-react";
+import { primaryCta } from "@/lib/site-mode";
 
 export const metadata: Metadata = { title: "Pricing" };
 
 export default async function PricingPage() {
   const currency = await getVisitorCurrency();
+  const cta = primaryCta();
   const features = Object.keys(FEATURE_LABELS) as Feature[];
   return (
     <>
-      <PageHero eyebrow="Pricing" title="Plans for every size of event" intro="Start free. Upgrade, downgrade or cancel at any time." />
+      <PageHero eyebrow="Pricing" title="Plans for every size of event" intro="A free plan to start, and monthly or annual plans you can change or cancel at any time." />
       <Section className="pt-6 sm:pt-8">
-        <PricingTable currency={currency} />
+        <PricingTable currency={currency} ctaHref={cta.href} />
         <div className="mt-16 overflow-x-auto rounded-2xl bg-white shadow-card ring-1 ring-slate-200">
           <table className="w-full min-w-[640px] text-sm">
             <caption className="sr-only">Plan comparison</caption>

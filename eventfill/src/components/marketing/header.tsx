@@ -31,7 +31,7 @@ function Announcement() {
   );
 }
 
-export function MarketingHeader({ signedIn }: { signedIn: boolean }) {
+export function MarketingHeader({ signedIn, showcase = false }: { signedIn: boolean; showcase?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const pathname = usePathname();
   React.useEffect(() => setOpen(false), [pathname]);
@@ -51,7 +51,11 @@ export function MarketingHeader({ signedIn }: { signedIn: boolean }) {
             </nav>
           </div>
           <div className="hidden items-center gap-2 lg:flex">
-            {signedIn ? (
+            {showcase ? (
+              <Button asChild>
+                <Link href="/contact">Get in touch</Link>
+              </Button>
+            ) : signedIn ? (
               <Button asChild>
                 <Link href="/dashboard">Go to dashboard</Link>
               </Button>
@@ -76,7 +80,11 @@ export function MarketingHeader({ signedIn }: { signedIn: boolean }) {
               </Link>
             ))}
             <div className="mt-3 grid grid-cols-2 gap-2">
-              {signedIn ? (
+              {showcase ? (
+                <Button asChild className="col-span-2">
+                  <Link href="/contact">Get in touch</Link>
+                </Button>
+              ) : signedIn ? (
                 <Button asChild className="col-span-2">
                   <Link href="/dashboard">Go to dashboard</Link>
                 </Button>

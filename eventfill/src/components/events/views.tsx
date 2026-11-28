@@ -10,6 +10,7 @@ import { comparePeriods, dailySeries, weeklySeries } from "@/lib/forecast";
 import { formatDate, formatDateRange } from "@/lib/dates";
 import { formatMoney, formatNumber, timeAgo } from "@/lib/utils";
 import type { SaleRecord, TierRow } from "@/types/db";
+import { primaryCta } from "@/lib/site-mode";
 
 export function FreshnessNote({ summary, isDemo }: { summary: EventSummary; isDemo?: boolean }) {
   return (
@@ -143,7 +144,7 @@ export function SalesView({ s, sales, tiers, currency, asOf, isDemo, saleForm, c
           <Card><CardHeader><div><CardTitle>Import from CSV</CardTitle><CardDescription>Upload an export from your booking platform.</CardDescription></div></CardHeader><CardContent>{csvForm}</CardContent></Card>
         </div>
       )}
-      {isDemo && <Alert tone="info">This is a read-only demo. <Link href="/register" className="font-semibold underline">Create a free account</Link> to record your own sales.</Alert>}
+      {isDemo && <Alert tone="info">This is a read-only demo. {primaryCta().href === "/register" ? <><Link href="/register" className="font-semibold underline">Create a free account</Link> to record your own sales.</> : <><Link href="/contact" className="font-semibold underline">Get in touch</Link> to try it with your own events.</>}</Alert>}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card><CardHeader><CardTitle>Daily sales</CardTitle></CardHeader><CardContent><SalesChart data={daily} target={s.event.ticket_target} height={240} /></CardContent></Card>
         <Card><CardHeader><CardTitle>Weekly sales</CardTitle></CardHeader><CardContent><BarsChart data={weekly} height={240} name="Tickets" /></CardContent></Card>

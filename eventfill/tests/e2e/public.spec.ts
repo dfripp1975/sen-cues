@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
 
+// These cover the full app (sign-up visible). Run against a build with SHOWCASE_MODE=false;
+// showcase.spec.ts covers SHOWCASE_MODE=true (E2E_SHOWCASE=1).
+test.skip(Boolean(process.env.E2E_SHOWCASE), "full-app tests");
+
 const MARKETING = ["/", "/features", "/how-it-works", "/pricing", "/about", "/contact", "/help", "/privacy", "/terms", "/cookies", "/login", "/register", "/forgot-password"];
 
 test.describe("marketing site", () => {

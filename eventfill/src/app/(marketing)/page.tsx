@@ -7,11 +7,13 @@ import { getVisitorCurrency } from "@/lib/pricing-server";
 import { FAQS, INDUSTRIES } from "@/components/marketing/content";
 import { DraftFragment, LinksFragment, PlannerFragment, ProductShot, ProfitFragment, RescueAlert, SalesFragment, SurveyFragment } from "@/components/marketing/fragments";
 import { cn } from "@/lib/utils";
+import { primaryCta } from "@/lib/site-mode";
 
 const PLATFORMS = ["Eventbrite", "Ticket Tailor", "Humanitix", "Tito", "Skiddle", "Your own website"];
 
 export default async function HomePage() {
   const currency = await getVisitorCurrency();
+  const cta = primaryCta();
   return (
     <>
       {/* Hero: words on the left, the product on the right */}
@@ -22,13 +24,13 @@ export default async function HomePage() {
             <p className="mt-6 max-w-xl text-lg text-navy/80 sm:text-xl">EventFill helps you track ticket sales, plan promotion and act before seats go empty.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="/register">Start free</Link>
+                <Link href={cta.href}>{cta.label}</Link>
               </Button>
               <Button asChild size="lg" variant="mint">
                 <Link href="/demo">Explore demo</Link>
               </Button>
             </div>
-            <p className="mt-4 text-sm text-navy/60">Free plan for one event. No card required.</p>
+            <p className="mt-4 text-sm text-navy/60">{cta.href === "/register" ? "Free plan for one event. No card required." : "Explore the demo, or get in touch to talk about your events."}</p>
           </div>
           <div className="relative rounded-3xl bg-canvas p-4 sm:p-8">
             <ProductShot src="/images/product/overview.webp" alt="The EventFill dashboard for a demo organiser, showing tickets sold, revenue and events that need attention" width={2368} height={1192} priority className="shadow-lift" />
@@ -174,8 +176,8 @@ export default async function HomePage() {
 
       {/* Pricing */}
       <Section id="pricing" className="pt-0 sm:pt-0">
-        <SectionHeading title="Simple plans that grow with you" intro="Start free on one event. Upgrade when you need forecasting, Event Rescue Mode or your team." center />
-        <PricingTable currency={currency} />
+        <SectionHeading title="Simple plans that grow with you" intro="A free plan for one event, and paid plans when you need forecasting, Event Rescue Mode or your team." center />
+        <PricingTable currency={currency} ctaHref={cta.href} />
       </Section>
 
       {/* Explore cards */}
@@ -237,10 +239,10 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl rounded-[2rem] bg-canvas p-4 sm:p-10">
           <div className="rounded-3xl bg-white px-6 py-14 text-center sm:px-12 sm:py-20">
             <h2 className="mx-auto max-w-2xl text-4xl font-medium leading-[1.05] tracking-tight sm:text-5xl">Your next event deserves a full room</h2>
-            <p className="mx-auto mt-4 max-w-xl text-lg text-navy/75">Set up your first event in a few minutes. Free plan, no card required.</p>
+            <p className="mx-auto mt-4 max-w-xl text-lg text-navy/75">{cta.href === "/register" ? "Set up your first event in a few minutes. Free plan, no card required." : "See it on a demo event, or get in touch to try it with your next one."}</p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="/register">Start free</Link>
+                <Link href={cta.href}>{cta.label}</Link>
               </Button>
               <Button asChild size="lg" variant="mint">
                 <Link href="/demo">Explore demo</Link>

@@ -4,6 +4,7 @@ import { PageHero, Section } from "@/components/marketing/section";
 import { ShowcaseList } from "@/components/marketing/showcase";
 import { FEATURE_ITEMS } from "@/components/marketing/content";
 import { Button } from "@/components/ui/button";
+import { primaryCta } from "@/lib/site-mode";
 
 export const metadata: Metadata = { title: "Features" };
 
@@ -22,6 +23,7 @@ const DETAILS: Record<string, string[]> = {
 const IDS = ["rescue", "sales", "forecast", "planner", "links", "content", "profit", "surveys", "competitors"];
 
 export default function FeaturesPage() {
+  const cta = primaryCta();
   return (
     <>
       <PageHero eyebrow="Features" title="Tools that help you sell out" intro="Everything EventFill does, in plain terms. No ticket selling, no auto-posting, no inflated claims — just practical help." />
@@ -46,7 +48,7 @@ export default function FeaturesPage() {
         </div>
         <div className="mt-10 flex gap-3">
           <Button asChild>
-            <Link href="/register">Start free</Link>
+            <Link href={cta.href}>{cta.label}</Link>
           </Button>
           <Button asChild variant="secondary">
             <Link href="/demo">Explore demo</Link>

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:db": "bash scripts/test-db.sh",
-    "test:e2e": "playwright test --trace off"
+    "test:e2e": "playwright test --trace off",
+    "test:e2e:showcase": "E2E_SHOWCASE=1 playwright test --trace off tests/e2e/showcase.spec.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.13.0",

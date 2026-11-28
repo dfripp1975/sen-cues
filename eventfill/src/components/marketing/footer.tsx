@@ -8,7 +8,10 @@ const COLS = [
   ["Privacy & legal", [["/privacy", "Privacy Policy"], ["/terms", "Terms and Conditions"], ["/cookies", "Cookie Preferences"]]],
 ] as const;
 
-export function MarketingFooter() {
+export function MarketingFooter({ showcase = false }: { showcase?: boolean }) {
+  const cols = showcase
+    ? COLS.map(([t, links]) => [t, links.filter(([h]) => h !== "/login").map(([h, l]) => (h === "/register" ? ["/contact", "Get in touch"] : [h, l]))] as const)
+    : COLS;
   return (
     <footer className="border-t border-navy/8 bg-white">
       <div className="mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 lg:px-8">
@@ -17,7 +20,7 @@ export function MarketingFooter() {
             <Logo />
             <p className="mt-4 max-w-xs text-sm text-navy/65">Fill more seats. Sell more tickets. Grow every event.</p>
           </div>
-          {COLS.map(([title, links]) => (
+          {cols.map(([title, links]) => (
             <div key={title}>
               <h2 className="text-xs font-semibold uppercase tracking-wide text-navy/55">{title}</h2>
               <ul className="mt-4 space-y-2.5">

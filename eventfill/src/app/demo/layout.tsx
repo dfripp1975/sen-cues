@@ -2,22 +2,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MobileNav, Sidebar } from "@/components/dashboard/nav";
 import { Button } from "@/components/ui/button";
+import { primaryCta } from "@/lib/site-mode";
 
 export const metadata: Metadata = { title: "Demo", robots: { index: false } };
 
 function Banner() {
+  const cta = primaryCta();
   return (
     <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-amber-100 px-4 py-2 text-center text-sm text-amber-950">
       <strong>Demo mode:</strong> every organisation, event and number here is fictional. Nothing you see belongs to a real customer.
-      <Link href="/register" className="font-semibold underline">Start free</Link>
+      <Link href={cta.href} className="font-semibold underline">{cta.label}</Link>
     </div>
   );
 }
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
+  const cta = primaryCta();
   const footer = (
     <div className="space-y-2 px-1 pt-2">
-      <Button asChild className="w-full"><Link href="/register">Create free account</Link></Button>
+      <Button asChild className="w-full"><Link href={cta.href}>{cta.href === "/register" ? "Create free account" : cta.label}</Link></Button>
       <Button asChild variant="ghost" className="w-full"><Link href="/">Back to website</Link></Button>
     </div>
   );
